@@ -78,10 +78,10 @@ CREATE TABLE inventario (
     dependencia_id INTEGER REFERENCES dependencia(id),
     direccion_area_id INTEGER REFERENCES direccion_area(id),
     dispositivo_id INTEGER REFERENCES dispositivo(id),
-    direccion_ip VARCHAR(50) NOT NULL,
-    direccion_mac VARCHAR(50) NOT NULL,
-    nombre_pc VARCHAR(100) NOT NULL,
-    nombres_funcionario VARCHAR(100) NOT NULL,
+    direccion_ip VARCHAR(50) NOT NULL UNIQUE,
+    direccion_mac VARCHAR(50) NOT NULL UNIQUE,
+    nombre_pc VARCHAR(100) NOT NULL UNIQUE,
+    nombres_funcionario VARCHAR(100) NOT NULL UNIQUE,
     equipamiento_id INTEGER REFERENCES equipamiento(id),
     tipo_equipo_id INTEGER REFERENCES tipo_equipo(id),
     tipo_sistema_operativo_id INTEGER REFERENCES tipo_sistema_operativo(id),
@@ -92,7 +92,7 @@ CREATE TABLE inventario (
     marca_id INTEGER REFERENCES marca(id),
     codigo_inventario VARCHAR(50) NOT NULL UNIQUE,
     tipo_conexion_id INTEGER REFERENCES tipo_conexion(id),
-    anydesk VARCHAR(50),
+        anydesk VARCHAR(50) UNIQUE,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
