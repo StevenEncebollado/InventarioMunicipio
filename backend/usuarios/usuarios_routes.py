@@ -52,6 +52,13 @@ def create_usuario():
     password = data.get('password')
     conn = get_db_connection()
     cur = conn.cursor()
+    # Validar unicidad de username
+    cur.execute('SELECT id FROM usuario WHERE username = %s', (username,))
+    if cur.fetchone():
+        cur.close()
+        conn.close()
+        return jsonify({'error': 'El nombre de usuario ya existe'}), 400
+    # Insertar si no existe duplicado
     cur.execute('INSERT INTO usuario (username, password) VALUES (%s, %s) RETURNING id', (username, password))
     new_id = cur.fetchone()[0]
     conn.commit()

@@ -53,6 +53,13 @@ def create_inventario():
     valores = [data.get(campo) for campo in campos]
     conn = get_db_connection()
     cur = conn.cursor()
+    # Validar unicidad de codigo_inventario
+    cur.execute('SELECT id FROM inventario WHERE codigo_inventario = %s', (data.get('codigo_inventario'),))
+    if cur.fetchone():
+        cur.close()
+        conn.close()
+        return jsonify({'error': 'El código de inventario ya existe'}), 400
+    # Insertar si no existe duplicado
     cur.execute(f'''
         INSERT INTO inventario ({', '.join(campos)})
         VALUES ({', '.join(['%s']*len(campos))})
