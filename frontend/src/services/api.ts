@@ -4,7 +4,21 @@ import type {
   EquipoFormData, 
   LoginResponse, 
   FiltrosEquipo,
-  ReporteEquipos
+  ReporteEquipos,
+  Inventario,
+  TipoEquipo,
+  Marca,
+  Dependencia,
+  TipoSistemaOperativo,
+  Dispositivo,
+  Equipamiento,
+  Ram,
+  Disco,
+  Office,
+  TipoConexion,
+  DireccionArea,
+  Caracteristicas,
+  ProgramaAdicional
 } from '../types';
 
 // Configuración
@@ -109,9 +123,9 @@ class ApiClient {
 
 const api = ApiClient.getInstance();
 
-// Servicios optimizados
+// Servicios optimizados - URLs corregidas según el backend real
 export const login = (username: string, password: string): Promise<LoginResponse> =>
-  api.post<LoginResponse>('/usuarios', { username, password });
+  api.post<LoginResponse>('/auth/login', { username, password });
 
 export const logout = (): void => {
   if (typeof window !== 'undefined') {
@@ -122,42 +136,53 @@ export const logout = (): void => {
 
 // Usuarios
 export const getUsuarios = (): Promise<Usuario[]> => api.get<Usuario[]>('/usuarios');
-export const createUsuario = (usuario: Omit<Usuario, 'id' | 'fecha_creacion'>): Promise<Usuario> =>
+export const createUsuario = (usuario: Omit<Usuario, 'id'>): Promise<Usuario> =>
   api.post<Usuario>('/usuarios', usuario);
 export const updateUsuario = (id: number, usuario: Partial<Usuario>): Promise<Usuario> =>
   api.put<Usuario>(`/usuarios/${id}`, usuario);
 export const deleteUsuario = (id: number): Promise<void> => api.delete<void>(`/usuarios/${id}`);
 
-// Equipos
-export const getEquipos = (filtros?: FiltrosEquipo): Promise<Equipo[]> => {
+// Inventario - usando las rutas reales del backend
+export const getEquipos = (filtros?: FiltrosEquipo): Promise<Inventario[]> => {
   const params = filtros ? 
     Object.entries(filtros)
       .filter(([_, value]) => value !== undefined)
       .reduce((acc, [key, value]) => ({ ...acc, [key]: String(value) }), {}) : 
     undefined;
-  return api.get<Equipo[]>('/inventario', params);
+  return api.get<Inventario[]>('/inventario', params);
 };
 
-export const getEquipo = (id: number): Promise<Equipo> => api.get<Equipo>(`/inventario/${id}`);
-export const createEquipo = (equipo: EquipoFormData): Promise<Equipo> =>
-  api.post<Equipo>('/inventario', equipo);
-export const updateEquipo = (id: number, equipo: Partial<EquipoFormData>): Promise<Equipo> =>
-  api.put<Equipo>(`/inventario/${id}`, equipo);
+export const getEquipo = (id: number): Promise<Inventario> => api.get<Inventario>(`/inventario/${id}`);
+export const createEquipo = (equipo: EquipoFormData): Promise<Inventario> =>
+  api.post<Inventario>('/inventario', equipo);
+export const updateEquipo = (id: number, equipo: Partial<EquipoFormData>): Promise<Inventario> =>
+  api.put<Inventario>(`/inventario/${id}`, equipo);
 export const deleteEquipo = (id: number): Promise<void> => api.delete<void>(`/inventario/${id}`);
 
 // Reportes
 export const getReporteEquipos = (): Promise<ReporteEquipos> =>
   api.get<ReporteEquipos>('/reportes/equipos');
 
-// Catálogos
-export const getTiposEquipo = (): Promise<Array<{ id: number; nombre: string }>> =>
-  api.get<Array<{ id: number; nombre: string }>>('/catalogos/tipos-equipo');
-export const getMarcas = (): Promise<Array<{ id: number; nombre: string }>> =>
-  api.get<Array<{ id: number; nombre: string }>>('/catalogos/marcas');
-export const getDependencias = (): Promise<Array<{ id: number; nombre: string }>> =>
-  api.get<Array<{ id: number; nombre: string }>>('/catalogos/dependencias');
-export const getSistemasOperativos = (): Promise<Array<{ id: number; nombre: string }>> =>
-  api.get<Array<{ id: number; nombre: string }>>('/catalogos/sistemas-operativos');
+// Catálogos - URLs corregidas según rutas reales del backend
+export const getTiposEquipo = (): Promise<TipoEquipo[]> =>
+  api.get<TipoEquipo[]>('/tipo-equipo');
+export const getMarcas = (): Promise<Marca[]> =>
+  api.get<Marca[]>('/marca');
+export const getDependencias = (): Promise<Dependencia[]> =>
+  api.get<Dependencia[]>('/dependencias');
+export const getSistemasOperativos = (): Promise<TipoSistemaOperativo[]> =>
+  api.get<TipoSistemaOperativo[]>('/tipo-sistema-operativo');
+
+// Catálogos adicionales
+export const getDispositivos = (): Promise<Dispositivo[]> => api.get<Dispositivo[]>('/dispositivos');
+export const getEquipamientos = (): Promise<Equipamiento[]> => api.get<Equipamiento[]>('/equipamientos');
+export const getRam = (): Promise<Ram[]> => api.get<Ram[]>('/ram');
+export const getDisco = (): Promise<Disco[]> => api.get<Disco[]>('/disco');
+export const getOffice = (): Promise<Office[]> => api.get<Office[]>('/office');
+export const getTipoConexion = (): Promise<TipoConexion[]> => api.get<TipoConexion[]>('/tipo-conexion');
+export const getDireccionesArea = (): Promise<DireccionArea[]> => api.get<DireccionArea[]>('/direcciones');
+export const getCaracteristicas = (): Promise<Caracteristicas[]> => api.get<Caracteristicas[]>('/caracteristicas');
+export const getProgramasAdicionales = (): Promise<ProgramaAdicional[]> => api.get<ProgramaAdicional[]>('/programa-adicional');
 
 // Utilidades
 export const isApiError = (error: unknown): error is ApiError => error instanceof ApiError;

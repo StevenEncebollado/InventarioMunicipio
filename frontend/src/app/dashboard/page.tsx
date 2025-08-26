@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { getEquipos, logout, getErrorMessage, APP_CONFIG } from '@/services/api';
 import { useLoading, useError } from '@/hooks';
 import { formatDate } from '@/utils';
-import type { Usuario, Equipo } from '@/types';
+import type { Usuario, Inventario } from '@/types';
 
 export default function Dashboard() {
   const [user, setUser] = useState<Usuario | null>(null);
-  const [equipos, setEquipos] = useState<Equipo[]>([]);
+  const [equipos, setEquipos] = useState<Inventario[]>([]);
   const { isLoading, setLoading } = useLoading(true);
   const { error, setError, clearError } = useError();
   const router = useRouter();
@@ -55,9 +55,11 @@ export default function Dashboard() {
 
   const getStats = () => ({
     total: equipos.length,
-    active: equipos.filter(e => e.estado === 'Activo').length,
-    maintenance: equipos.filter(e => e.estado === 'Mantenimiento').length,
-    inactive: equipos.filter(e => e.estado === 'Inactivo').length,
+    // Para estadísticas básicas, asumiendo que todos están activos
+    // El backend debería devolver esta información expandida
+    active: equipos.length,
+    maintenance: 0,
+    inactive: 0,
   });
 
   if (isLoading) {
@@ -94,7 +96,6 @@ export default function Dashboard() {
               <span className="welcome-text">
                 Bienvenido, <strong>{user.username}</strong>
               </span>
-              <span className="user-role">({user.rol})</span>
               <button 
                 onClick={handleLogout} 
                 className="btn btn-secondary logout-btn"
@@ -155,12 +156,12 @@ export default function Dashboard() {
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>Serie</th>
-                    <th>Tipo</th>
-                    <th>Marca</th>
-                    <th>Estado</th>
-                    <th>Dependencia</th>
-                    <th>Fecha</th>
+                    <th>Código Inventario</th>
+                    <th>Nombre PC</th>
+                    <th>IP</th>
+                    <th>MAC</th>
+                    <th>Funcionario</th>
+                    <th>Fecha Registro</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
@@ -169,18 +170,14 @@ export default function Dashboard() {
                     <tr key={equipo.id}>
                       <td>{equipo.id}</td>
                       <td>
-                        <code className="serial-code">{equipo.numero_serie}</code>
+                        <code className="serial-code">{equipo.codigo_inventario}</code>
                       </td>
-                      <td>{equipo.tipo_equipo}</td>
-                      <td>{equipo.marca}</td>
+                      <td>{equipo.nombre_pc}</td>
+                      <td>{equipo.direccion_ip}</td>
+                      <td>{equipo.direccion_mac}</td>
+                      <td>{equipo.nombres_funcionario}</td>
                       <td>
-                        <span className={`status-badge status-${equipo.estado.toLowerCase()}`}>
-                          {equipo.estado}
-                        </span>
-                      </td>
-                      <td>{equipo.dependencia}</td>
-                      <td>
-                        {equipo.fecha_adquisicion ? formatDate(equipo.fecha_adquisicion) : '-'}
+                        {equipo.fecha_registro ? formatDate(equipo.fecha_registro) : '-'}
                       </td>
                       <td>
                         <div className="action-buttons">
