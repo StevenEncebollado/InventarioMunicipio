@@ -1,3 +1,8 @@
+from flask import Blueprint, request, jsonify
+from ..db import get_db_connection
+
+disco_bp = Blueprint('disco', __name__)
+
 @disco_bp.route('/disco/<int:id>', methods=['PUT'])
 def actualizar_disco(id):
     """Actualiza el nombre de una opción de disco por su ID."""
@@ -28,7 +33,7 @@ Rutas para la gestión de discos duros.
 Permite crear, listar, actualizar y eliminar opciones de disco.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 disco_bp = Blueprint('disco', __name__)
 

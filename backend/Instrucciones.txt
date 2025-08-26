@@ -1,0 +1,19 @@
+"""
+INSTRUCCIONES PARA EJECUTAR ESTE PROYECTO EN UNA NUEVA PC
+
+1. Instala Python 3.8 o superior.
+2. Instala las dependencias necesarias:
+   pip install flask psycopg2 python-dotenv
+3. Configura tu base de datos PostgreSQL y asegúrate de que la cadena de conexión esté en backend/config.py o en un archivo .env.
+4. Ejecuta el backend desde la raíz del proyecto:
+   python -m backend.app
+
+El servidor Flask se iniciará en http://127.0.0.1:5000
+
+Para probar los endpoints puedes usar Postman o similar. Ejemplos de endpoints:
+  GET    /usuarios
+  POST   /usuarios
+  GET    /disco
+  POST   /disco
+  ...
+"""

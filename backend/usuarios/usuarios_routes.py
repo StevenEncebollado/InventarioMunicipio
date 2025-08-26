@@ -3,7 +3,7 @@ Rutas para la gestión de usuarios del sistema.
 Incluye endpoints CRUD y lógica relacionada.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 usuarios_bp = Blueprint('usuarios', __name__)
 

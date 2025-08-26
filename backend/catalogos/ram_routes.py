@@ -1,3 +1,8 @@
+from flask import Blueprint, request, jsonify
+from ..db import get_db_connection
+
+ram_bp = Blueprint('ram', __name__)
+
 @ram_bp.route('/ram/<int:id>', methods=['PUT'])
 def actualizar_ram(id):
     """Actualiza el nombre de una opción de RAM por su ID."""
@@ -28,7 +33,7 @@ Rutas para la gestión de RAM.
 Permite crear, listar, actualizar y eliminar opciones de memoria RAM.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 ram_bp = Blueprint('ram', __name__)
 

@@ -3,7 +3,7 @@ Rutas para la gestión de direcciones (ubicaciones físicas).
 Permite crear, listar, actualizar y eliminar direcciones.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 direcciones_bp = Blueprint('direcciones', __name__)
 

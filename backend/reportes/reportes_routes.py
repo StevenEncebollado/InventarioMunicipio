@@ -2,7 +2,7 @@
 Rutas para reportes y consultas específicas del inventario.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 reportes_bp = Blueprint('reportes', __name__)
 

@@ -1,3 +1,8 @@
+from flask import Blueprint, request, jsonify
+from ..db import get_db_connection
+
+caracteristicas_bp = Blueprint('caracteristicas', __name__)
+
 @caracteristicas_bp.route('/caracteristicas/<int:id>', methods=['PUT'])
 def actualizar_caracteristica(id):
     """Actualiza el nombre de una característica por su ID."""
@@ -28,7 +33,7 @@ Rutas para la gestión de características de hardware (ej: procesador).
 Permite crear, listar, actualizar y eliminar características.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 caracteristicas_bp = Blueprint('caracteristicas', __name__)
 

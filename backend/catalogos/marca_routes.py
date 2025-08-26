@@ -1,3 +1,8 @@
+from flask import Blueprint, request, jsonify
+from ..db import get_db_connection
+
+marca_bp = Blueprint('marca', __name__)
+
 @marca_bp.route('/marca/<int:id>', methods=['PUT'])
 def actualizar_marca(id):
     """Actualiza el nombre de una marca por su ID."""
@@ -28,7 +33,7 @@ Rutas para la gestión de marcas de equipos.
 Permite crear, listar, actualizar y eliminar marcas.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 marca_bp = Blueprint('marca', __name__)
 

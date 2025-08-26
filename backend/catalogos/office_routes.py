@@ -1,3 +1,8 @@
+from flask import Blueprint, request, jsonify
+from ..db import get_db_connection
+
+office_bp = Blueprint('office', __name__)
+
 @office_bp.route('/office/<int:id>', methods=['PUT'])
 def actualizar_office(id):
     """Actualiza el nombre de una versión de Office por su ID."""
@@ -28,7 +33,7 @@ Rutas para la gestión de versiones de Office.
 Permite crear, listar, actualizar y eliminar versiones de Office.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 office_bp = Blueprint('office', __name__)
 

@@ -3,7 +3,7 @@ Rutas para la gestión de dispositivos (hardware).
 Permite crear, listar, actualizar y eliminar dispositivos.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 dispositivos_bp = Blueprint('dispositivos', __name__)
 

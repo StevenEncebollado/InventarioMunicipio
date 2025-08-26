@@ -3,7 +3,7 @@ Rutas para la gestión de tipo de equipo (PC de escritorio, Laptop).
 Permite crear, listar, actualizar y eliminar tipos de equipo.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 tipo_equipo_bp = Blueprint('tipo_equipo', __name__)
 

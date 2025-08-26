@@ -3,7 +3,7 @@ Rutas para la gestión del inventario municipal.
 Incluye endpoints CRUD y lógica relacionada.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 inventario_bp = Blueprint('inventario', __name__)
 

@@ -3,7 +3,7 @@ Rutas para la gestión de equipamiento (institucional/personal).
 Permite crear, listar, actualizar y eliminar equipamiento.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 equipamientos_bp = Blueprint('equipamientos', __name__)
 

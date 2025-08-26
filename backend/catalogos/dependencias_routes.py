@@ -3,7 +3,7 @@ Rutas para la gestión de dependencias (departamentos/áreas).
 Permite crear, listar, actualizar y eliminar dependencias.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 dependencias_bp = Blueprint('dependencias', __name__)
 

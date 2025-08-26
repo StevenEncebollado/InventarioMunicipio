@@ -1,3 +1,8 @@
+from flask import Blueprint, request, jsonify
+from ..db import get_db_connection
+
+programa_adicional_bp = Blueprint('programa_adicional', __name__)
+
 @programa_adicional_bp.route('/programas_adicionales/<int:id>', methods=['PUT'])
 def actualizar_programa_adicional(id):
     """Actualiza el nombre de un programa adicional por su ID."""
@@ -28,7 +33,7 @@ Rutas para la gestión de programas adicionales (multi-select en inventario).
 Permite crear, listar, actualizar y eliminar programas adicionales.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 programa_adicional_bp = Blueprint('programa_adicional', __name__)
 

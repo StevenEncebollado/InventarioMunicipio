@@ -3,7 +3,7 @@ Rutas para la gestión de tipo de sistema operativo.
 Permite crear, listar, actualizar y eliminar tipos de sistema operativo.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 tipo_so_bp = Blueprint('tipo_sistema_operativo', __name__)
 

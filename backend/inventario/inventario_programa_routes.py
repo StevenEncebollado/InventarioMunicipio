@@ -3,7 +3,7 @@ Rutas para asociar y desasociar programas adicionales a un inventario.
 Permite agregar, quitar y consultar programas asociados a un bien.
 """
 from flask import Blueprint, request, jsonify
-from backend.db import get_db_connection
+from ..db import get_db_connection
 
 inventario_programa_bp = Blueprint('inventario_programa', __name__)
 
