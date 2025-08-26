@@ -67,9 +67,18 @@ class ApiClient {
       return response.json();
     } catch (error) {
       if (error instanceof ApiError) throw error;
+      
       if (error instanceof DOMException && error.name === 'AbortError') {
         throw new ApiError('Timeout: La petición tardó demasiado');
       }
+      
+      // Error de conexión específico
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new ApiError(
+          `No se pudo conectar con el servidor. Verifica que el backend esté ejecutándose en ${API_CONFIG.BASE_URL}`
+        );
+      }
+      
       throw new ApiError('Error de conexión con el servidor');
     }
   }
