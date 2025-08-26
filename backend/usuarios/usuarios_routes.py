@@ -2,6 +2,7 @@
 Rutas para la gestión de usuarios del sistema.
 Incluye endpoints CRUD y lógica relacionada.
 """
+
 from flask import Blueprint, request, jsonify
 from ..db import get_db_connection
 
