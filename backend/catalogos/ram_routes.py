@@ -61,6 +61,13 @@ def agregar_ram():
         return jsonify({'error': 'El nombre es obligatorio'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
+    # Verificar si ya existe
+    cur.execute('SELECT id FROM ram WHERE nombre = %s', (nombre,))
+    existe = cur.fetchone()
+    if existe:
+        cur.close()
+        conn.close()
+        return jsonify({'error': 'La opción de RAM ya existe'}), 400
     cur.execute('INSERT INTO ram (nombre) VALUES (%s) RETURNING id', (nombre,))
     nueva_id = cur.fetchone()[0]
     conn.commit()

@@ -27,6 +27,13 @@ def agregar_direccion():
         return jsonify({'error': 'El nombre es obligatorio'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
+    # Verificar si ya existe
+    cur.execute('SELECT id FROM direccion_area WHERE nombre = %s', (nombre,))
+    existe = cur.fetchone()
+    if existe:
+        cur.close()
+        conn.close()
+        return jsonify({'error': 'La dirección/área ya existe'}), 400
     cur.execute('INSERT INTO direccion_area (nombre) VALUES (%s) RETURNING id', (nombre,))
     nueva_id = cur.fetchone()[0]
     conn.commit()
