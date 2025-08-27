@@ -10,12 +10,32 @@ inventario_bp = Blueprint('inventario', __name__)
 
 
 # Listar todos los registros del inventario
+
 @inventario_bp.route('/inventario', methods=['GET'])
 def get_inventario():
-    # Devuelve todos los registros del inventario
+    """
+    Devuelve los registros del inventario, permitiendo filtrar por cualquier campo de id (por ejemplo: dependencia_id, tipo_equipo_id, etc.)
+    Los filtros deben enviarse como query params, por ejemplo: /inventario?dependencia_id=1&marca_id=2
+    """
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('SELECT * FROM inventario')
+    # Lista de campos filtrables (solo los campos *_id de la tabla inventario)
+    filtrables = [
+        'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id',
+        'equipamiento_id', 'tipo_equipo_id', 'tipo_sistema_operativo_id',
+        'caracteristicas_id', 'ram_id', 'disco_id', 'office_id', 'marca_id', 'tipo_conexion_id'
+    ]
+    filtros = []
+    valores = []
+    for campo in filtrables:
+        valor = request.args.get(campo)
+        if valor is not None and valor != '':
+            filtros.append(f"{campo} = %s")
+            valores.append(valor)
+    query = 'SELECT * FROM inventario'
+    if filtros:
+        query += ' WHERE ' + ' AND '.join(filtros)
+    cur.execute(query, valores)
     columns = [desc[0] for desc in cur.description]
     items = [dict(zip(columns, row)) for row in cur.fetchall()]
     cur.close()

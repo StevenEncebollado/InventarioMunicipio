@@ -1,12 +1,50 @@
 'use client';
 import { useState, useEffect } from 'react';
+// Modal simple reutilizable
+function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
+  if (!open) return null;
+  return (
+    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.25)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: '#fff', borderRadius: 12, padding: 0, minWidth: 350, maxWidth: 500, maxHeight: '90vh', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+        <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 12, background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', zIndex: 2 }}>&times;</button>
+        <div style={{ padding: 32, overflowY: 'auto', maxHeight: '90vh', minHeight: 0 }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
 import { useRouter } from 'next/navigation';
-import { getEquipos, logout, getErrorMessage, APP_CONFIG } from '@/services/api';
+import { getEquipos, logout, getErrorMessage, APP_CONFIG, createEquipo } from '@/services/api';
 import { useLoading, useError } from '@/hooks';
 import { formatDate } from '@/utils';
 import type { Usuario, Equipo } from '@/types';
 
 export default function Dashboard() {
+  // Modal para agregar equipo
+  const [showAddEquipo, setShowAddEquipo] = useState(false);
+  // Campos de texto
+  const [ip, setIp] = useState("");
+  const [mac, setMac] = useState("");
+  const [nombrePc, setNombrePc] = useState("");
+  const [funcionario, setFuncionario] = useState("");
+  const [anydesk, setAnydesk] = useState("");
+  // Campos select
+  const [tipoEquipo, setTipoEquipo] = useState("");
+  const [marca, setMarca] = useState("");
+  const [ram, setRam] = useState("");
+  const [disco, setDisco] = useState("");
+  const [office, setOffice] = useState("");
+  const [tipoConexion, setTipoConexion] = useState("");
+  const [programaAdicional, setProgramaAdicional] = useState<string[]>([]);
+  const [dependencia, setDependencia] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [equipamiento, setEquipamiento] = useState("");
+  const [caracteristica, setCaracteristica] = useState("");
+  const [sistemaOperativo, setSistemaOperativo] = useState("");
+  // Validación y loading
+  const [addLoading, setAddLoading] = useState(false);
+  const [addError, setAddError] = useState("");
  
   // Estilo para los selects de filtros
   const selectStyle = {
@@ -545,7 +583,7 @@ export default function Dashboard() {
         <section className="equipos-section">
           <div className="section-header">
             <h3>Equipos Recientes</h3>
-            <button className="btn btn-primary">+ Agregar Equipo</button>
+            <button className="btn btn-primary" onClick={() => setShowAddEquipo(true)}>+ Agregar Equipo</button>
           </div>
           
           {equipos.length > 0 ? (
@@ -595,10 +633,93 @@ export default function Dashboard() {
           ) : (
             <div className="empty-state">
               <p>No hay equipos registrados.</p>
-              <button className="btn btn-primary">Agregar primer equipo</button>
+              <button className="btn btn-primary" onClick={() => setShowAddEquipo(true)}>Agregar primer equipo</button>
             </div>
           )}
-        </section>
+      {/* Modal para agregar equipo */}
+      {showAddEquipo && (
+        <Modal open={showAddEquipo} onClose={() => setShowAddEquipo(false)}>
+          <h2 style={{ marginBottom: 16 }}>Agregar Nuevo Equipo</h2>
+          {addError && <div style={{ color: 'red', marginBottom: 8 }}>{addError}</div>}
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setAddError("");
+              setAddLoading(true);
+              if (!ip || !mac || !nombrePc || !funcionario || !anydesk || !tipoEquipo || !marca || !ram || !disco || !office || !tipoConexion || !dependencia || !direccion || !equipamiento || !caracteristica || !sistemaOperativo) {
+                setAddError("Todos los campos son obligatorios");
+                setAddLoading(false);
+                return;
+              }
+              try {
+                await fetch('http://localhost:8081/inventario', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    usuario_id: 4, // O el id real del usuario logueado
+                    dependencia_id: dependencia,
+                    direccion_area_id: direccion,
+                    dispositivo_id: tipoEquipo,
+                    direccion_ip: ip,
+                    direccion_mac: mac,
+                    nombre_pc: nombrePc,
+                    nombres_funcionario: funcionario,
+                    equipamiento_id: equipamiento,
+                    tipo_equipo_id: tipoEquipo,
+                    tipo_sistema_operativo_id: sistemaOperativo,
+                    caracteristicas_id: caracteristica,
+                    ram_id: ram,
+                    disco_id: disco,
+                    office_id: office,
+                    marca_id: marca,
+                    codigo_inventario: mac, // O el campo que uses como código único
+                    tipo_conexion_id: tipoConexion,
+                    anydesk: anydesk
+                  })
+                });
+                setShowAddEquipo(false);
+                // Limpiar campos
+                setIp(""); setMac(""); setNombrePc(""); setFuncionario(""); setAnydesk("");
+                setTipoEquipo(""); setMarca(""); setRam(""); setDisco(""); setOffice(""); setTipoConexion("");
+                setProgramaAdicional([]); setDependencia(""); setDireccion(""); setEquipamiento(""); setCaracteristica(""); setSistemaOperativo("");
+                // Refrescar lista
+                const data = await getEquipos();
+                setEquipos(data);
+              } catch (err: any) {
+                setAddError("Error al crear equipo");
+              } finally {
+                setAddLoading(false);
+              }
+            }}
+            style={{
+              display: 'flex', flexDirection: 'column', gap: 14, background: '#f8fafc', borderRadius: 12, padding: 18, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginTop: 8
+            }}
+          >
+            <input value={ip} onChange={e => setIp(e.target.value)} placeholder="Dirección IP" style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}} />
+            <input value={mac} onChange={e => setMac(e.target.value)} placeholder="Dirección MAC" style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}} />
+            <input value={nombrePc} onChange={e => setNombrePc(e.target.value)} placeholder="Nombre de PC" style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}} />
+            <input value={funcionario} onChange={e => setFuncionario(e.target.value)} placeholder="Nombres del funcionario" style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}} />
+            <input value={anydesk} onChange={e => setAnydesk(e.target.value)} placeholder="Anydesk" style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}} />
+            <select value={tipoEquipo} onChange={e => setTipoEquipo(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}><option value="">Tipo de equipo</option>{tipoEquipoCatalogo.map(t => <option key={t} value={t}>{t}</option>)}</select>
+            <select value={marca} onChange={e => setMarca(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}><option value="">Marca</option>{marcasCatalogo.map(m => <option key={m} value={m}>{m}</option>)}</select>
+            <select value={ram} onChange={e => setRam(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}><option value="">RAM</option>{ramCatalogo.map(r => <option key={r} value={r}>{r}</option>)}</select>
+            <select value={disco} onChange={e => setDisco(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}><option value="">Disco</option>{discoCatalogo.map(d => <option key={d} value={d}>{d}</option>)}</select>
+            <select value={office} onChange={e => setOffice(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}><option value="">Office</option>{officeCatalogo.map(o => <option key={o} value={o}>{o}</option>)}</select>
+            <select value={tipoConexion} onChange={e => setTipoConexion(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}><option value="">Tipo de conexión</option>{tipoConexionCatalogo.map(tc => <option key={tc} value={tc}>{tc}</option>)}</select>
+            <select value={dependencia} onChange={e => setDependencia(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}><option value="">Dependencia</option>{dependenciasCatalogo.map(dep => <option key={dep} value={dep}>{dep}</option>)}</select>
+            <select value={direccion} onChange={e => setDireccion(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}><option value="">Dirección</option>{direccionesCatalogo.map(dir => <option key={dir} value={dir}>{dir}</option>)}</select>
+            <select value={equipamiento} onChange={e => setEquipamiento(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}><option value="">Equipamiento</option>{equipamientosCatalogo.map(eq => <option key={eq} value={eq}>{eq}</option>)}</select>
+            <select value={caracteristica} onChange={e => setCaracteristica(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}><option value="">Características</option>{caracteristicasCatalogo.map(c => <option key={c} value={c}>{c}</option>)}</select>
+            <select value={sistemaOperativo} onChange={e => setSistemaOperativo(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}><option value="">Sistema Operativo</option>{tipoSistemaOperativoCatalogo.map(so => <option key={so} value={so}>{so}</option>)}</select>
+            <label style={{marginTop: 6, fontWeight: 500}}>Programa adicional:</label>
+            <select multiple value={programaAdicional} onChange={e => setProgramaAdicional(Array.from(e.target.selectedOptions, opt => opt.value))} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15, minHeight: 70}}>
+              {programaAdicionalCatalogo.map(pa => <option key={pa} value={pa}>{pa}</option>)}
+            </select>
+            <button type="submit" className="btn btn-primary" disabled={addLoading} style={{marginTop: 12, fontWeight: 700, fontSize: 17, borderRadius: 8, padding: '12px 0'}}> {addLoading ? 'Guardando...' : 'Guardar equipo'} </button>
+          </form>
+        </Modal>
+      )}
+    </section>
       </main>
     </div>
   );
