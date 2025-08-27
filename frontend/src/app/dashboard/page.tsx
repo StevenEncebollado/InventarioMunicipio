@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getEquipos, logout, getErrorMessage, APP_CONFIG } from '@/services/api';
@@ -152,29 +151,87 @@ export default function Dashboard() {
     "Pentium  (R) Dual Core CPU E5300 2.60 Ghz",
     "Pentium  (R) Dual Core CPU E5500 2.80 Ghz"
   ])).sort();
-  const marcasCatalogo = [
+  const marcasCatalogo = Array.from(new Set([
+    "ADIKTA",
+    "AOC",
+    "ARI",
+    "ASUS",
+    "BENQ",
     "CLON",
-    "HP"
-  ];
+    "DELL",
+    "GAMER",
+    "HP",
+    "HP VICTUS",
+    "HP/AOC",
+    "HURRICANE",
+    "INS",
+    "LENOVO",
+    "LENOVO LEGION",
+    "LG",
+    "MONITOR MARCA",
+    "MSI",
+    "NO",
+    "QBEX",
+    "QBEX/LG",
+    "QUASAD",
+    "SAMSUNG",
+    "SM",
+    "TOSHIBA",
+    "VANTEC",
+    "XTRATECH"
+  ]));
   const ramCatalogo = [
+    "2 GB",
+    "4 GB",
     "6 GB",
+    "8 GB",
     "12 GB",
-    "16 GB"
+    "16 GB",
+    "24 GB",
+    "32 GB"
   ];
-  const discoCatalogo = [
+  const discoCatalogo = Array.from(new Set([
+    "100 GB",
+    "128 GB",
+    "200 GB",
+    "240 GB",
+    "320 GB",
     "480 GB",
+    "500 GB",
+    "600 GB",
+    "700 GB",
+    "800 GB",
     "1 TB",
-    "2 TB"
-  ];
-  const officeCatalogo = [
+    "1.5 TB",
+    "2 TB",
+    "3 TB"
+  ]));
+  const officeCatalogo = Array.from(new Set([
+    "2010",
+    "2013",
+    "2016",
     "2019",
     "2021",
     "MS-365"
-  ];
+  ]));
   const tipoConexionCatalogo = [
     "LAN",
-    "WIFI"
+    "WIFI",
+    "USB - WIFI"
   ];
+    const programaAdicionalCatalogo = Array.from(new Set([
+    "Adobe Acrobat Reade",
+    "Adobe Illustrator",
+    "Adobe Photoshop",
+    "Antivirus cortex",
+    "Autocad",
+    "Google Chrome",
+    "Google Maps",
+    "Microsoft Teams",
+    "Winrar",
+    "Zoom",
+    "ZWCAD"
+  ]));
 
   const [dependenciaSeleccionada, setDependenciaSeleccionada] = useState("");
   const [direccionSeleccionada, setDireccionSeleccionada] = useState("");
@@ -188,6 +245,7 @@ export default function Dashboard() {
   const [discoSeleccionado, setDiscoSeleccionado] = useState("");
   const [officeSeleccionado, setOfficeSeleccionado] = useState("");
   const [tipoConexionSeleccionada, setTipoConexionSeleccionada] = useState("");
+  const [programaAdicionalSeleccionado, setProgramaAdicionalSeleccionado] = useState<string[]>([]);
   const [showFiltros, setShowFiltros] = useState(false);
 
   useEffect(() => {
@@ -381,6 +439,41 @@ export default function Dashboard() {
                 <option value="">Todos</option>
                 {officeCatalogo.map(o => (<option key={o} value={o}>{o}</option>))}
               </select>
+            </div>
+            <div>
+              <label style={{ fontWeight: 600 }}>Programa Adicional</label>
+              <div style={{
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+                background: '#f9f9f9',
+                padding: '10px',
+                minHeight: '48px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px',
+                fontSize: '16px',
+                marginTop: '8px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+              }}>
+                {programaAdicionalCatalogo.map(pa => (
+                  <label key={pa} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 400 }}>
+                    <input
+                      type="checkbox"
+                      value={pa}
+                      checked={programaAdicionalSeleccionado.includes(pa)}
+                      onChange={e => {
+                        if (e.target.checked) {
+                          setProgramaAdicionalSeleccionado([...programaAdicionalSeleccionado, pa]);
+                        } else {
+                          setProgramaAdicionalSeleccionado(programaAdicionalSeleccionado.filter(item => item !== pa));
+                        }
+                      }}
+                      style={{ accentColor: '#2980b9', width: 18, height: 18 }}
+                    />
+                    {pa}
+                  </label>
+                ))}
+              </div>
             </div>
             <div>
               <label style={{ fontWeight: 600 }}>Tipo de Conexión</label>
