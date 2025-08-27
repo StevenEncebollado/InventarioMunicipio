@@ -8,6 +8,34 @@ from ..db import get_db_connection
 
 usuarios_bp = Blueprint('usuarios', __name__)
 
+# Endpoint: Login de usuario
+@usuarios_bp.route('/login', methods=['POST'])
+def login_usuario():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No se enviaron datos'}), 400
+        
+        username = data.get('username')
+        password = data.get('password')
+        
+        if not username or not password:
+            return jsonify({'error': 'Usuario y contraseña son requeridos'}), 400
+            
+    except Exception as e:
+        return jsonify({'error': f'Error al procesar datos: {str(e)}'}), 400
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT id, password FROM usuario WHERE username = %s', (username,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    if not row:
+        return jsonify({'error': 'Usuario no encontrado'}), 404
+    user_id, db_password = row
+    if password != db_password:
+        return jsonify({'error': 'Contraseña incorrecta'}), 401
+    return jsonify({'msg': 'Login exitoso', 'id': user_id, 'username': username}), 200
 
 # Endpoint: Obtener todos los usuarios
 
