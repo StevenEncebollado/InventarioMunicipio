@@ -252,6 +252,56 @@ export default function Dashboard() {
     initializeDashboard();
   }, []);
 
+  // Actualizar equipos al cambiar filtros
+  useEffect(() => {
+    if (user) {
+      filtrarEquipos();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    dependenciaSeleccionada,
+    direccionSeleccionada,
+    dispositivoSeleccionado,
+    equipamientoSeleccionado,
+    tipoEquipoSeleccionado,
+    tipoSistemaOperativoSeleccionado,
+    marcaSeleccionada,
+    caracteristicaSeleccionada,
+    ramSeleccionada,
+    discoSeleccionado,
+    officeSeleccionado,
+    tipoConexionSeleccionada,
+    programaAdicionalSeleccionado
+  ]);
+
+  const filtrarEquipos = async () => {
+    setLoading(true);
+    clearError();
+    try {
+      const filtros = {
+        dependencia: dependenciaSeleccionada || undefined,
+        direccion: direccionSeleccionada || undefined,
+        dispositivo: dispositivoSeleccionado || undefined,
+        equipamiento: equipamientoSeleccionado || undefined,
+        tipo_equipo: tipoEquipoSeleccionado || undefined,
+        tipo_sistema_operativo: tipoSistemaOperativoSeleccionado || undefined,
+        marca: marcaSeleccionada || undefined,
+        caracteristica: caracteristicaSeleccionada || undefined,
+        ram: ramSeleccionada || undefined,
+        disco: discoSeleccionado || undefined,
+        office: officeSeleccionado || undefined,
+        tipo_conexion: tipoConexionSeleccionada || undefined,
+        programa_adicional: programaAdicionalSeleccionado.length > 0 ? programaAdicionalSeleccionado.join(',') : undefined
+      };
+      const data = await getEquipos(filtros);
+      setEquipos(data);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const initializeDashboard = async () => {
     try {
       const userData = localStorage.getItem(APP_CONFIG.session.storageKey);
@@ -294,13 +344,7 @@ export default function Dashboard() {
     inactive: equipos.filter(e => e.estado === 'Inactivo').length,
   });
 
-  if (isLoading) {
-    return (
-      <div className="loading-container">
-        <div className="spinner">Cargando...</div>
-      </div>
-    );
-  }
+
 
   if (error && !user) {
     return (
