@@ -31,6 +31,8 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [registerUsername, setRegisterUsername] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
@@ -40,6 +42,7 @@ export default function LoginPage() {
   const { isLoading, startLoading, stopLoading } = useLoading();
   const { error, setError, clearError } = useError();
   const router = useRouter();
+  const [currentUsername, setCurrentUsername] = useState('');
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -87,6 +90,8 @@ export default function LoginPage() {
       stopLoading();
     }
   };
+
+  const userId = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(APP_CONFIG.session.storageKey) || '{}').id : null;
 
   return (
   <div className="form-container">
@@ -211,7 +216,8 @@ export default function LoginPage() {
               onSubmit={async (e) => {
                 e.preventDefault();
                 setChangePasswordError('');
-                if (!newPassword.trim() || !confirmNewPassword.trim()) {
+                const strength = getPasswordStrength(newPassword);
+                if (!currentUsername.trim() || !newPassword.trim() || !confirmNewPassword.trim()) {
                   setChangePasswordError('Todos los campos son requeridos');
                   return;
                 }
@@ -219,21 +225,30 @@ export default function LoginPage() {
                   setChangePasswordError('Las contraseñas no coinciden');
                   return;
                 }
-                // Validación de contraseña fuerte (opcional, ya está en backend)
+                if (strength.level === 'Bajo' || strength.level === 'Moderado') {
+                  setChangePasswordError('La contraseña es demasiado débil. Por favor, aumenta la seguridad.');
+                  return;
+                }
+                if (newPassword === password) {
+                  setChangePasswordError('La nueva contraseña no puede ser igual a la anterior.');
+                  return;
+                }
                 try {
-                  const res = await fetch(`http://localhost:8081/usuarios/${username}/reset_password`, {
+                  const res = await fetch(`http://localhost:5000/usuarios/reset_password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ actual: password, nueva: newPassword })
+                    body: JSON.stringify({ username: currentUsername, actual: password, nueva: newPassword })
                   });
                   const data = await res.json();
                   if (res.ok) {
                     setShowPasswordChangeModal(false);
                     setPasswordChangeRequired(false);
+                    setError('');
                     alert('Contraseña cambiada correctamente. Inicia sesión nuevamente.');
                     setPassword('');
                     setNewPassword('');
                     setConfirmNewPassword('');
+                    setCurrentUsername('');
                   } else {
                     setChangePasswordError(data.error || 'Error al cambiar la contraseña');
                   }
@@ -243,26 +258,117 @@ export default function LoginPage() {
               }}
             >
               <div className="form-group">
+                <label htmlFor="current-username">Usuario actual:</label>
+                <input
+                  id="current-username"
+                  type="text"
+                  value={currentUsername}
+                  onChange={e => setCurrentUsername(e.target.value)}
+                  autoComplete="username"
+                  required
+                />
+              </div>
+              <div style={{ marginBottom: '0.5rem', fontSize: '0.95rem', color: '#555' }}>
+                <strong>Indicaciones para la contraseña:</strong><br />
+                - Mínimo 8 caracteres<br />
+                - Al menos una mayúscula<br />
+                - Al menos una minúscula<br />
+                - Al menos un número<br />
+                - Al menos un símbolo especial
+              </div>
+              <div className="form-group" style={{ position: 'relative' }}>
                 <label htmlFor="new-password">Nueva contraseña:</label>
                 <input
                   id="new-password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showNewPassword ? 'text' : 'password'}
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   autoComplete="new-password"
                   required
+                  style={{ paddingRight: '2.5rem' }}
                 />
+                <button
+                  type="button"
+                  aria-label={showNewPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  onClick={() => setShowNewPassword(v => !v)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.5rem',
+                    top: '2.2rem',
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
+                    height: '2rem',
+                    width: '2rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {showNewPassword ? (
+                    // Ojo abierto
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                  ) : (
+                    // Ojo cerrado
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.442-4.362M6.634 6.634A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.96 9.96 0 01-4.284 5.255M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" /></svg>
+                  )}
+                </button>
+                {/* Barra de seguridad */}
+                <div style={{ marginTop: '0.5rem' }}>
+                  {newPassword && (() => {
+                    const strength = getPasswordStrength(newPassword);
+                    return (
+                      <div>
+                        <div style={{ height: '6px', borderRadius: '4px', background: '#eee', marginBottom: '0.3rem' }}>
+                          <div style={{ width: `${strength.score * 20}%`, height: '100%', background: strength.color, borderRadius: '4px', transition: 'width 0.3s' }} />
+                        </div>
+                        <span style={{ color: strength.color, fontWeight: 'bold', fontSize: '0.95rem' }}>
+                          Seguridad: {strength.level}
+                        </span>
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ position: 'relative' }}>
                 <label htmlFor="confirm-new-password">Confirmar nueva contraseña:</label>
                 <input
                   id="confirm-new-password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showConfirmNewPassword ? 'text' : 'password'}
                   value={confirmNewPassword}
                   onChange={e => setConfirmNewPassword(e.target.value)}
                   autoComplete="new-password"
                   required
+                  style={{ paddingRight: '2.5rem' }}
                 />
+                <button
+                  type="button"
+                  aria-label={showConfirmNewPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  onClick={() => setShowConfirmNewPassword(v => !v)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.5rem',
+                    top: '2.2rem',
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
+                    height: '2rem',
+                    width: '2rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {showConfirmNewPassword ? (
+                    // Ojo abierto
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                  ) : (
+                    // Ojo cerrado
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.442-4.362M6.634 6.634A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.96 9.96 0 01-4.284 5.255M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" /></svg>
+                  )}
+                </button>
               </div>
               <button
                 type="submit"

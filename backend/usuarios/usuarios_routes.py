@@ -1,4 +1,3 @@
-
 """
 Rutas para la gestión de usuarios del sistema.
 Incluye endpoints CRUD y lógica relacionada.
@@ -176,6 +175,43 @@ def reset_password(user_id):
         conn.close()
         return jsonify({'error': 'Usuario no encontrado'}), 404
     actual_hash = row[0]
+    if not bcrypt.checkpw(actual.encode('utf-8'), actual_hash.encode('utf-8')):
+        cur.close()
+        conn.close()
+        return jsonify({'error': 'La contraseña actual es incorrecta'}), 401
+    if bcrypt.checkpw(nueva.encode('utf-8'), actual_hash.encode('utf-8')):
+        cur.close()
+        conn.close()
+        return jsonify({'error': 'La nueva contraseña no puede ser igual a la actual'}), 400
+    nueva_hash = bcrypt.hashpw(nueva.encode('utf-8'), bcrypt.gensalt())
+    cur.execute('UPDATE usuario SET password = %s, fecha_cambio_password = NOW() WHERE id = %s', (nueva_hash.decode('utf-8'), user_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'msg': 'Contraseña actualizada correctamente'})
+
+# Endpoint: Reestablecer contraseña por nombre de usuario
+@usuarios_bp.route('/usuarios/reset_password', methods=['POST'])
+def reset_password_by_username():
+    data = request.json
+    username = data.get('username')
+    actual = data.get('actual')
+    nueva = data.get('nueva')
+    if not username or not actual or not nueva:
+        return jsonify({'error': 'Debes ingresar usuario, contraseña actual y la nueva'}), 400
+    # Validar contraseña fuerte
+    password_regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};:\'\",.<>/?]).{8,}$'
+    if not re.match(password_regex, nueva):
+        return jsonify({'error': 'La nueva contraseña debe tener mínimo 8 caracteres, incluir mayúsculas, minúsculas, números y símbolos.'}), 400
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('SELECT id, password FROM usuario WHERE username = %s', (username,))
+    row = cur.fetchone()
+    if not row:
+        cur.close()
+        conn.close()
+        return jsonify({'error': 'Usuario no encontrado'}), 404
+    user_id, actual_hash = row
     if not bcrypt.checkpw(actual.encode('utf-8'), actual_hash.encode('utf-8')):
         cur.close()
         conn.close()
