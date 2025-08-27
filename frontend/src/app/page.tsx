@@ -10,6 +10,11 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
+  const [registerUsername, setRegisterUsername] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  const [registerError, setRegisterError] = useState('');
+  const [registerLoading, setRegisterLoading] = useState(false);
   const { isLoading, startLoading, stopLoading } = useLoading();
   const { error, setError, clearError } = useError();
   const router = useRouter();
@@ -46,13 +51,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="form-container">
+  <div className="form-container">
       <div className="logo-section">
         <h1>Inventario Municipio</h1>
         <p>Sistema de Gestión de Equipos</p>
       </div>
       
-      <form onSubmit={handleSubmit} className="login-form">
+  <form onSubmit={handleSubmit} className="login-form">
         <div className="form-group">
           <label htmlFor="username">Usuario:</label>
           <input
@@ -116,11 +121,127 @@ export default function LoginPage() {
         >
           {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
         </button>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          style={{ marginTop: '1rem', width: '100%' }}
+          onClick={() => {
+            setShowRegister(true);
+            setRegisterError('');
+            setRegisterUsername('');
+            setRegisterPassword('');
+          }}
+        >
+          Registrarse
+        </button>
       </form>
       
       {error && (
         <div className="error-message" role="alert">
           {error}
+        </div>
+      )}
+      {/* Modal de registro */}
+      {showRegister && (
+        <div className="modal-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div className="modal-content" style={{
+            background: '#fff',
+            padding: '2rem',
+            borderRadius: '8px',
+            minWidth: '320px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            position: 'relative'
+          }}>
+            <h2 style={{ marginBottom: '1rem' }}>Registro de Usuario</h2>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setRegisterError('');
+                if (!registerUsername.trim() || !registerPassword.trim()) {
+                  setRegisterError('Usuario y contraseña son requeridos');
+                  return;
+                }
+                setRegisterLoading(true);
+                try {
+                  // Llamar al endpoint de registro del backend
+                  const res = await fetch('http://localhost:8081/usuarios/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: registerUsername, password: registerPassword })
+                  });
+                  const data = await res.json();
+                  if (res.ok) {
+                    setShowRegister(false);
+                    alert('Usuario registrado exitosamente');
+                  } else {
+                    setRegisterError(data.message || 'Error al registrar usuario');
+                  }
+                } catch (err) {
+                  setRegisterError('Error de red o servidor');
+                } finally {
+                  setRegisterLoading(false);
+                }
+              }}
+            >
+              <div className="form-group">
+                <label htmlFor="register-username">Usuario:</label>
+                <input
+                  id="register-username"
+                  type="text"
+                  value={registerUsername}
+                  onChange={e => setRegisterUsername(e.target.value)}
+                  autoComplete="username"
+                  required
+                  disabled={registerLoading}
+                />
+              </div>
+              <div className="form-group" style={{ position: 'relative' }}>
+                <label htmlFor="register-password">Contraseña:</label>
+                <input
+                  id="register-password"
+                  type="password"
+                  value={registerPassword}
+                  onChange={e => setRegisterPassword(e.target.value)}
+                  autoComplete="new-password"
+                  required
+                  disabled={registerLoading}
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={registerLoading}
+                style={{ width: '100%', marginTop: '1rem' }}
+              >
+                {registerLoading ? 'Registrando...' : 'Registrar'}
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                style={{ width: '100%', marginTop: '0.5rem' }}
+                onClick={() => setShowRegister(false)}
+                disabled={registerLoading}
+              >
+                Cancelar
+              </button>
+              {registerError && (
+                <div className="error-message" role="alert" style={{ marginTop: '1rem' }}>
+                  {registerError}
+                </div>
+              )}
+            </form>
+          </div>
         </div>
       )}
     </div>

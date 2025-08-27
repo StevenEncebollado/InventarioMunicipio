@@ -1,3 +1,4 @@
+
 """
 Rutas para la gestión de usuarios del sistema.
 Incluye endpoints CRUD y lógica relacionada.
@@ -7,6 +8,30 @@ from flask import Blueprint, request, jsonify
 from ..db import get_db_connection
 
 usuarios_bp = Blueprint('usuarios', __name__)
+
+# Endpoint: Registro de usuario
+@usuarios_bp.route('/usuarios/register', methods=['POST'])
+def register_usuario():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    if not username or not password:
+        return jsonify({'message': 'Usuario y contraseña son requeridos'}), 400
+    conn = get_db_connection()
+    cur = conn.cursor()
+    # Validar unicidad de username
+    cur.execute('SELECT id FROM usuario WHERE username = %s', (username,))
+    if cur.fetchone():
+        cur.close()
+        conn.close()
+        return jsonify({'message': 'El nombre de usuario ya existe'}), 400
+    # Insertar si no existe duplicado
+    cur.execute('INSERT INTO usuario (username, password) VALUES (%s, %s) RETURNING id', (username, password))
+    new_id = cur.fetchone()[0]
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'id': new_id, 'message': 'Usuario registrado exitosamente'}), 201
 
 # Endpoint: Login de usuario
 @usuarios_bp.route('/login', methods=['POST'])
