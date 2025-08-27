@@ -37,6 +37,8 @@ export default function LoginPage() {
   const [registerUsername, setRegisterUsername] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showRegisterConfirmPassword, setShowRegisterConfirmPassword] = useState(false);
   const [registerError, setRegisterError] = useState('');
   const [registerLoading, setRegisterLoading] = useState(false);
   const { isLoading, startLoading, stopLoading } = useLoading();
@@ -110,7 +112,7 @@ export default function LoginPage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             disabled={isLoading}
-            autoComplete="username"
+            autoComplete="off"
             required
           />
         </div>
@@ -472,7 +474,7 @@ export default function LoginPage() {
                 <label htmlFor="register-password">Contraseña:</label>
                 <input
                   id="register-password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showRegisterPassword ? 'text' : 'password'}
                   value={registerPassword}
                   onChange={e => setRegisterPassword(e.target.value)}
                   autoComplete="new-password"
@@ -482,8 +484,8 @@ export default function LoginPage() {
                 />
                 <button
                   type="button"
-                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  onClick={() => setShowRegisterPassword((v) => !v)}
                   style={{
                     position: 'absolute',
                     right: '0.5rem',
@@ -499,7 +501,7 @@ export default function LoginPage() {
                     justifyContent: 'center',
                   }}
                 >
-                  {showPassword ? (
+                  {showRegisterPassword ? (
                     // Ojo abierto
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                   ) : (
@@ -538,17 +540,45 @@ export default function LoginPage() {
                   )}
                 </div>
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ position: 'relative' }}>
                 <label htmlFor="register-confirm-password">Confirmar contraseña:</label>
                 <input
                   id="register-confirm-password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showRegisterConfirmPassword ? 'text' : 'password'}
                   value={registerConfirmPassword}
                   onChange={e => setRegisterConfirmPassword(e.target.value)}
                   autoComplete="new-password"
                   required
                   disabled={registerLoading}
+                  style={{ paddingRight: '2.5rem' }}
                 />
+                <button
+                  type="button"
+                  aria-label={showRegisterConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  onClick={() => setShowRegisterConfirmPassword((v) => !v)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.5rem',
+                    top: '2.2rem',
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
+                    height: '2rem',
+                    width: '2rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {showRegisterConfirmPassword ? (
+                    // Ojo abierto
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                  ) : (
+                    // Ojo cerrado
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.442-4.362M6.634 6.634A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.96 9.96 0 01-4.284 5.255M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" /></svg>
+                  )}
+                </button>
               </div>
               <button
                 type="submit"

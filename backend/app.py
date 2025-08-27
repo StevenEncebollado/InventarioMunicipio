@@ -26,6 +26,7 @@ from backend.catalogos.tipo_equipo_routes import tipo_equipo_bp
 from backend.catalogos.tipo_sistema_operativo_routes import tipo_so_bp
 from backend.catalogos.caracteristicas_routes import caracteristicas_bp
 from backend.inventario.inventario_programa_routes import inventario_programa_bp
+from backend.inventario.inventario_routes import inventario_bp
 from backend.usuarios.usuarios_routes import usuarios_bp
 
 def create_app():
@@ -53,6 +54,7 @@ def create_app():
     app.register_blueprint(tipo_equipo_bp)
     app.register_blueprint(tipo_so_bp)
     app.register_blueprint(caracteristicas_bp)
+    app.register_blueprint(inventario_bp)
     app.register_blueprint(inventario_programa_bp)
     app.register_blueprint(usuarios_bp)
     return app
