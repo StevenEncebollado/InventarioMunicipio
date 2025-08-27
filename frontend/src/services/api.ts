@@ -153,7 +153,17 @@ export const getSistemasOperativos = (): Promise<Array<{ id: number; nombre: str
 // Utilidades
 export const isApiError = (error: unknown): error is ApiError => error instanceof ApiError;
 export const getErrorMessage = (error: unknown): string => {
-  if (isApiError(error)) return error.message;
+  if (isApiError(error)) {
+    // Si el backend envía el mensaje personalizado, mostrarlo
+    if (error.status === 401 && error.message.includes('Tu usuario o contraseña son incorrectos')) {
+      return 'Tu usuario o contraseña son incorrectos';
+    }
+    // Evitar mostrar el mensaje genérico de Unauthorized
+    if (error.status === 401 && error.message.includes('Unauthorized')) {
+      return 'Tu usuario o contraseña son incorrectos';
+    }
+    return error.message;
+  }
   if (error instanceof Error) return error.message;
   return 'Error desconocido';
 };

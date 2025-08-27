@@ -30,11 +30,9 @@ def login_usuario():
     row = cur.fetchone()
     cur.close()
     conn.close()
-    if not row:
-        return jsonify({'error': 'Usuario no encontrado'}), 404
+    if not row or password != row[1]:
+        return jsonify({'error': 'Tu usuario o contraseña son incorrectos'}), 401
     user_id, db_password = row
-    if password != db_password:
-        return jsonify({'error': 'Contraseña incorrecta'}), 401
     return jsonify({'msg': 'Login exitoso', 'id': user_id, 'username': username}), 200
 
 # Endpoint: Obtener todos los usuarios
