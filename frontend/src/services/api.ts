@@ -9,7 +9,7 @@ import type {
 
 // Configuración
 const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081', // Usar el proxy Python
   TIMEOUT: 10000,
   RETRY_ATTEMPTS: 3,
 } as const;
@@ -102,7 +102,7 @@ const api = ApiClient.getInstance();
 
 // Servicios optimizados
 export const login = (username: string, password: string): Promise<LoginResponse> =>
-  api.post<LoginResponse>('/usuarios', { username, password });
+  api.post<LoginResponse>('/login', { username, password });
 
 export const logout = (): void => {
   if (typeof window !== 'undefined') {
@@ -138,17 +138,17 @@ export const deleteEquipo = (id: number): Promise<void> => api.delete<void>(`/in
 
 // Reportes
 export const getReporteEquipos = (): Promise<ReporteEquipos> =>
-  api.get<ReporteEquipos>('/reportes/equipos');
+  api.get<ReporteEquipos>('/reportes/inventario_general');
 
 // Catálogos
 export const getTiposEquipo = (): Promise<Array<{ id: number; nombre: string }>> =>
-  api.get<Array<{ id: number; nombre: string }>>('/catalogos/tipos-equipo');
+  api.get<Array<{ id: number; nombre: string }>>('/tipo_equipo');
 export const getMarcas = (): Promise<Array<{ id: number; nombre: string }>> =>
-  api.get<Array<{ id: number; nombre: string }>>('/catalogos/marcas');
+  api.get<Array<{ id: number; nombre: string }>>('/marca');
 export const getDependencias = (): Promise<Array<{ id: number; nombre: string }>> =>
-  api.get<Array<{ id: number; nombre: string }>>('/catalogos/dependencias');
+  api.get<Array<{ id: number; nombre: string }>>('/dependencias');
 export const getSistemasOperativos = (): Promise<Array<{ id: number; nombre: string }>> =>
-  api.get<Array<{ id: number; nombre: string }>>('/catalogos/sistemas-operativos');
+  api.get<Array<{ id: number; nombre: string }>>('/tipo_sistema_operativo');
 
 // Utilidades
 export const isApiError = (error: unknown): error is ApiError => error instanceof ApiError;
