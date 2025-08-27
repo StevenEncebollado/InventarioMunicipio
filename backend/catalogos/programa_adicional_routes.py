@@ -42,12 +42,10 @@ programa_adicional_bp = Blueprint('programa_adicional', __name__)
 @programa_adicional_bp.route('/programas_adicionales', methods=['GET'])
 def listar_programas_adicionales():
     # Devuelve todos los programas adicionales registrados
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT id, nombre FROM programa_adicional ORDER BY nombre')
-    programas = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
-    cur.close()
-    conn.close()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute('SELECT id, nombre FROM programa_adicional ORDER BY nombre')
+            programas = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
     return jsonify(programas)
 
 

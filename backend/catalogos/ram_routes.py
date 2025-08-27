@@ -44,8 +44,8 @@ def listar_ram():
     # Devuelve todas las opciones de RAM registradas
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('SELECT id, nombre FROM ram ORDER BY nombre')
-    rams = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
+    cur.execute('SELECT id, capacidad FROM ram ORDER BY capacidad')
+    rams = [{'id': row[0], 'capacidad': row[1]} for row in cur.fetchall()]
     cur.close()
     conn.close()
     return jsonify(rams)

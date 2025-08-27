@@ -44,8 +44,8 @@ def listar_caracteristicas():
     # Devuelve todas las características registradas
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('SELECT id, nombre FROM caracteristicas ORDER BY nombre')
-    caracteristicas = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
+    cur.execute('SELECT id, descripcion FROM caracteristicas ORDER BY descripcion')
+    caracteristicas = [{'id': row[0], 'descripcion': row[1]} for row in cur.fetchall()]
     cur.close()
     conn.close()
     return jsonify(caracteristicas)

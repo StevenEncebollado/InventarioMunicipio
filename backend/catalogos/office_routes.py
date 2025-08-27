@@ -44,8 +44,8 @@ def listar_office():
     # Devuelve todas las versiones de Office registradas
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('SELECT id, nombre FROM office ORDER BY nombre')
-    offices = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
+    cur.execute('SELECT id, version FROM office ORDER BY version')
+    offices = [{'id': row[0], 'version': row[1]} for row in cur.fetchall()]
     cur.close()
     conn.close()
     return jsonify(offices)

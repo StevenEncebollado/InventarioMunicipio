@@ -10,12 +10,10 @@ dependencias_bp = Blueprint('dependencias', __name__)
 @dependencias_bp.route('/dependencias', methods=['GET'])
 def listar_dependencias():
     """Devuelve todas las dependencias registradas."""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT id, nombre FROM dependencia ORDER BY nombre')
-    dependencias = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
-    cur.close()
-    conn.close()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute('SELECT id, nombre FROM dependencia ORDER BY nombre')
+            dependencias = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
     return jsonify(dependencias)
 
 @dependencias_bp.route('/dependencias', methods=['POST'])
