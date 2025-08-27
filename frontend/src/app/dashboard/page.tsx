@@ -8,11 +8,50 @@ import { formatDate } from '@/utils';
 import type { Usuario, Equipo } from '@/types';
 
 export default function Dashboard() {
+  // Estilo para los selects de filtros
+  const selectStyle = {
+    width: "100%",
+    padding: "10px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+    fontSize: "16px",
+    marginTop: "8px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    background: "#f9f9f9",
+    transition: "border-color 0.2s"
+  };
   const [user, setUser] = useState<Usuario | null>(null);
   const [equipos, setEquipos] = useState<Equipo[]>([]);
   const { isLoading, setLoading } = useLoading(true);
   const { error, setError, clearError } = useError();
   const router = useRouter();
+  // Catálogo de dependencias (puedes conectar al backend luego)
+  // Catálogos base (pueden venir del backend en el futuro)
+  // Catálogos base (pueden venir del backend en el futuro)
+  const dependenciasCatalogo = ["Edificio Municipal", "Patronato"];
+  const direccionesCatalogo = ["Avalúos y Catastros", "Financiero", "Financiero - Rentas", "Deportes"];
+  const dispositivosCatalogo = ["CPU", "Monitor", "Teclado", "Mouse"];
+  const equipamientosCatalogo = ["Institucional", "Personal"];
+  const tipoEquipoCatalogo = ["PC DE ESCRITORIO", "LAPTOP"];
+  const tipoSistemaOperativoCatalogo = ["WINDOWS 10 PRO 64 BITS", "WINDOWS 11 PRO", "WINDOWS 11 HOME 64 BITS"];
+  const marcasCatalogo = ["CLON", "HP"];
+  const ramCatalogo = ["6 GB", "12 GB", "16 GB"];
+  const discoCatalogo = ["480 GB", "1 TB", "2 TB"];
+  const officeCatalogo = ["2019", "2021", "MS-365"];
+  const tipoConexionCatalogo = ["LAN", "WIFI"];
+
+  const [dependenciaSeleccionada, setDependenciaSeleccionada] = useState("");
+  const [direccionSeleccionada, setDireccionSeleccionada] = useState("");
+  const [dispositivoSeleccionado, setDispositivoSeleccionado] = useState("");
+  const [equipamientoSeleccionado, setEquipamientoSeleccionado] = useState("");
+  const [tipoEquipoSeleccionado, setTipoEquipoSeleccionado] = useState("");
+  const [tipoSistemaOperativoSeleccionado, setTipoSistemaOperativoSeleccionado] = useState("");
+  const [marcaSeleccionada, setMarcaSeleccionada] = useState("");
+  const [ramSeleccionada, setRamSeleccionada] = useState("");
+  const [discoSeleccionado, setDiscoSeleccionado] = useState("");
+  const [officeSeleccionado, setOfficeSeleccionado] = useState("");
+  const [tipoConexionSeleccionada, setTipoConexionSeleccionada] = useState("");
+  const [showFiltros, setShowFiltros] = useState(false);
 
   useEffect(() => {
     initializeDashboard();
@@ -127,6 +166,122 @@ export default function Dashboard() {
               <h3>Inactivos</h3>
               <span className="stat-number stat-danger">{stats.inactive}</span>
             </div>
+          </div>
+        </div>
+
+        {/* Filtros visuales de catálogos */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", margin: "32px 0" }}>
+          <div style={{
+            background: "#fff",
+            borderRadius: "12px",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+            padding: "24px",
+            maxWidth: "600px",
+            textAlign: "center"
+          }}>
+            <h3 style={{ marginBottom: "16px", color: "#2c3e50" }}>Filtros de Inventario</h3>
+            <button
+              style={{
+                padding: "10px 20px",
+                borderRadius: "8px",
+                background: "#3498db",
+                color: "#fff",
+                border: "none",
+                cursor: "pointer",
+                fontWeight: "bold",
+                marginBottom: "12px"
+              }}
+              onClick={() => setShowFiltros(!showFiltros)}
+            >
+              {showFiltros ? "Ocultar filtros" : "Mostrar filtros"}
+            </button>
+            {showFiltros && (
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <div style={{ minWidth: 220 }}>
+                  <label style={{ fontWeight: 600 }}>Dependencia</label>
+                  <select style={selectStyle} value={dependenciaSeleccionada} onChange={e => setDependenciaSeleccionada(e.target.value)}>
+                    <option value="">Todas</option>
+                    {dependenciasCatalogo.map(dep => (<option key={dep} value={dep}>{dep}</option>))}
+                  </select>
+                </div>
+                <div style={{ minWidth: 220 }}>
+                  <label style={{ fontWeight: 600 }}>Dirección/Área</label>
+                  <select style={selectStyle} value={direccionSeleccionada} onChange={e => setDireccionSeleccionada(e.target.value)}>
+                    <option value="">Todas</option>
+                    {direccionesCatalogo.map(dir => (<option key={dir} value={dir}>{dir}</option>))}
+                  </select>
+                </div>
+                <div style={{ minWidth: 220 }}>
+                  <label style={{ fontWeight: 600 }}>Dispositivo</label>
+                  <select style={selectStyle} value={dispositivoSeleccionado} onChange={e => setDispositivoSeleccionado(e.target.value)}>
+                    <option value="">Todos</option>
+                    {dispositivosCatalogo.map(d => (<option key={d} value={d}>{d}</option>))}
+                  </select>
+                </div>
+                <div style={{ minWidth: 220 }}>
+                  <label style={{ fontWeight: 600 }}>Equipamiento</label>
+                  <select style={selectStyle} value={equipamientoSeleccionado} onChange={e => setEquipamientoSeleccionado(e.target.value)}>
+                    <option value="">Todos</option>
+                    {equipamientosCatalogo.map(eq => (<option key={eq} value={eq}>{eq}</option>))}
+                  </select>
+                </div>
+                <div style={{ minWidth: 220 }}>
+                  <label style={{ fontWeight: 600 }}>Tipo de Equipo</label>
+                  <select style={selectStyle} value={tipoEquipoSeleccionado} onChange={e => setTipoEquipoSeleccionado(e.target.value)}>
+                    <option value="">Todos</option>
+                    {tipoEquipoCatalogo.map(te => (<option key={te} value={te}>{te}</option>))}
+                  </select>
+                </div>
+                <div style={{ minWidth: 220 }}>
+                  <label style={{ fontWeight: 600 }}>Tipo de Sistema Operativo</label>
+                  <select style={selectStyle} value={tipoSistemaOperativoSeleccionado} onChange={e => setTipoSistemaOperativoSeleccionado(e.target.value)}>
+                    <option value="">Todos</option>
+                    {tipoSistemaOperativoCatalogo.map(so => (<option key={so} value={so}>{so}</option>))}
+                  </select>
+                </div>
+                <div style={{ minWidth: 220 }}>
+                  <label style={{ fontWeight: 600 }}>Marca</label>
+                  <select style={selectStyle} value={marcaSeleccionada} onChange={e => setMarcaSeleccionada(e.target.value)}>
+                    <option value="">Todas</option>
+                    {marcasCatalogo.map(m => (<option key={m} value={m}>{m}</option>))}
+                  </select>
+                </div>
+                <div style={{ minWidth: 220 }}>
+                  <label style={{ fontWeight: 600 }}>RAM</label>
+                  <select style={selectStyle} value={ramSeleccionada} onChange={e => setRamSeleccionada(e.target.value)}>
+                    <option value="">Todas</option>
+                    {ramCatalogo.map(r => (<option key={r} value={r}>{r}</option>))}
+                  </select>
+                </div>
+                <div style={{ minWidth: 220 }}>
+                  <label style={{ fontWeight: 600 }}>Disco</label>
+                  <select style={selectStyle} value={discoSeleccionado} onChange={e => setDiscoSeleccionado(e.target.value)}>
+                    <option value="">Todos</option>
+                    {discoCatalogo.map(d => (<option key={d} value={d}>{d}</option>))}
+                  </select>
+                </div>
+                <div style={{ minWidth: 220 }}>
+                  <label style={{ fontWeight: 600 }}>Office</label>
+                  <select style={selectStyle} value={officeSeleccionado} onChange={e => setOfficeSeleccionado(e.target.value)}>
+                    <option value="">Todos</option>
+                    {officeCatalogo.map(o => (<option key={o} value={o}>{o}</option>))}
+                  </select>
+                </div>
+                <div style={{ minWidth: 220 }}>
+                  <label style={{ fontWeight: 600 }}>Tipo de Conexión</label>
+                  <select style={selectStyle} value={tipoConexionSeleccionada} onChange={e => setTipoConexionSeleccionada(e.target.value)}>
+                    <option value="">Todas</option>
+                    {tipoConexionCatalogo.map(tc => (<option key={tc} value={tc}>{tc}</option>))}
+                  </select>
+                </div>
+              </div>
+            )}
+            {(dependenciaSeleccionada || direccionSeleccionada) && (
+              <div style={{ marginTop: "18px", color: "#27ae60", fontWeight: "bold" }}>
+                {dependenciaSeleccionada && <span>Dependencia: {dependenciaSeleccionada} </span>}
+                {direccionSeleccionada && <span> | Dirección/Área: {direccionSeleccionada}</span>}
+              </div>
+            )}
           </div>
         </div>
         
