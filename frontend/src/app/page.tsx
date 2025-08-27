@@ -7,6 +7,27 @@ import { useLoading, useError } from '@/hooks';
 import type { LoginResponse } from '@/types';
 
 export default function LoginPage() {
+  // Función para evaluar la seguridad de la contraseña
+  function getPasswordStrength(password: string): { level: string; color: string; score: number } {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/\d/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    if (password.length >= 12) score++;
+    if (score <= 2) return { level: 'Bajo', color: '#e74c3c', score };
+    if (score === 3) return { level: 'Moderado', color: '#f1c40f', score };
+    if (score === 4) return { level: 'Alto', color: '#3498db', score };
+    return { level: 'Muy Alto', color: '#27ae60', score };
+  }
+  const [passwordChangeRequired, setPasswordChangeRequired] = useState(false);
+  const [passwordExpiryWarning, setPasswordExpiryWarning] = useState('');
+  const [fechaCambioPassword, setFechaCambioPassword] = useState<string | null>(null);
+  const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [changePasswordError, setChangePasswordError] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -31,7 +52,25 @@ export default function LoginPage() {
 
     startLoading();
     try {
-      const response: LoginResponse = await login(username, password);
+      const response: any = await login(username, password);
+      // Guardar fecha de cambio para avisos
+      if (response.fecha_cambio_password) {
+        setFechaCambioPassword(response.fecha_cambio_password);
+        // Calcular días restantes
+        const fechaCambio = new Date(response.fecha_cambio_password);
+        const hoy = new Date();
+        const diasPasados = Math.floor((hoy.getTime() - fechaCambio.getTime()) / (1000 * 60 * 60 * 24));
+        const diasRestantes = 90 - diasPasados;
+        if (diasRestantes <= 7 && diasRestantes > 3) setPasswordExpiryWarning('Tu contraseña expirará en menos de una semana.');
+        if (diasRestantes <= 3 && diasRestantes > 1) setPasswordExpiryWarning('Tu contraseña expirará en menos de 3 días.');
+        if (diasRestantes === 1) setPasswordExpiryWarning('Tu contraseña expirará mañana.');
+      }
+      if (response.require_password_change) {
+        setPasswordChangeRequired(true);
+        setShowPasswordChangeModal(true);
+        setError('Debes cambiar tu contraseña antes de continuar.');
+        return;
+      }
       if (response.id) {
         localStorage.setItem(APP_CONFIG.session.storageKey, JSON.stringify(response));
         router.push('/dashboard');
@@ -39,7 +78,6 @@ export default function LoginPage() {
         setError('Credenciales inválidas');
       }
     } catch (err: any) {
-      // Si el backend envía un mensaje personalizado, mostrarlo
       if (err && err.status === 401 && err.message && err.message.includes('Tu usuario o contraseña son incorrectos')) {
         setError('Tu usuario o contraseña son incorrectos');
       } else {
@@ -141,6 +179,107 @@ export default function LoginPage() {
           {error}
         </div>
       )}
+      {passwordExpiryWarning && !passwordChangeRequired && (
+        <div className="warning-message" style={{ color: '#e67e22', margin: '1rem 0', textAlign: 'center' }}>
+          {passwordExpiryWarning}
+        </div>
+      )}
+      {/* Modal de cambio de contraseña obligatorio */}
+      {showPasswordChangeModal && (
+        <div className="modal-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div className="modal-content" style={{
+            background: '#fff',
+            padding: '2rem',
+            borderRadius: '8px',
+            minWidth: '320px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            position: 'relative'
+          }}>
+            <h2 style={{ marginBottom: '1rem' }}>Cambio de Contraseña Obligatorio</h2>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setChangePasswordError('');
+                if (!newPassword.trim() || !confirmNewPassword.trim()) {
+                  setChangePasswordError('Todos los campos son requeridos');
+                  return;
+                }
+                if (newPassword !== confirmNewPassword) {
+                  setChangePasswordError('Las contraseñas no coinciden');
+                  return;
+                }
+                // Validación de contraseña fuerte (opcional, ya está en backend)
+                try {
+                  const res = await fetch(`http://localhost:8081/usuarios/${username}/reset_password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ actual: password, nueva: newPassword })
+                  });
+                  const data = await res.json();
+                  if (res.ok) {
+                    setShowPasswordChangeModal(false);
+                    setPasswordChangeRequired(false);
+                    alert('Contraseña cambiada correctamente. Inicia sesión nuevamente.');
+                    setPassword('');
+                    setNewPassword('');
+                    setConfirmNewPassword('');
+                  } else {
+                    setChangePasswordError(data.error || 'Error al cambiar la contraseña');
+                  }
+                } catch (err) {
+                  setChangePasswordError('Error de red o servidor');
+                }
+              }}
+            >
+              <div className="form-group">
+                <label htmlFor="new-password">Nueva contraseña:</label>
+                <input
+                  id="new-password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  autoComplete="new-password"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="confirm-new-password">Confirmar nueva contraseña:</label>
+                <input
+                  id="confirm-new-password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={confirmNewPassword}
+                  onChange={e => setConfirmNewPassword(e.target.value)}
+                  autoComplete="new-password"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ width: '100%', marginTop: '1rem' }}
+              >
+                Cambiar contraseña
+              </button>
+              {changePasswordError && (
+                <div className="error-message" role="alert" style={{ marginTop: '1rem' }}>
+                  {changePasswordError}
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
       {/* Modal de registro */}
       {showRegister && (
         <div className="modal-overlay" style={{
@@ -168,12 +307,17 @@ export default function LoginPage() {
               onSubmit={async (e) => {
                 e.preventDefault();
                 setRegisterError('');
+                const strength = getPasswordStrength(registerPassword);
                 if (!registerUsername.trim() || !registerPassword.trim() || !registerConfirmPassword.trim()) {
                   setRegisterError('Todos los campos son requeridos');
                   return;
                 }
                 if (registerPassword !== registerConfirmPassword) {
                   setRegisterError('Las contraseñas no coinciden');
+                  return;
+                }
+                if (strength.level === 'Bajo' || strength.level === 'Moderado') {
+                  setRegisterError('La contraseña es demasiado débil. Por favor, aumenta la seguridad.');
                   return;
                 }
                 setRegisterLoading(true);
@@ -209,6 +353,14 @@ export default function LoginPage() {
                   required
                   disabled={registerLoading}
                 />
+              </div>
+              <div style={{ marginBottom: '0.5rem', fontSize: '0.95rem', color: '#555' }}>
+                <strong>Indicaciones para la contraseña:</strong><br />
+                - Mínimo 8 caracteres<br />
+                - Al menos una mayúscula<br />
+                - Al menos una minúscula<br />
+                - Al menos un número<br />
+                - Al menos un símbolo especial
               </div>
               <div className="form-group" style={{ position: 'relative' }}>
                 <label htmlFor="register-password">Contraseña:</label>
@@ -249,6 +401,36 @@ export default function LoginPage() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.442-4.362M6.634 6.634A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.96 9.96 0 01-4.284 5.255M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" /></svg>
                   )}
                 </button>
+                {/* Barra de seguridad */}
+                <div style={{ marginTop: '0.5rem' }}>
+                  {registerPassword && (
+                    (() => {
+                      const strength = getPasswordStrength(registerPassword);
+                      return (
+                        <div>
+                          <div style={{
+                            width: '100%',
+                            height: '8px',
+                            background: '#eee',
+                            borderRadius: '4px',
+                            marginBottom: '0.3rem',
+                            overflow: 'hidden',
+                          }}>
+                            <div style={{
+                              width: `${(strength.score / 5) * 100}%`,
+                              height: '100%',
+                              background: strength.color,
+                              transition: 'width 0.3s',
+                            }} />
+                          </div>
+                          <span style={{ color: strength.color, fontWeight: 'bold' }}>
+                            Seguridad: {strength.level}
+                          </span>
+                        </div>
+                      );
+                    })()
+                  )}
+                </div>
               </div>
               <div className="form-group">
                 <label htmlFor="register-confirm-password">Confirmar contraseña:</label>

@@ -22,10 +22,25 @@ cd "Pasantías en munipio de Manta"
 - Ejecutar scripts SQL en `SQL/Inventario.sql`
 - Configurar credenciales en `backend/.env`
 
-### 3. **Ejecutar Backend (Flask)**
-```bash
+### 3. **Configurar entorno virtual (venv) para el backend**
+
+> Recomendado para aislar dependencias de Python
+
+```powershell
+# Crear entorno virtual
+python -m venv venv
+
+# Activar entorno virtual en Windows
+venv\Scripts\activate
+
+# Instalar dependencias necesarias
+pip install flask psycopg2-binary python-dotenv bcrypt
+```
+
+### 3.2. **Ejecutar Backend (Flask)**
+``` 
+powershell
 cd backend
-pip install flask psycopg2-binary
 python app.py
 ```
 
@@ -46,11 +61,17 @@ python proxy_server.py
 - **Frontend:** http://localhost:3001
 - **Proxy:** http://localhost:8081  
 - **Backend:** http://localhost:5000
+- **Usuarios (API):** http://localhost:5000/usuarios
+
+## Pruebas de link para postman
+- **Registro de usuario (API):** http://localhost:5000/usuarios/register
+- **Login (API):** http://localhost:5000/login
+- **Reset password (API):** http://localhost:5000/usuarios/<id>/reset_password
 
 ## 👤 Credenciales por Defecto
 
-- **Usuario:** `admin`
-- **Contraseña:** `123456`
+- **Usuario:** `Prueba 2`
+- **Contraseña:** `123456As.`
 
 ## 📁 Estructura del Proyecto
 
@@ -71,18 +92,21 @@ python proxy_server.py
 
 ## ✨ Características
 
-- ✅ **Autenticación de usuarios**
-- ✅ **Gestión completa de inventario**
-- ✅ **Catálogos dinámicos**
-- ✅ **Validación de campos únicos**
-- ✅ **Sistema de reportes**
-- ✅ **Interfaz responsive**
-- ✅ **CORS resuelto con proxy**
+✅ Autenticación y registro de usuarios
+✅ Validación de contraseña fuerte (mínimo 8 caracteres, mayúscula, minúscula, número y símbolo especial)
+✅ Expiración de contraseña cada 3 meses y aviso de expiración
+✅ Gestión completa de inventario
+✅ Catálogos dinámicos
+✅ Validación de usuario único
+✅ Mensajes de error detallados en frontend y backend
+✅ Sistema de reportes
+✅ Interfaz responsive
+✅ CORS resuelto con proxy
 
 ## 🔧 Tecnologías
 
 - **Backend:** Flask, PostgreSQL, Python 3.8+
-- **Frontend:** Next.js, TypeScript, React
+- **Frontend:** Next.js, TypeScript
 - **Proxy:** HTTP Server nativo de Python
 - **Base de Datos:** PostgreSQL
 
