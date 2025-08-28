@@ -8,7 +8,7 @@ reportes_bp = Blueprint('reportes', __name__)
 
 
 # Reporte general de inventario
-@reportes_bp.route('/reportes/inventario_general', methods=['GET'])
+@reportes_bp.route('/inventario_general', methods=['GET'])
 def reporte_inventario_general():
     # Devuelve todos los registros del inventario para reporte general
     conn = get_db_connection()
@@ -22,7 +22,7 @@ def reporte_inventario_general():
 
 
 # Consultar historial de inventario, filtrando por acción
-@reportes_bp.route('/reportes/historial', methods=['GET'])
+@reportes_bp.route('/historial', methods=['GET'])
 def historial_inventario():
     # Devuelve el historial de acciones sobre el inventario. Permite filtrar por acción
     accion = request.args.get('accion')  # Puede ser 'agregado', 'modificado', 'eliminado' o None

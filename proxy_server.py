@@ -3,7 +3,7 @@
 Servidor proxy para conectar el Frontend (Next.js) con el Backend (Flask)
 del Sistema de Inventario Municipal.
 
-Frontend: http://localhost:3001
+Frontend: http://localhost:3000
 Backend Flask: http://localhost:5000
 Proxy: http://localhost:8081
 """
@@ -164,7 +164,7 @@ if __name__ == '__main__':
     PROXY_PORT = 8081
     BACKEND_HOST = 'localhost'
     BACKEND_PORT = 5000
-    FRONTEND_PORT = 3001
+    FRONTEND_PORT = 3000
     
     print("=" * 60)
     print("🚀 SERVIDOR PROXY PARA SISTEMA DE INVENTARIO MUNICIPAL")

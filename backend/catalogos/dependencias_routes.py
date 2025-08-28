@@ -10,12 +10,10 @@ dependencias_bp = Blueprint('dependencias', __name__)
 @dependencias_bp.route('/dependencias', methods=['GET'])
 def listar_dependencias():
     """Devuelve todas las dependencias registradas."""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT id, nombre FROM dependencia ORDER BY nombre')
-    dependencias = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
-    cur.close()
-    conn.close()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute('SELECT id, nombre FROM dependencia ORDER BY nombre')
+            dependencias = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
     return jsonify(dependencias)
 
 @dependencias_bp.route('/dependencias', methods=['POST'])
@@ -27,13 +25,6 @@ def agregar_dependencia():
         return jsonify({'error': 'El nombre es obligatorio'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    # Verificar si ya existe
-    cur.execute('SELECT id FROM dependencia WHERE nombre = %s', (nombre,))
-    existe = cur.fetchone()
-    if existe:
-        cur.close()
-        conn.close()
-        return jsonify({'error': 'La dependencia ya existe'}), 400
     cur.execute('INSERT INTO dependencia (nombre) VALUES (%s) RETURNING id', (nombre,))
     nueva_id = cur.fetchone()[0]
     conn.commit()

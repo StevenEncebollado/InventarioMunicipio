@@ -11,8 +11,7 @@ import bcrypt
 
 usuarios_bp = Blueprint('usuarios', __name__)
 
-# Endpoint: Registro de usuario
-@usuarios_bp.route('/usuarios/register', methods=['POST'])
+@usuarios_bp.route('/register', methods=['POST'])
 def register_usuario():
     data = request.json
     username = data.get('username')
@@ -41,7 +40,6 @@ def register_usuario():
     conn.close()
     return jsonify({'id': new_id, 'message': 'Usuario registrado exitosamente'}), 201
 
-# Endpoint: Login de usuario
 @usuarios_bp.route('/login', methods=['POST'])
 def login_usuario():
     try:
@@ -77,8 +75,7 @@ def login_usuario():
 
 # Endpoint: Obtener todos los usuarios
 
-# Listar todos los usuarios
-@usuarios_bp.route('/usuarios', methods=['GET'])
+@usuarios_bp.route('', methods=['GET'])
 def get_usuarios():
     # Devuelve todos los usuarios registrados
     conn = get_db_connection()
@@ -92,8 +89,7 @@ def get_usuarios():
 
 # Endpoint: Obtener un usuario por ID
 
-# Obtener un usuario por ID
-@usuarios_bp.route('/usuarios/<int:user_id>', methods=['GET'])
+@usuarios_bp.route('/<int:user_id>', methods=['GET'])
 def get_usuario_by_id(user_id):
     # Devuelve un usuario por su ID
     conn = get_db_connection()
@@ -110,8 +106,7 @@ def get_usuario_by_id(user_id):
 
 # Endpoint: Crear un nuevo usuario
 
-# Crear un nuevo usuario
-@usuarios_bp.route('/usuarios', methods=['POST'])
+@usuarios_bp.route('', methods=['POST'])
 def create_usuario():
     # Crea un nuevo usuario
     data = request.json
@@ -135,8 +130,7 @@ def create_usuario():
 
 # Endpoint: Actualizar un usuario
 
-# Actualizar un usuario existente
-@usuarios_bp.route('/usuarios/<int:user_id>', methods=['PUT'])
+@usuarios_bp.route('/<int:user_id>', methods=['PUT'])
 def update_usuario(user_id):
     # Actualiza los datos de un usuario por su ID
     data = request.json
@@ -154,8 +148,7 @@ def update_usuario(user_id):
     cur.close()
     conn.close()
     return jsonify({'msg': 'Actualizado correctamente'})
-# Endpoint: Reestablecer contraseña
-@usuarios_bp.route('/usuarios/<int:user_id>/reset_password', methods=['POST'])
+@usuarios_bp.route('/<int:user_id>/reset_password', methods=['POST'])
 def reset_password(user_id):
     data = request.json
     actual = data.get('actual')
@@ -190,8 +183,7 @@ def reset_password(user_id):
     conn.close()
     return jsonify({'msg': 'Contraseña actualizada correctamente'})
 
-# Endpoint: Reestablecer contraseña por nombre de usuario
-@usuarios_bp.route('/usuarios/reset_password', methods=['POST'])
+@usuarios_bp.route('/reset_password', methods=['POST'])
 def reset_password_by_username():
     data = request.json
     username = data.get('username')
@@ -229,8 +221,7 @@ def reset_password_by_username():
 
 # Endpoint: Eliminar un usuario
 
-# Eliminar un usuario existente
-@usuarios_bp.route('/usuarios/<int:user_id>', methods=['DELETE'])
+@usuarios_bp.route('/<int:user_id>', methods=['DELETE'])
 def delete_usuario(user_id):
     # Elimina un usuario por su ID
     conn = get_db_connection()

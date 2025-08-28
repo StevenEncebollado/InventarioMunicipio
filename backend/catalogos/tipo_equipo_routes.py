@@ -25,13 +25,6 @@ def agregar_tipo_equipo():
         return jsonify({'error': 'El nombre es obligatorio'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    # Verificar si ya existe
-    cur.execute('SELECT id FROM tipo_equipo WHERE nombre = %s', (nombre,))
-    existe = cur.fetchone()
-    if existe:
-        cur.close()
-        conn.close()
-        return jsonify({'error': 'El tipo de equipo ya existe'}), 400
     cur.execute('INSERT INTO tipo_equipo (nombre) VALUES (%s) RETURNING id', (nombre,))
     nueva_id = cur.fetchone()[0]
     conn.commit()

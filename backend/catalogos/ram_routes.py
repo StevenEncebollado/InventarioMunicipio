@@ -44,8 +44,8 @@ def listar_ram():
     # Devuelve todas las opciones de RAM registradas
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('SELECT id, nombre FROM ram ORDER BY nombre')
-    rams = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
+    cur.execute('SELECT id, capacidad FROM ram ORDER BY capacidad')
+    rams = [{'id': row[0], 'capacidad': row[1]} for row in cur.fetchall()]
     cur.close()
     conn.close()
     return jsonify(rams)
@@ -61,13 +61,6 @@ def agregar_ram():
         return jsonify({'error': 'El nombre es obligatorio'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    # Verificar si ya existe
-    cur.execute('SELECT id FROM ram WHERE nombre = %s', (nombre,))
-    existe = cur.fetchone()
-    if existe:
-        cur.close()
-        conn.close()
-        return jsonify({'error': 'La opción de RAM ya existe'}), 400
     cur.execute('INSERT INTO ram (nombre) VALUES (%s) RETURNING id', (nombre,))
     nueva_id = cur.fetchone()[0]
     conn.commit()

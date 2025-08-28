@@ -44,8 +44,8 @@ def listar_office():
     # Devuelve todas las versiones de Office registradas
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('SELECT id, nombre FROM office ORDER BY nombre')
-    offices = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
+    cur.execute('SELECT id, version FROM office ORDER BY version')
+    offices = [{'id': row[0], 'version': row[1]} for row in cur.fetchall()]
     cur.close()
     conn.close()
     return jsonify(offices)
@@ -61,13 +61,6 @@ def agregar_office():
         return jsonify({'error': 'El nombre es obligatorio'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    # Verificar si ya existe
-    cur.execute('SELECT id FROM office WHERE nombre = %s', (nombre,))
-    existe = cur.fetchone()
-    if existe:
-        cur.close()
-        conn.close()
-        return jsonify({'error': 'La versión de Office ya existe'}), 400
     cur.execute('INSERT INTO office (nombre) VALUES (%s) RETURNING id', (nombre,))
     nueva_id = cur.fetchone()[0]
     conn.commit()

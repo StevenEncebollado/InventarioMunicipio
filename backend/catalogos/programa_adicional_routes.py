@@ -42,12 +42,10 @@ programa_adicional_bp = Blueprint('programa_adicional', __name__)
 @programa_adicional_bp.route('/programas_adicionales', methods=['GET'])
 def listar_programas_adicionales():
     # Devuelve todos los programas adicionales registrados
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT id, nombre FROM programa_adicional ORDER BY nombre')
-    programas = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
-    cur.close()
-    conn.close()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute('SELECT id, nombre FROM programa_adicional ORDER BY nombre')
+            programas = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
     return jsonify(programas)
 
 
@@ -61,13 +59,6 @@ def agregar_programa_adicional():
         return jsonify({'error': 'El nombre es obligatorio'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    # Verificar si ya existe
-    cur.execute('SELECT id FROM programa_adicional WHERE nombre = %s', (nombre,))
-    existe = cur.fetchone()
-    if existe:
-        cur.close()
-        conn.close()
-        return jsonify({'error': 'El programa adicional ya existe'}), 400
     cur.execute('INSERT INTO programa_adicional (nombre) VALUES (%s) RETURNING id', (nombre,))
     nueva_id = cur.fetchone()[0]
     conn.commit()

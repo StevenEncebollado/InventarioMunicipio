@@ -10,12 +10,32 @@ inventario_bp = Blueprint('inventario', __name__)
 
 
 # Listar todos los registros del inventario
-@inventario_bp.route('/inventario', methods=['GET'])
+
+@inventario_bp.route('', methods=['GET'])
 def get_inventario():
-    # Devuelve todos los registros del inventario
+    """
+    Devuelve los registros del inventario, permitiendo filtrar por cualquier campo de id (por ejemplo: dependencia_id, tipo_equipo_id, etc.)
+    Los filtros deben enviarse como query params, por ejemplo: /inventario?dependencia_id=1&marca_id=2
+    """
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('SELECT * FROM inventario')
+    # Lista de campos filtrables (solo los campos *_id de la tabla inventario)
+    filtrables = [
+        'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id',
+        'equipamiento_id', 'tipo_equipo_id', 'tipo_sistema_operativo_id',
+        'caracteristicas_id', 'ram_id', 'disco_id', 'office_id', 'marca_id', 'tipo_conexion_id'
+    ]
+    filtros = []
+    valores = []
+    for campo in filtrables:
+        valor = request.args.get(campo)
+        if valor is not None and valor != '':
+            filtros.append(f"{campo} = %s")
+            valores.append(valor)
+    query = 'SELECT * FROM inventario'
+    if filtros:
+        query += ' WHERE ' + ' AND '.join(filtros)
+    cur.execute(query, valores)
     columns = [desc[0] for desc in cur.description]
     items = [dict(zip(columns, row)) for row in cur.fetchall()]
     cur.close()
@@ -39,10 +59,12 @@ def get_inventario_by_id(item_id):
     else:
         return jsonify({'error': 'No encontrado'}), 404
 
-# Endpoint: Crear un nuevo item en el inventario
+
+# Endpoint: Crear un nuevo item en el inventario (única función, robusta)
 @inventario_bp.route('/inventario', methods=['POST'])
 def create_inventario():
-    """Crea un nuevo registro en el inventario."""
+    """Crea un nuevo registro en el inventario y lo registra en el historial."""
+    import json
     data = request.json
     campos = [
         'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
@@ -53,39 +75,12 @@ def create_inventario():
     valores = [data.get(campo) for campo in campos]
     conn = get_db_connection()
     cur = conn.cursor()
-    # Validar unicidad de codigo_inventario
-    cur.execute('SELECT id FROM inventario WHERE codigo_inventario = %s', (data.get('codigo_inventario'),))
-    if cur.fetchone():
-        cur.close()
-        conn.close()
-        return jsonify({'error': 'El código de inventario ya existe'}), 400
-    # Insertar si no existe duplicado
-    cur.execute(f'''
-        INSERT INTO inventario ({', '.join(campos)})
-        VALUES ({', '.join(['%s']*len(campos))})
-        RETURNING id
-    ''', valores)
-    new_id = cur.fetchone()[0]
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'id': new_id}), 201
-
-
-    # Crear un nuevo registro en el inventario y registrar en historial
-    @inventario_bp.route('/inventario', methods=['POST'])
-    def create_inventario():
-        # Crea un nuevo registro en el inventario y lo registra en el historial
-        data = request.json
-        campos = [
-            'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
-            'direccion_mac', 'nombre_pc', 'nombres_funcionario', 'equipamiento_id', 'tipo_equipo_id',
-            'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id', 'office_id',
-            'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk'
-        ]
-        valores = [data.get(campo) for campo in campos]
-        conn = get_db_connection()
-        cur = conn.cursor()
+    try:
+        # Validar unicidad de codigo_inventario
+        cur.execute('SELECT id FROM inventario WHERE codigo_inventario = %s', (data.get('codigo_inventario'),))
+        if cur.fetchone():
+            return jsonify({'error': 'El código de inventario ya existe'}), 400
+        # Insertar si no existe duplicado
         cur.execute(f'''
             INSERT INTO inventario ({', '.join(campos)})
             VALUES ({', '.join(['%s']*len(campos))})
@@ -98,9 +93,13 @@ def create_inventario():
             VALUES (%s, %s, %s, %s)
         ''', (new_id, data.get('usuario_id'), 'agregado', json.dumps(data)))
         conn.commit()
+        return jsonify({'id': new_id}), 201
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 400
+    finally:
         cur.close()
         conn.close()
-        return jsonify({'id': new_id}), 201
 
 # Endpoint: Actualizar un item del inventario
 @inventario_bp.route('/inventario/<int:item_id>', methods=['PUT'])

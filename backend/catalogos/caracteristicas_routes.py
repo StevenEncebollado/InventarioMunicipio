@@ -44,8 +44,8 @@ def listar_caracteristicas():
     # Devuelve todas las características registradas
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('SELECT id, nombre FROM caracteristicas ORDER BY nombre')
-    caracteristicas = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
+    cur.execute('SELECT id, descripcion FROM caracteristicas ORDER BY descripcion')
+    caracteristicas = [{'id': row[0], 'descripcion': row[1]} for row in cur.fetchall()]
     cur.close()
     conn.close()
     return jsonify(caracteristicas)
@@ -61,13 +61,6 @@ def agregar_caracteristica():
         return jsonify({'error': 'El nombre es obligatorio'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    # Verificar si ya existe
-    cur.execute('SELECT id FROM caracteristicas WHERE nombre = %s', (nombre,))
-    existe = cur.fetchone()
-    if existe:
-        cur.close()
-        conn.close()
-        return jsonify({'error': 'La característica ya existe'}), 400
     cur.execute('INSERT INTO caracteristicas (nombre) VALUES (%s) RETURNING id', (nombre,))
     nueva_id = cur.fetchone()[0]
     conn.commit()
