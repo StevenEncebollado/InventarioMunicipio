@@ -61,7 +61,7 @@ def get_inventario_by_id(item_id):
 
 
 # Endpoint: Crear un nuevo item en el inventario (única función, robusta)
-@inventario_bp.route('/inventario', methods=['POST'])
+@inventario_bp.route('', methods=['POST'])
 def create_inventario():
     """Crea un nuevo registro en el inventario y lo registra en el historial."""
     import json
