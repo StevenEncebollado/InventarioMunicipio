@@ -1,0 +1,25 @@
+# ===== NEXT.JS =====
+.next/
+out/
+
+# ===== NODE.JS =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===== TYPESCRIPT =====
+*.tsbuildinfo
+
+# ===== ENTORNO =====
+.env*.local
+
+# ===== EDITORES =====
+.vscode/
+.idea/
+.DS_Store
+
+# ===== LOGS =====
+logs/
+*.log
