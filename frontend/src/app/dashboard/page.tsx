@@ -611,8 +611,8 @@ export default function Dashboard() {
                       <td>{equipo.tipo_equipo}</td>
                       <td>{equipo.marca}</td>
                       <td>
-                        <span className={`status-badge status-${equipo.estado.toLowerCase()}`}>
-                          {equipo.estado}
+                        <span className={`status-badge status-${equipo.estado ? equipo.estado.toLowerCase() : 'desconocido'}`}>
+                          {equipo.estado || 'Desconocido'}
                         </span>
                       </td>
                       <td>{equipo.dependencia}</td>

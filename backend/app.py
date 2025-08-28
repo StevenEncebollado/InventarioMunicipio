@@ -4,13 +4,23 @@ Archivo principal de la aplicación para el sistema de inventario.
 Aquí se inicializa la app y se registran los blueprints de cada módulo.
 """
 
+
 from flask import Flask
 # from flask_cors import CORS  # Comentado temporalmente
 import sys
 import os
+import logging
+from logging.handlers import RotatingFileHandler
+from dotenv import load_dotenv
+
 
 # Agregar el directorio padre al path para poder hacer imports relativos
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Cargar variables de entorno
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
 
 from backend.catalogos.dependencias_routes import dependencias_bp
 from backend.catalogos.direcciones_routes import direcciones_bp
@@ -29,9 +39,22 @@ from backend.inventario.inventario_programa_routes import inventario_programa_bp
 from backend.inventario.inventario_routes import inventario_bp
 from backend.usuarios.usuarios_routes import usuarios_bp
 
+
 def create_app():
     app = Flask(__name__)
-    
+
+    # Configuración de logging
+    log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
+    log_file = os.getenv('LOG_FILE', 'backend/app.log')
+    if not os.path.exists(os.path.dirname(log_file)):
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    handler = RotatingFileHandler(log_file, maxBytes=1000000, backupCount=3)
+    handler.setLevel(log_level)
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+    handler.setFormatter(formatter)
+    app.logger.addHandler(handler)
+    app.logger.setLevel(log_level)
+
     # Habilitamos CORS de manera manual y simple para desarrollo
     @app.after_request
     def after_request(response):
@@ -39,7 +62,7 @@ def create_app():
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
         response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
         return response
-    
+
     # Registrar blueprints
     app.register_blueprint(dependencias_bp)
     app.register_blueprint(direcciones_bp)

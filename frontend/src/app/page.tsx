@@ -271,12 +271,24 @@ export default function LoginPage() {
                 />
               </div>
               <div style={{ marginBottom: '0.5rem', fontSize: '0.95rem', color: '#555' }}>
-                <strong>Indicaciones para la contraseña:</strong><br />
-                - Mínimo 8 caracteres<br />
-                - Al menos una mayúscula<br />
-                - Al menos una minúscula<br />
-                - Al menos un número<br />
-                - Al menos un símbolo especial
+                <strong>Indicaciones para la contraseña:</strong>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0 0' }}>
+                  <li style={{ color: registerPassword.length >= 8 ? 'green' : '#555', fontWeight: registerPassword.length >= 8 ? 600 : 400 }}>
+                    - Mínimo 8 caracteres
+                  </li>
+                  <li style={{ color: /[A-Z]/.test(registerPassword) ? 'green' : '#555', fontWeight: /[A-Z]/.test(registerPassword) ? 600 : 400 }}>
+                    - Al menos una mayúscula
+                  </li>
+                  <li style={{ color: /[a-z]/.test(registerPassword) ? 'green' : '#555', fontWeight: /[a-z]/.test(registerPassword) ? 600 : 400 }}>
+                    - Al menos una minúscula
+                  </li>
+                  <li style={{ color: /[0-9]/.test(registerPassword) ? 'green' : '#555', fontWeight: /[0-9]/.test(registerPassword) ? 600 : 400 }}>
+                    - Al menos un número
+                  </li>
+                  <li style={{ color: /[^A-Za-z0-9]/.test(registerPassword) ? 'green' : '#555', fontWeight: /[^A-Za-z0-9]/.test(registerPassword) ? 600 : 400 }}>
+                    - Al menos un símbolo especial
+                  </li>
+                </ul>
               </div>
               <div className="form-group" style={{ position: 'relative' }}>
                 <label htmlFor="new-password">Nueva contraseña:</label>
@@ -463,12 +475,24 @@ export default function LoginPage() {
                 />
               </div>
               <div style={{ marginBottom: '0.5rem', fontSize: '0.95rem', color: '#555' }}>
-                <strong>Indicaciones para la contraseña:</strong><br />
-                - Mínimo 8 caracteres<br />
-                - Al menos una mayúscula<br />
-                - Al menos una minúscula<br />
-                - Al menos un número<br />
-                - Al menos un símbolo especial
+                <strong>Indicaciones para la contraseña:</strong>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0 0' }}>
+                  <li style={{ color: registerPassword.length >= 8 ? 'green' : '#555', fontWeight: registerPassword.length >= 8 ? 600 : 400 }}>
+                    - Mínimo 8 caracteres
+                  </li>
+                  <li style={{ color: /[A-Z]/.test(registerPassword) ? 'green' : '#555', fontWeight: /[A-Z]/.test(registerPassword) ? 600 : 400 }}>
+                    - Al menos una mayúscula
+                  </li>
+                  <li style={{ color: /[a-z]/.test(registerPassword) ? 'green' : '#555', fontWeight: /[a-z]/.test(registerPassword) ? 600 : 400 }}>
+                    - Al menos una minúscula
+                  </li>
+                  <li style={{ color: /[0-9]/.test(registerPassword) ? 'green' : '#555', fontWeight: /[0-9]/.test(registerPassword) ? 600 : 400 }}>
+                    - Al menos un número
+                  </li>
+                  <li style={{ color: /[^A-Za-z0-9]/.test(registerPassword) ? 'green' : '#555', fontWeight: /[^A-Za-z0-9]/.test(registerPassword) ? 600 : 400 }}>
+                    - Al menos un símbolo especial
+                  </li>
+                </ul>
               </div>
               <div className="form-group" style={{ position: 'relative' }}>
                 <label htmlFor="register-password">Contraseña:</label>
