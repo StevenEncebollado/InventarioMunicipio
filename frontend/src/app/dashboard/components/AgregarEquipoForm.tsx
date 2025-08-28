@@ -1,18 +1,6 @@
 import Modal from './Modal';
-import { 
-  tipoEquipoCatalogo,
-  marcasCatalogo,
-  ramCatalogo,
-  discoCatalogo,
-  officeCatalogo,
-  tipoConexionCatalogo,
-  dependenciasCatalogo,
-  direccionesCatalogo,
-  equipamientosCatalogo,
-  caracteristicasCatalogo,
-  tipoSistemaOperativoCatalogo,
-  programaAdicionalCatalogo
-} from '../constants/catalogos';
+import { useCatalogos } from '../hooks/useCatalogos';
+import { selectStyle } from '../constants/catalogos';
 
 interface AgregarEquipoFormProps {
   showAddEquipo: boolean;
@@ -51,7 +39,31 @@ export default function AgregarEquipoForm({
   equipamiento, setEquipamiento, caracteristica, setCaracteristica, sistemaOperativo, setSistemaOperativo,
   programaAdicional, setProgramaAdicional
 }: AgregarEquipoFormProps) {
+  const { catalogos, isLoading: catalogosLoading, error: catalogosError } = useCatalogos();
+  
   if (!showAddEquipo) return null;
+
+  if (catalogosLoading) {
+    return (
+      <Modal open={showAddEquipo} onClose={() => setShowAddEquipo(false)}>
+        <h2>Agregar Nuevo Equipo</h2>
+        <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+          Cargando formulario...
+        </div>
+      </Modal>
+    );
+  }
+
+  if (catalogosError) {
+    return (
+      <Modal open={showAddEquipo} onClose={() => setShowAddEquipo(false)}>
+        <h2>Agregar Nuevo Equipo</h2>
+        <div style={{ textAlign: 'center', padding: '20px', color: '#e74c3c' }}>
+          Error al cargar formulario: {catalogosError}
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <Modal open={showAddEquipo} onClose={() => setShowAddEquipo(false)}>
@@ -101,59 +113,59 @@ export default function AgregarEquipoForm({
           style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}} 
         />
         
-        <select value={tipoEquipo} onChange={e => setTipoEquipo(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
+                <select value={tipoEquipo} onChange={e => setTipoEquipo(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Tipo de equipo</option>
-          {tipoEquipoCatalogo.map(t => <option key={t} value={t}>{t}</option>)}
+          {catalogos.tiposEquipo.map(t => <option key={t.id} value={t.nombre}>{t.nombre}</option>)}
         </select>
         
         <select value={marca} onChange={e => setMarca(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Marca</option>
-          {marcasCatalogo.map(m => <option key={m} value={m}>{m}</option>)}
+          {catalogos.marcas.map(m => <option key={m.id} value={m.nombre}>{m.nombre}</option>)}
         </select>
         
         <select value={ram} onChange={e => setRam(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">RAM</option>
-          {ramCatalogo.map(r => <option key={r} value={r}>{r}</option>)}
+          {catalogos.ram.map(r => <option key={r.id} value={r.capacidad}>{r.capacidad}</option>)}
         </select>
         
         <select value={disco} onChange={e => setDisco(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Disco</option>
-          {discoCatalogo.map(d => <option key={d} value={d}>{d}</option>)}
+          {catalogos.disco.map(d => <option key={d.id} value={d.capacidad}>{d.capacidad}</option>)}
         </select>
         
         <select value={office} onChange={e => setOffice(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Office</option>
-          {officeCatalogo.map(o => <option key={o} value={o}>{o}</option>)}
+          {catalogos.office.map(o => <option key={o.id} value={o.version}>{o.version}</option>)}
         </select>
         
         <select value={tipoConexion} onChange={e => setTipoConexion(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Tipo de conexión</option>
-          {tipoConexionCatalogo.map(tc => <option key={tc} value={tc}>{tc}</option>)}
+          {catalogos.tipoConexion.map(tc => <option key={tc.id} value={tc.nombre}>{tc.nombre}</option>)}
         </select>
         
         <select value={dependencia} onChange={e => setDependencia(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Dependencia</option>
-          {dependenciasCatalogo.map(dep => <option key={dep} value={dep}>{dep}</option>)}
+          {catalogos.dependencias.map(dep => <option key={dep.id} value={dep.nombre}>{dep.nombre}</option>)}
         </select>
         
         <select value={direccion} onChange={e => setDireccion(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Dirección</option>
-          {direccionesCatalogo.map(dir => <option key={dir} value={dir}>{dir}</option>)}
+          {catalogos.direcciones.map(dir => <option key={dir.id} value={dir.nombre}>{dir.nombre}</option>)}
         </select>
         
         <select value={equipamiento} onChange={e => setEquipamiento(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Equipamiento</option>
-          {equipamientosCatalogo.map(eq => <option key={eq} value={eq}>{eq}</option>)}
+          {catalogos.equipamientos.map(eq => <option key={eq.id} value={eq.nombre}>{eq.nombre}</option>)}
         </select>
         
         <select value={caracteristica} onChange={e => setCaracteristica(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
-          <option value="">Características</option>
-          {caracteristicasCatalogo.map(c => <option key={c} value={c}>{c}</option>)}
+          <option value="">Característica</option>
+          {catalogos.caracteristicas.map(c => <option key={c.id} value={c.descripcion}>{c.descripcion}</option>)}
         </select>
         
         <select value={sistemaOperativo} onChange={e => setSistemaOperativo(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
-          <option value="">Sistema Operativo</option>
-          {tipoSistemaOperativoCatalogo.map(so => <option key={so} value={so}>{so}</option>)}
+          <option value="">Sistema operativo</option>
+          {catalogos.sistemasOperativos.map(so => <option key={so.id} value={so.nombre}>{so.nombre}</option>)}
         </select>
         
         <label style={{marginTop: 6, fontWeight: 500}}>Programa adicional:</label>
@@ -163,7 +175,7 @@ export default function AgregarEquipoForm({
           onChange={e => setProgramaAdicional(Array.from(e.target.selectedOptions, opt => opt.value))} 
           style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15, minHeight: 70}}
         >
-          {programaAdicionalCatalogo.map(pa => <option key={pa} value={pa}>{pa}</option>)}
+          {catalogos.programaAdicional.map(pa => <option key={pa.id} value={pa.nombre}>{pa.nombre}</option>)}
         </select>
         
         <button 

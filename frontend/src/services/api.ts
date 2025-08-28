@@ -147,8 +147,26 @@ export const getMarcas = (): Promise<Array<{ id: number; nombre: string }>> =>
   api.get<Array<{ id: number; nombre: string }>>('/marca');
 export const getDependencias = (): Promise<Array<{ id: number; nombre: string }>> =>
   api.get<Array<{ id: number; nombre: string }>>('/dependencias');
+export const getDirecciones = (): Promise<Array<{ id: number; nombre: string }>> =>
+  api.get<Array<{ id: number; nombre: string }>>('/direcciones');
+export const getDispositivos = (): Promise<Array<{ id: number; nombre: string }>> =>
+  api.get<Array<{ id: number; nombre: string }>>('/dispositivos');
+export const getEquipamientos = (): Promise<Array<{ id: number; nombre: string }>> =>
+  api.get<Array<{ id: number; nombre: string }>>('/equipamientos');
 export const getSistemasOperativos = (): Promise<Array<{ id: number; nombre: string }>> =>
   api.get<Array<{ id: number; nombre: string }>>('/tipo_sistema_operativo');
+export const getCaracteristicas = (): Promise<Array<{ id: number; descripcion: string }>> =>
+  api.get<Array<{ id: number; descripcion: string }>>('/caracteristicas');
+export const getRam = (): Promise<Array<{ id: number; capacidad: string }>> =>
+  api.get<Array<{ id: number; capacidad: string }>>('/ram');
+export const getDisco = (): Promise<Array<{ id: number; capacidad: string }>> =>
+  api.get<Array<{ id: number; capacidad: string }>>('/disco');
+export const getOffice = (): Promise<Array<{ id: number; version: string }>> =>
+  api.get<Array<{ id: number; version: string }>>('/office');
+export const getTipoConexion = (): Promise<Array<{ id: number; nombre: string }>> =>
+  api.get<Array<{ id: number; nombre: string }>>('/tipo_conexion');
+export const getProgramaAdicional = (): Promise<Array<{ id: number; nombre: string }>> =>
+  api.get<Array<{ id: number; nombre: string }>>('/programas_adicionales');
 
 // Utilidades
 export const isApiError = (error: unknown): error is ApiError => error instanceof ApiError;

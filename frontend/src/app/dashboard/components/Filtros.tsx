@@ -1,19 +1,5 @@
-import { 
-  dependenciasCatalogo, 
-  direccionesCatalogo, 
-  dispositivosCatalogo,
-  equipamientosCatalogo,
-  tipoEquipoCatalogo,
-  tipoSistemaOperativoCatalogo,
-  caracteristicasCatalogo,
-  marcasCatalogo,
-  ramCatalogo,
-  discoCatalogo,
-  officeCatalogo,
-  programaAdicionalCatalogo,
-  tipoConexionCatalogo,
-  selectStyle
-} from '../constants/catalogos';
+import { useCatalogos } from '../hooks/useCatalogos';
+import { selectStyle } from '../constants/catalogos';
 
 interface FiltrosProps {
   dependenciaSeleccionada: string;
@@ -59,6 +45,30 @@ export default function Filtros({
   tipoConexionSeleccionada, setTipoConexionSeleccionada,
   programaAdicionalSeleccionado, setProgramaAdicionalSeleccionado
 }: FiltrosProps) {
+  const { catalogos, isLoading, error } = useCatalogos();
+
+  if (isLoading) {
+    return (
+      <section style={{maxWidth: 1200, margin: '0 auto', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(44,62,80,0.08)', padding: '40px 32px', marginBottom: '32px'}}>
+        <h3 style={{fontWeight: 700, fontSize: '1.5rem', color: '#2980b9', marginBottom: '24px'}}>Filtros de Inventario</h3>
+        <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+          Cargando filtros...
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section style={{maxWidth: 1200, margin: '0 auto', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(44,62,80,0.08)', padding: '40px 32px', marginBottom: '32px'}}>
+        <h3 style={{fontWeight: 700, fontSize: '1.5rem', color: '#2980b9', marginBottom: '24px'}}>Filtros de Inventario</h3>
+        <div style={{ textAlign: 'center', padding: '20px', color: '#e74c3c' }}>
+          {error}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section style={{maxWidth: 1200, margin: '0 auto', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(44,62,80,0.08)', padding: '40px 32px', marginBottom: '32px'}}>
       <h3 style={{fontWeight: 700, fontSize: '1.5rem', color: '#2980b9', marginBottom: '24px'}}>Filtros de Inventario</h3>
@@ -67,77 +77,77 @@ export default function Filtros({
           <label style={{ fontWeight: 600 }}>Dependencia</label>
           <select style={selectStyle} value={dependenciaSeleccionada} onChange={e => setDependenciaSeleccionada(e.target.value)}>
             <option value="">Todas</option>
-            {dependenciasCatalogo.map(dep => (<option key={dep} value={dep}>{dep}</option>))}
+            {catalogos.dependencias.map(dep => (<option key={dep.id} value={dep.nombre}>{dep.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Dirección/Área</label>
           <select style={selectStyle} value={direccionSeleccionada} onChange={e => setDireccionSeleccionada(e.target.value)}>
             <option value="">Todas</option>
-            {direccionesCatalogo.map(dir => (<option key={dir} value={dir}>{dir}</option>))}
+            {catalogos.direcciones.map(dir => (<option key={dir.id} value={dir.nombre}>{dir.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Dispositivo</label>
           <select style={selectStyle} value={dispositivoSeleccionado} onChange={e => setDispositivoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
-            {dispositivosCatalogo.map(d => (<option key={d} value={d}>{d}</option>))}
+            {catalogos.dispositivos.map(d => (<option key={d.id} value={d.nombre}>{d.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Equipamiento</label>
           <select style={selectStyle} value={equipamientoSeleccionado} onChange={e => setEquipamientoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
-            {equipamientosCatalogo.map(eq => (<option key={eq} value={eq}>{eq}</option>))}
+            {catalogos.equipamientos.map(eq => (<option key={eq.id} value={eq.nombre}>{eq.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Tipo de Equipo</label>
           <select style={selectStyle} value={tipoEquipoSeleccionado} onChange={e => setTipoEquipoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
-            {tipoEquipoCatalogo.map(te => (<option key={te} value={te}>{te}</option>))}
+            {catalogos.tiposEquipo.map(te => (<option key={te.id} value={te.nombre}>{te.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Tipo de Sistema Operativo</label>
           <select style={selectStyle} value={tipoSistemaOperativoSeleccionado} onChange={e => setTipoSistemaOperativoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
-            {tipoSistemaOperativoCatalogo.map(so => (<option key={so} value={so}>{so}</option>))}
+            {catalogos.sistemasOperativos.map(so => (<option key={so.id} value={so.nombre}>{so.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Características</label>
           <select style={selectStyle} value={caracteristicaSeleccionada} onChange={e => setCaracteristicaSeleccionada(e.target.value)}>
             <option value="">Todas</option>
-            {caracteristicasCatalogo.map(c => (<option key={c} value={c}>{c}</option>))}
+            {catalogos.caracteristicas.map(c => (<option key={c.id} value={c.descripcion}>{c.descripcion}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Marca</label>
           <select style={selectStyle} value={marcaSeleccionada} onChange={e => setMarcaSeleccionada(e.target.value)}>
             <option value="">Todas</option>
-            {marcasCatalogo.map(m => (<option key={m} value={m}>{m}</option>))}
+            {catalogos.marcas.map(m => (<option key={m.id} value={m.nombre}>{m.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>RAM</label>
           <select style={selectStyle} value={ramSeleccionada} onChange={e => setRamSeleccionada(e.target.value)}>
             <option value="">Todas</option>
-            {ramCatalogo.map(r => (<option key={r} value={r}>{r}</option>))}
+            {catalogos.ram.map(r => (<option key={r.id} value={r.capacidad}>{r.capacidad}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Disco</label>
           <select style={selectStyle} value={discoSeleccionado} onChange={e => setDiscoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
-            {discoCatalogo.map(d => (<option key={d} value={d}>{d}</option>))}
+            {catalogos.disco.map(d => (<option key={d.id} value={d.capacidad}>{d.capacidad}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Office</label>
           <select style={selectStyle} value={officeSeleccionado} onChange={e => setOfficeSeleccionado(e.target.value)}>
             <option value="">Todos</option>
-            {officeCatalogo.map(o => (<option key={o} value={o}>{o}</option>))}
+            {catalogos.office.map(o => (<option key={o.id} value={o.version}>{o.version}</option>))}
           </select>
         </div>
         <div>
@@ -155,22 +165,22 @@ export default function Filtros({
             marginTop: '8px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
           }}>
-            {programaAdicionalCatalogo.map(pa => (
-              <label key={pa} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 400 }}>
+            {catalogos.programaAdicional.map(pa => (
+              <label key={pa.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 400 }}>
                 <input
                   type="checkbox"
-                  value={pa}
-                  checked={programaAdicionalSeleccionado.includes(pa)}
+                  value={pa.nombre}
+                  checked={programaAdicionalSeleccionado.includes(pa.nombre)}
                   onChange={e => {
                     if (e.target.checked) {
-                      setProgramaAdicionalSeleccionado([...programaAdicionalSeleccionado, pa]);
+                      setProgramaAdicionalSeleccionado([...programaAdicionalSeleccionado, pa.nombre]);
                     } else {
-                      setProgramaAdicionalSeleccionado(programaAdicionalSeleccionado.filter(item => item !== pa));
+                      setProgramaAdicionalSeleccionado(programaAdicionalSeleccionado.filter(item => item !== pa.nombre));
                     }
                   }}
                   style={{ accentColor: '#2980b9', width: 18, height: 18 }}
                 />
-                {pa}
+                {pa.nombre}
               </label>
             ))}
           </div>
@@ -179,7 +189,7 @@ export default function Filtros({
           <label style={{ fontWeight: 600 }}>Tipo de Conexión</label>
           <select style={selectStyle} value={tipoConexionSeleccionada} onChange={e => setTipoConexionSeleccionada(e.target.value)}>
             <option value="">Todas</option>
-            {tipoConexionCatalogo.map(tc => (<option key={tc} value={tc}>{tc}</option>))}
+            {catalogos.tipoConexion.map(tc => (<option key={tc.id} value={tc.nombre}>{tc.nombre}</option>))}
           </select>
         </div>
       </div>
