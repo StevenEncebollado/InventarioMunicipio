@@ -3,7 +3,7 @@
 Archivo principal de la aplicación para el sistema de inventario.
 Aquí se inicializa la app y se registran los blueprints de cada módulo.
 """
-
+#En readme están las instrucciones
 
 from flask import Flask
 # from flask_cors import CORS  # Comentado temporalmente
