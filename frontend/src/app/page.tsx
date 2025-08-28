@@ -266,7 +266,7 @@ export default function LoginPage() {
                   type="text"
                   value={currentUsername}
                   onChange={e => setCurrentUsername(e.target.value)}
-                  autoComplete="username"
+                  autoComplete="username"  
                   required
                 />
               </div>
