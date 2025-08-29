@@ -5,8 +5,8 @@ Aquí se inicializa la app y se registran los blueprints de cada módulo.
 """
 #En readme están las instrucciones
 
-from flask import Flask
-# from flask_cors import CORS  # Comentado temporalmente
+from flask import Flask, app
+from flask_cors import CORS
 import sys
 import os
 import logging
@@ -43,6 +43,7 @@ from backend.reportes.reportes_routes import reportes_bp
 
 def create_app():
     app = Flask(__name__)
+    CORS(app, resources={r"/*": {"origins": "*"}})
 
     # Configuración de logging
     log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
@@ -55,14 +56,6 @@ def create_app():
     handler.setFormatter(formatter)
     app.logger.addHandler(handler)
     app.logger.setLevel(log_level)
-
-    # Habilitamos CORS de manera manual y simple para desarrollo
-    @app.after_request
-    def after_request(response):
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-        return response
 
     # Registrar blueprints con prefijos para rutas coherentes
     app.register_blueprint(usuarios_bp, url_prefix='/usuarios')
