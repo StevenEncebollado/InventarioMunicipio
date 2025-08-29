@@ -121,58 +121,58 @@ export default function AgregarEquipoForm({
         </select>
         
                 <select value={tipoEquipo} onChange={e => setTipoEquipo(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
-          <option value="">Tipo de equipo</option>
-          {catalogos.tiposEquipo.map(t => <option key={t.id} value={t.nombre}>{t.nombre}</option>)}
-        </select>
+                  <option value="">Tipo de equipo</option>
+                  {catalogos.tiposEquipo.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+                </select>
         
         <select value={marca} onChange={e => setMarca(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Marca</option>
-          {catalogos.marcas.map(m => <option key={m.id} value={m.nombre}>{m.nombre}</option>)}
+          {catalogos.marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
         </select>
         
         <select value={ram} onChange={e => setRam(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">RAM</option>
-          {catalogos.ram.map(r => <option key={r.id} value={r.capacidad}>{r.capacidad}</option>)}
+          {catalogos.ram.map(r => <option key={r.id} value={r.id}>{r.capacidad}</option>)}
         </select>
         
         <select value={disco} onChange={e => setDisco(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Disco</option>
-          {catalogos.disco.map(d => <option key={d.id} value={d.capacidad}>{d.capacidad}</option>)}
+          {catalogos.disco.map(d => <option key={d.id} value={d.id}>{d.capacidad}</option>)}
         </select>
         
         <select value={office} onChange={e => setOffice(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Office</option>
-          {catalogos.office.map(o => <option key={o.id} value={o.version}>{o.version}</option>)}
+          {catalogos.office.map(o => <option key={o.id} value={o.id}>{o.version}</option>)}
         </select>
         
         <select value={tipoConexion} onChange={e => setTipoConexion(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Tipo de conexión</option>
-          {catalogos.tipoConexion.map(tc => <option key={tc.id} value={tc.nombre}>{tc.nombre}</option>)}
+          {catalogos.tipoConexion.map(tc => <option key={tc.id} value={tc.id}>{tc.nombre}</option>)}
         </select>
         
         <select value={dependencia} onChange={e => setDependencia(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Dependencia</option>
-          {catalogos.dependencias.map(dep => <option key={dep.id} value={dep.nombre}>{dep.nombre}</option>)}
+          {catalogos.dependencias.map(dep => <option key={dep.id} value={dep.id}>{dep.nombre}</option>)}
         </select>
         
         <select value={direccion} onChange={e => setDireccion(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Dirección</option>
-          {catalogos.direcciones.map(dir => <option key={dir.id} value={dir.nombre}>{dir.nombre}</option>)}
+          {catalogos.direcciones.map(dir => <option key={dir.id} value={dir.id}>{dir.nombre}</option>)}
         </select>
         
         <select value={equipamiento} onChange={e => setEquipamiento(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Equipamiento</option>
-          {catalogos.equipamientos.map(eq => <option key={eq.id} value={eq.nombre}>{eq.nombre}</option>)}
+          {catalogos.equipamientos.map(eq => <option key={eq.id} value={eq.id}>{eq.nombre}</option>)}
         </select>
         
         <select value={caracteristica} onChange={e => setCaracteristica(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Característica</option>
-          {catalogos.caracteristicas.map(c => <option key={c.id} value={c.descripcion}>{c.descripcion}</option>)}
+          {catalogos.caracteristicas.map(c => <option key={c.id} value={c.id}>{c.descripcion}</option>)}
         </select>
         
         <select value={sistemaOperativo} onChange={e => setSistemaOperativo(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Sistema operativo</option>
-          {catalogos.sistemasOperativos.map(so => <option key={so.id} value={so.nombre}>{so.nombre}</option>)}
+          {catalogos.sistemasOperativos.map(so => <option key={so.id} value={so.id}>{so.nombre}</option>)}
         </select>
         
         <label style={{marginTop: 6, fontWeight: 500}}>Programa adicional:</label>
