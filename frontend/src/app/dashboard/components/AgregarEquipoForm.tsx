@@ -29,6 +29,7 @@ interface AgregarEquipoFormProps {
   caracteristica: string; setCaracteristica: (value: string) => void;
   sistemaOperativo: string; setSistemaOperativo: (value: string) => void;
   programaAdicional: string[]; setProgramaAdicional: (value: string[]) => void;
+  estado: string; setEstado: (value: string) => void;
 }
 
 export default function AgregarEquipoForm({
@@ -37,7 +38,7 @@ export default function AgregarEquipoForm({
   tipoEquipo, setTipoEquipo, marca, setMarca, ram, setRam, disco, setDisco, office, setOffice,
   tipoConexion, setTipoConexion, dependencia, setDependencia, direccion, setDireccion,
   equipamiento, setEquipamiento, caracteristica, setCaracteristica, sistemaOperativo, setSistemaOperativo,
-  programaAdicional, setProgramaAdicional
+  programaAdicional, setProgramaAdicional, estado, setEstado
 }: AgregarEquipoFormProps) {
   const { catalogos, isLoading: catalogosLoading, error: catalogosError } = useCatalogosContext();
   
@@ -112,6 +113,12 @@ export default function AgregarEquipoForm({
           placeholder="Anydesk" 
           style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}} 
         />
+        <select value={estado} onChange={e => setEstado(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
+          <option value="">Estado</option>
+          <option value="Activo">Activo</option>
+          <option value="Mantenimiento">Mantenimiento</option>
+          <option value="Inactivo">Inactivo</option>
+        </select>
         
                 <select value={tipoEquipo} onChange={e => setTipoEquipo(e.target.value)} style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15}}>
           <option value="">Tipo de equipo</option>

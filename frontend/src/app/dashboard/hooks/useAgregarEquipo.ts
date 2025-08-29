@@ -22,6 +22,8 @@ export function useAgregarEquipo() {
   const [caracteristica, setCaracteristica] = useState("");
   const [sistemaOperativo, setSistemaOperativo] = useState("");
   
+  // Estado del equipo
+  const [estado, setEstado] = useState("");
   // Estados de validación
   const [addLoading, setAddLoading] = useState(false);
   const [addError, setAddError] = useState("");
@@ -43,14 +45,15 @@ export function useAgregarEquipo() {
     setDireccion("");
     setEquipamiento("");
     setCaracteristica("");
-    setSistemaOperativo("");
+  setSistemaOperativo("");
+  setEstado("");
   };
 
   const validarCampos = (): boolean => {
     if (!ip || !mac || !nombrePc || !funcionario || !anydesk || 
         !tipoEquipo || !marca || !ram || !disco || !office || 
         !tipoConexion || !dependencia || !direccion || !equipamiento || 
-        !caracteristica || !sistemaOperativo) {
+        !caracteristica || !sistemaOperativo || !estado) {
       setAddError("Todos los campos son obligatorios");
       return false;
     }
@@ -76,7 +79,8 @@ export function useAgregarEquipo() {
     marca_id: marca,
     codigo_inventario: mac,
     tipo_conexion_id: tipoConexion,
-    anydesk: anydesk
+  anydesk: anydesk,
+  estado: estado
   });
 
   return {
@@ -101,9 +105,11 @@ export function useAgregarEquipo() {
     caracteristica, setCaracteristica,
     sistemaOperativo, setSistemaOperativo,
     
-    // Estados de validación
-    addLoading, setAddLoading,
-    addError, setAddError,
+  // Estado del equipo
+  estado, setEstado,
+  // Estados de validación
+  addLoading, setAddLoading,
+  addError, setAddError,
     
     // Funciones utilitarias
     limpiarCampos,

@@ -1,5 +1,6 @@
 import { formatDate } from '@/utils';
 import type { Equipo } from '@/types';
+import { useCatalogosContext } from '../context/CatalogosContext';
 
 interface TablaEquiposProps {
   equipos: Equipo[];
@@ -7,50 +8,34 @@ interface TablaEquiposProps {
 }
 
 export default function TablaEquipos({ equipos, onAgregarClick }: TablaEquiposProps) {
+  // Mostrar solo los últimos 3 equipos creados (orden descendente por id)
+  // Usar los campos reales del backend: nombres_funcionario y tipo_equipo_id
+  const ultimosEquipos = Array.isArray(equipos) ? [...equipos].sort((a, b) => b.id - a.id).slice(0, 3) : [];
+    const { catalogos } = useCatalogosContext();
   return (
     <section className="equipos-section">
       <div className="section-header">
         <h3>Equipos Recientes</h3>
         <button className="btn btn-primary" onClick={onAgregarClick}>+ Agregar Equipo</button>
       </div>
-      
-      {equipos.length > 0 ? (
+      {ultimosEquipos.length > 0 ? (
         <div className="table-container">
           <table className="equipos-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Serie</th>
-                <th>Tipo</th>
-                <th>Marca</th>
-                <th>Estado</th>
-                <th>Dependencia</th>
-                <th>Fecha</th>
+                <th>Funcionario</th>
+                <th>Tipo de Dispositivo</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {equipos.slice(0, 10).map((equipo) => (
+              {ultimosEquipos.map((equipo) => (
                 <tr key={equipo.id}>
-                  <td>{equipo.id}</td>
-                  <td>
-                    <code className="serial-code">{equipo.numero_serie}</code>
-                  </td>
-                  <td>{equipo.tipo_equipo}</td>
-                  <td>{equipo.marca}</td>
-                  <td>
-                    <span className={`status-badge status-${equipo.estado ? equipo.estado.toLowerCase() : 'desconocido'}`}>
-                      {equipo.estado || 'Desconocido'}
-                    </span>
-                  </td>
-                  <td>{equipo.dependencia}</td>
-                  <td>
-                    {equipo.fecha_adquisicion ? formatDate(equipo.fecha_adquisicion) : '-'}
-                  </td>
+                  <td>{equipo.nombres_funcionario || 'Sin asignar'}</td>
+                    <td>{catalogos.tiposEquipo.find((t: { id: number; nombre: string }) => t.id === equipo.tipo_equipo_id)?.nombre || '-'}</td>
                   <td>
                     <div className="action-buttons">
                       <button className="btn btn-sm btn-outline" title="Ver">Ver</button>
-                      <button className="btn btn-sm btn-outline" title="Editar">Editar</button>
                     </div>
                   </td>
                 </tr>

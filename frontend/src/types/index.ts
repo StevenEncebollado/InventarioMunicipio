@@ -35,24 +35,27 @@ export interface SistemaOperativo {
 
 export interface Equipo {
   id: number;
-  numero_serie: string;
-  codigo_interno?: string;
-  marca: string;
-  modelo?: string;
-  tipo_equipo: string;
-  sistema_operativo?: string;
-  procesador?: string;
-  ram_gb?: number;
-  almacenamiento_gb?: number;
-  estado: 'Activo' | 'Inactivo' | 'Mantenimiento' | 'Dado de baja';
-  ubicacion?: string;
-  dependencia: string;
-  usuario_asignado?: string;
-  fecha_adquisicion?: string;
-  fecha_ultimo_mantenimiento?: string;
-  observaciones?: string;
-  precio_adquisicion?: number;
-  garantia_hasta?: string;
+  anydesk?: string;
+  caracteristicas_id?: number;
+  codigo_inventario?: string;
+  dependencia_id?: number;
+  direccion_area_id?: number;
+  direccion_ip?: string;
+  direccion_mac?: string;
+  disco_id?: number | null;
+  dispositivo_id?: number | null;
+  equipamiento_id?: number;
+  fecha_registro?: string;
+  marca_id?: number;
+  nombre_pc?: string;
+  nombres_funcionario?: string;
+  office_id?: number;
+  ram_id?: number;
+  tipo_conexion_id?: number;
+  tipo_equipo_id?: number;
+  tipo_sistema_operativo_id?: number;
+  usuario_id?: number;
+  estado: 'Activo' | 'Mantenimiento' | 'Inactivo';
 }
 
 export interface HistorialEquipo {
@@ -93,7 +96,7 @@ export interface LoginResponse {
 export interface FiltrosEquipo {
   tipo_equipo?: string;
   marca?: string;
-  estado?: Equipo['estado'];
+  // estado eliminado, ya no existe en Equipo
   dependencia?: string;
   fecha_desde?: string;
   fecha_hasta?: string;
@@ -108,7 +111,7 @@ export interface OpcionesPaginacion {
 // Tipos para reportes
 export interface ReporteEquipos {
   total_equipos: number;
-  por_estado: Record<Equipo['estado'], number>;
+  // por_estado eliminado, ya no existe 'estado' en Equipo
   por_tipo: Record<string, number>;
   por_dependencia: Record<string, number>;
   valor_total?: number;

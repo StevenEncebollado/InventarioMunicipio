@@ -70,7 +70,7 @@ def create_inventario():
         'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
         'direccion_mac', 'nombre_pc', 'nombres_funcionario', 'equipamiento_id', 'tipo_equipo_id',
         'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id', 'office_id',
-        'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk'
+        'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado'
     ]
     valores = [data.get(campo) for campo in campos]
     conn = get_db_connection()
@@ -110,7 +110,7 @@ def update_inventario(item_id):
         'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
         'direccion_mac', 'nombre_pc', 'nombres_funcionario', 'equipamiento_id', 'tipo_equipo_id',
         'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id', 'office_id',
-        'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk'
+        'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado'
     ]
     valores = [data.get(campo) for campo in campos]
     set_clause = ', '.join([f"{campo} = %s" for campo in campos])
