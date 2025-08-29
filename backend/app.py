@@ -5,7 +5,7 @@ Aquí se inicializa la app y se registran los blueprints de cada módulo.
 """
 #En readme están las instrucciones
 
-from flask import Flask, app
+from flask import Flask
 from flask_cors import CORS
 import sys
 import os
@@ -35,6 +35,7 @@ from backend.catalogos.tipo_conexion_routes import tipo_conexion_bp
 from backend.catalogos.tipo_equipo_routes import tipo_equipo_bp
 from backend.catalogos.tipo_sistema_operativo_routes import tipo_so_bp
 from backend.catalogos.caracteristicas_routes import caracteristicas_bp
+from backend.catalogos.catalogos_unificados_routes import catalogos_unificados_bp
 from backend.inventario.inventario_programa_routes import inventario_programa_bp
 from backend.inventario.inventario_routes import inventario_bp
 from backend.usuarios.usuarios_routes import usuarios_bp
@@ -43,6 +44,8 @@ from backend.reportes.reportes_routes import reportes_bp
 
 def create_app():
     app = Flask(__name__)
+    CORS(app, resources={r"/*": {"origins": "*"}})
+    app.register_blueprint(catalogos_unificados_bp)
     CORS(app, resources={r"/*": {"origins": "*"}})
 
     # Configuración de logging
