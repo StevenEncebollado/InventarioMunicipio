@@ -1,4 +1,5 @@
 import { FaServer, FaCheckCircle, FaTools, FaBan } from 'react-icons/fa';
+import { MdDashboard } from 'react-icons/md';
 
 interface EstadisticasProps {
   total: number;
@@ -11,7 +12,7 @@ export default function Estadisticas({ total, active, maintenance, inactive }: E
   return (
     <div className="dashboard-header">
       <h2>
-        <FaServer style={{ color: '#2563eb', fontSize: '2rem', marginRight: 10, animation: 'pulse 2s infinite alternate' }} />
+        <MdDashboard style={{ color: '#2563eb', fontSize: '2rem', marginRight: 10, animation: 'pulse 2s infinite alternate' }} />
         Panel de Control
       </h2>
       <div className="stats-grid">

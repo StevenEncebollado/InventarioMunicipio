@@ -1,4 +1,4 @@
-import { FaUser, FaDesktop, FaEye } from 'react-icons/fa';
+import { FaUser, FaDesktop, FaEye, FaCog } from 'react-icons/fa';
 import type { Equipo } from '@/types';
 import { useCatalogosContext } from '../context/CatalogosContext';
 
@@ -28,9 +28,9 @@ export default function TablaEquipos({ equipos, onAgregarClick }: TablaEquiposPr
           <table className="equipos-table equipos-table-modern">
             <thead>
               <tr>
-                <th><FaUser style={{ marginRight: 4, color: 'var(--secondary-color)' }} /> Funcionario</th>
-                <th><FaDesktop style={{ marginRight: 4, color: 'var(--secondary-color)' }} /> Tipo de Dispositivo</th>
-                <th>Acciones</th>
+                <th><FaUser style={{ marginRight: 4, color: '#111' }} /> Funcionario</th>
+                <th><FaDesktop style={{ marginRight: 4, color: '#111' }} /> Tipo de Dispositivo</th>
+                <th><FaCog style={{ marginRight: 4, color: '#111' }} /> Acciones</th>
               </tr>
             </thead>
             <tbody>

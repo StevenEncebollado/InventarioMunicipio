@@ -1,5 +1,7 @@
+
 import { useCatalogosContext } from '../context/CatalogosContext';
 import { selectStyle } from '../constants/catalogos';
+import { FaBroom, FaSearch } from 'react-icons/fa';
 
 interface FiltrosProps {
   dependenciaSeleccionada: string;
@@ -28,6 +30,7 @@ interface FiltrosProps {
   setTipoConexionSeleccionada: (value: string) => void;
   programaAdicionalSeleccionado: string[];
   setProgramaAdicionalSeleccionado: (value: string[]) => void;
+  onLimpiarFiltros?: () => void;
 }
 
 export default function Filtros({
@@ -45,6 +48,22 @@ export default function Filtros({
   tipoConexionSeleccionada, setTipoConexionSeleccionada,
   programaAdicionalSeleccionado, setProgramaAdicionalSeleccionado
 }: FiltrosProps) {
+  // Función para limpiar todos los filtros
+  const limpiarFiltros = () => {
+    setDependenciaSeleccionada('');
+    setDireccionSeleccionada('');
+    setDispositivoSeleccionado('');
+    setEquipamientoSeleccionado('');
+    setTipoEquipoSeleccionado('');
+    setTipoSistemaOperativoSeleccionado('');
+    setMarcaSeleccionada('');
+    setCaracteristicaSeleccionada('');
+    setRamSeleccionada('');
+    setDiscoSeleccionado('');
+    setOfficeSeleccionado('');
+    setTipoConexionSeleccionada('');
+    setProgramaAdicionalSeleccionado([]);
+  };
   const { catalogos, isLoading, error } = useCatalogosContext();
 
   if (isLoading) {
@@ -70,12 +89,23 @@ export default function Filtros({
   }
 
   return (
-    <section className="equipos-section" style={{ marginBottom: 32 }}>
-      <h3 className="section-header" style={{ fontWeight: 800, fontSize: '1.3rem', color: 'var(--primary-color)', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span role="img" aria-label="Filtro" style={{ fontSize: 22, marginRight: 8 }}>🔎</span>
-        Filtros de Inventario
-      </h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
+    <section className="equipos-section" style={{ marginBottom: 32, padding: 0 }}>
+      <div className="section-header" style={{ borderBottom: '2px solid var(--primary-color)', background: 'rgba(56,189,248,0.07)', borderTopLeftRadius: 12, borderTopRightRadius: 12, marginBottom: 0, padding: '1.2rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <FaSearch style={{ fontSize: 26, color: 'var(--primary-color)' }} />
+          <span style={{ fontWeight: 800, fontSize: '1.3rem', color: 'var(--primary-color)' }}>Filtros de Inventario</span>
+        </div>
+        <button
+          className="btn btn-outline"
+          style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, border: '1.5px solid var(--primary-color)', color: 'var(--primary-color)', background: '#fff', boxShadow: '0 1px 4px rgba(56,189,248,0.07)' }}
+          onClick={limpiarFiltros}
+          type="button"
+        >
+          <FaBroom style={{ fontSize: 18, color: 'var(--primary-color)' }} /> Limpiar filtros
+        </button>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, padding: '2rem', alignItems: 'start' }}>
+        {/* Fila 1 */}
         <div>
           <label style={{ fontWeight: 600 }}>Dependencia</label>
           <select style={selectStyle} value={dependenciaSeleccionada} onChange={e => setDependenciaSeleccionada(e.target.value)}>
@@ -104,6 +134,7 @@ export default function Filtros({
             {catalogos.equipamientos.map(eq => (<option key={eq.id} value={eq.nombre}>{eq.nombre}</option>))}
           </select>
         </div>
+        {/* Fila 2 */}
         <div>
           <label style={{ fontWeight: 600 }}>Tipo de Equipo</label>
           <select style={selectStyle} value={tipoEquipoSeleccionado} onChange={e => setTipoEquipoSeleccionado(e.target.value)}>
@@ -132,6 +163,7 @@ export default function Filtros({
             {catalogos.marcas.map(m => (<option key={m.id} value={m.nombre}>{m.nombre}</option>))}
           </select>
         </div>
+        {/* Fila 3 */}
         <div>
           <label style={{ fontWeight: 600 }}>RAM</label>
           <select style={selectStyle} value={ramSeleccionada} onChange={e => setRamSeleccionada(e.target.value)}>
@@ -154,46 +186,39 @@ export default function Filtros({
           </select>
         </div>
         <div>
-          <label style={{ fontWeight: 600 }}>Programa Adicional</label>
-          <div style={{
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            background: '#f9f9f9',
-            padding: '10px',
-            minHeight: '48px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '6px',
-            fontSize: '16px',
-            marginTop: '8px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-          }}>
-            {catalogos.programaAdicional.map(pa => (
-              <label key={pa.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 400 }}>
-                <input
-                  type="checkbox"
-                  value={pa.nombre}
-                  checked={programaAdicionalSeleccionado.includes(pa.nombre)}
-                  onChange={e => {
-                    if (e.target.checked) {
-                      setProgramaAdicionalSeleccionado([...programaAdicionalSeleccionado, pa.nombre]);
-                    } else {
-                      setProgramaAdicionalSeleccionado(programaAdicionalSeleccionado.filter(item => item !== pa.nombre));
-                    }
-                  }}
-                  style={{ accentColor: '#2980b9', width: 18, height: 18 }}
-                />
-                {pa.nombre}
-              </label>
-            ))}
-          </div>
-        </div>
-        <div>
           <label style={{ fontWeight: 600 }}>Tipo de Conexión</label>
           <select style={selectStyle} value={tipoConexionSeleccionada} onChange={e => setTipoConexionSeleccionada(e.target.value)}>
             <option value="">Todas</option>
             {catalogos.tipoConexion.map(tc => (<option key={tc.id} value={tc.nombre}>{tc.nombre}</option>))}
           </select>
+        </div>
+        {/* Fila 4: Programa Adicional ocupa las 4 columnas */}
+        <div style={{ gridColumn: '1 / span 4', marginTop: 8 }}>
+          <label style={{ fontWeight: 600 }}>Programa Adicional</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, background: '#f8fafc', borderRadius: 10, boxShadow: '0 2px 8px rgba(56,189,248,0.08)', padding: 14, maxHeight: 180, overflowY: 'auto', border: '1.5px solid var(--primary-color)' }}>
+            {(catalogos.programaAdicional || []).map((pa: any) => {
+              const nombre = typeof pa === 'string' ? pa : pa.nombre;
+              const key = typeof pa === 'string' ? pa : pa.id || pa.nombre;
+              return (
+                <label key={key} style={{ fontWeight: 400, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <input
+                    type="checkbox"
+                    value={nombre}
+                    checked={programaAdicionalSeleccionado.includes(nombre)}
+                    onChange={e => {
+                      if (e.target.checked) {
+                        setProgramaAdicionalSeleccionado([...programaAdicionalSeleccionado, nombre]);
+                      } else {
+                        setProgramaAdicionalSeleccionado(programaAdicionalSeleccionado.filter(item => item !== nombre));
+                      }
+                    }}
+                    style={{ accentColor: 'var(--primary-color)' }}
+                  />
+                  {nombre}
+                </label>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
