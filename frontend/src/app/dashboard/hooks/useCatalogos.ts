@@ -83,7 +83,6 @@ export function useCatalogos() {
         setIsLoading(true);
         setError(null);
 
-        // Cargar catálogos uno por uno para identificar cual falla
         console.log('Iniciando carga de catálogos...');
         
         const catalogosData: Partial<Catalogos> = {};
@@ -184,6 +183,7 @@ export function useCatalogos() {
           catalogosData.tipoConexion = [];
         }
 
+
         try {
           console.log('Cargando programas adicionales...');
           catalogosData.programaAdicional = await getProgramaAdicional();
@@ -192,7 +192,6 @@ export function useCatalogos() {
           catalogosData.programaAdicional = [];
         }
 
-        // Establecer los catálogos con valores por defecto si algo falla
         setCatalogos({
           dependencias: catalogosData.dependencias || [],
           direcciones: catalogosData.direcciones || [],

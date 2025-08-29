@@ -1,5 +1,5 @@
 import Modal from './Modal';
-import { useCatalogos } from '../hooks/useCatalogos';
+import { useCatalogosContext } from '../context/CatalogosContext';
 import { selectStyle } from '../constants/catalogos';
 
 interface AgregarEquipoFormProps {
@@ -39,7 +39,7 @@ export default function AgregarEquipoForm({
   equipamiento, setEquipamiento, caracteristica, setCaracteristica, sistemaOperativo, setSistemaOperativo,
   programaAdicional, setProgramaAdicional
 }: AgregarEquipoFormProps) {
-  const { catalogos, isLoading: catalogosLoading, error: catalogosError } = useCatalogos();
+  const { catalogos, isLoading: catalogosLoading, error: catalogosError } = useCatalogosContext();
   
   if (!showAddEquipo) return null;
 

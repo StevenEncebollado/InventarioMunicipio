@@ -1,4 +1,4 @@
-import { useCatalogos } from '../hooks/useCatalogos';
+import { useCatalogosContext } from '../context/CatalogosContext';
 import { selectStyle } from '../constants/catalogos';
 
 interface FiltrosProps {
@@ -45,7 +45,7 @@ export default function Filtros({
   tipoConexionSeleccionada, setTipoConexionSeleccionada,
   programaAdicionalSeleccionado, setProgramaAdicionalSeleccionado
 }: FiltrosProps) {
-  const { catalogos, isLoading, error } = useCatalogos();
+  const { catalogos, isLoading, error } = useCatalogosContext();
 
   if (isLoading) {
     return (
