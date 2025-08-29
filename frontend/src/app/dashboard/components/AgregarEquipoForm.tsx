@@ -68,7 +68,10 @@ export default function AgregarEquipoForm({
 
   return (
     <Modal open={showAddEquipo} onClose={() => setShowAddEquipo(false)}>
-      <h2 style={{ marginBottom: 16 }}>Agregar Nuevo Equipo</h2>
+      <h2 style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span role="img" aria-label="Computadora" style={{ fontSize: 24 }}>💻</span>
+        Agregar Nuevo Equipo
+      </h2>
       {addError && <div style={{ color: 'red', marginBottom: 8 }}>{addError}</div>}
       <form
         onSubmit={onSubmit}

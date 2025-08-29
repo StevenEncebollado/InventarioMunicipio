@@ -1,3 +1,5 @@
+import { FaServer, FaCheckCircle, FaTools, FaBan } from 'react-icons/fa';
+
 interface EstadisticasProps {
   total: number;
   active: number;
@@ -7,26 +9,46 @@ interface EstadisticasProps {
 
 export default function Estadisticas({ total, active, maintenance, inactive }: EstadisticasProps) {
   return (
-    <div className="dashboard-header" style={{maxWidth: 1200, margin: '0 auto', padding: '32px 0'}}>
-      <h2 style={{fontWeight: 700, fontSize: '2rem', color: '#222'}}>Panel de Control</h2>
-      <div className="stats-grid" style={{display: 'flex', gap: '32px', margin: '32px 0'}}>
-        <div className="stat-card" style={{background: '#fff', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '24px', flex: 1, textAlign: 'center'}}>
-          <h3 style={{color: '#2980b9'}}>Total</h3>
-          <span style={{fontWeight: 700, fontSize: '2.2rem'}}>{total}</span>
+    <div className="dashboard-header">
+      <h2>
+        <FaServer style={{ color: '#2563eb', fontSize: '2rem', marginRight: 10, animation: 'pulse 2s infinite alternate' }} />
+        Panel de Control
+      </h2>
+      <div className="stats-grid">
+        <div className="stat-card">
+          <h3>Total</h3>
+          <span className="stat-number">
+            <FaServer style={{ color: '#2563eb', marginRight: 8, verticalAlign: 'middle', animation: 'pulse 2s infinite alternate' }} />
+            {total}
+          </span>
         </div>
-        <div className="stat-card" style={{background: '#fff', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '24px', flex: 1, textAlign: 'center'}}>
-          <h3 style={{color: '#27ae60'}}>Activos</h3>
-          <span style={{fontWeight: 700, fontSize: '2.2rem', color: '#27ae60'}}>{active}</span>
+        <div className="stat-card">
+          <h3>Activos</h3>
+          <span className="stat-number stat-success">
+            <FaCheckCircle style={{ color: '#22c55e', marginRight: 8, verticalAlign: 'middle', animation: 'pulse 2s infinite alternate' }} />
+            {active}
+          </span>
         </div>
-        <div className="stat-card" style={{background: '#fff', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '24px', flex: 1, textAlign: 'center'}}>
-          <h3 style={{color: '#f1c40f'}}>Mantenimiento</h3>
-          <span style={{fontWeight: 700, fontSize: '2.2rem', color: '#f1c40f'}}>{maintenance}</span>
+        <div className="stat-card">
+          <h3>Mantenimiento</h3>
+          <span className="stat-number stat-warning">
+            <FaTools style={{ color: '#facc15', marginRight: 8, verticalAlign: 'middle', animation: 'pulse 2s infinite alternate' }} />
+            {maintenance}
+          </span>
         </div>
-        <div className="stat-card" style={{background: '#fff', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '24px', flex: 1, textAlign: 'center'}}>
-          <h3 style={{color: '#e74c3c'}}>Inactivos</h3>
-          <span style={{fontWeight: 700, fontSize: '2.2rem', color: '#e74c3c'}}>{inactive}</span>
+        <div className="stat-card">
+          <h3>Inactivos</h3>
+          <span className="stat-number stat-danger">
+            <FaBan style={{ color: '#ef4444', marginRight: 8, verticalAlign: 'middle', animation: 'pulse 2s infinite alternate' }} />
+            {inactive}
+          </span>
         </div>
       </div>
     </div>
   );
 }
+
+// Animación sutil para los íconos
+const style = document.createElement('style');
+style.innerHTML = `@keyframes pulse { 0% { transform: scale(1);} 100% { transform: scale(1.12);} }`;
+document.head.appendChild(style);

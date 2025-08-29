@@ -70,9 +70,12 @@ export default function Filtros({
   }
 
   return (
-    <section style={{maxWidth: 1200, margin: '0 auto', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(44,62,80,0.08)', padding: '40px 32px', marginBottom: '32px'}}>
-      <h3 style={{fontWeight: 700, fontSize: '1.5rem', color: '#2980b9', marginBottom: '24px'}}>Filtros de Inventario</h3>
-      <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '24px'}}>
+    <section className="equipos-section" style={{ marginBottom: 32 }}>
+      <h3 className="section-header" style={{ fontWeight: 800, fontSize: '1.3rem', color: 'var(--primary-color)', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span role="img" aria-label="Filtro" style={{ fontSize: 22, marginRight: 8 }}>🔎</span>
+        Filtros de Inventario
+      </h3>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
         <div>
           <label style={{ fontWeight: 600 }}>Dependencia</label>
           <select style={selectStyle} value={dependenciaSeleccionada} onChange={e => setDependenciaSeleccionada(e.target.value)}>
