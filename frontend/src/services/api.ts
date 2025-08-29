@@ -1,3 +1,6 @@
+// Catálogos unificados
+export const getCatalogosUnificados = (): Promise<any> =>
+  api.get<any>('/api/catalogos_unificados');
 import type { 
   Usuario, 
   Equipo, 
