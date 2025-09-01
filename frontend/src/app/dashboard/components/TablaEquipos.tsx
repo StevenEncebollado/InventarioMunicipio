@@ -1,4 +1,4 @@
-import { FaUser, FaDesktop, FaEye, FaCog } from 'react-icons/fa';
+import { FaUser, FaDesktop, FaEye, FaMousePointer } from 'react-icons/fa';
 import type { Equipo } from '@/types';
 import { useCatalogosContext } from '../context/CatalogosContext';
 
@@ -30,7 +30,7 @@ export default function TablaEquipos({ equipos, onAgregarClick }: TablaEquiposPr
               <tr>
                 <th><FaUser style={{ marginRight: 4, color: '#111' }} /> Funcionario</th>
                 <th><FaDesktop style={{ marginRight: 4, color: '#111' }} /> Tipo de Dispositivo</th>
-                <th><FaCog style={{ marginRight: 4, color: '#111' }} /> Acciones</th>
+                <th><FaMousePointer style={{ marginRight: 4, color: '#111' }} /> Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -47,7 +47,7 @@ export default function TablaEquipos({ equipos, onAgregarClick }: TablaEquiposPr
                     <td>
                       <div className="action-buttons">
                         <button className="btn btn-sm btn-ver" title="Ver" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <FaEye style={{ marginRight: 4, color: 'var(--primary-color)', animation: 'pulse 2s infinite alternate' }} /> Ver
+                          <FaEye style={{ marginRight: 4, color: '#111', animation: 'pulse 2s infinite alternate' }} /> Ver
                         </button>
                       </div>
                     </td>
