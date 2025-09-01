@@ -29,7 +29,7 @@ interface AgregarEquipoFormProps {
   equipamiento: string; setEquipamiento: (value: string) => void;
   caracteristica: string; setCaracteristica: (value: string) => void;
   sistemaOperativo: string; setSistemaOperativo: (value: string) => void;
-  programaAdicional: string[]; setProgramaAdicional: (value: string[]) => void;
+  programaAdicional: number[]; setProgramaAdicional: (value: number[]) => void;
   estado: string; setEstado: (value: string) => void;
 }
 
@@ -182,10 +182,10 @@ export default function AgregarEquipoForm({
         <label style={{marginTop: 6, fontWeight: 500}}>Programa adicional:</label>
         <Select
           isMulti
-          options={catalogos.programaAdicional.map(pa => ({ value: pa.nombre, label: pa.nombre }))}
+          options={catalogos.programaAdicional.map(pa => ({ value: pa.id, label: pa.nombre }))}
           value={catalogos.programaAdicional
-            .filter(pa => programaAdicional.includes(pa.nombre))
-            .map(pa => ({ value: pa.nombre, label: pa.nombre }))}
+            .filter(pa => programaAdicional.includes(pa.id))
+            .map(pa => ({ value: pa.id, label: pa.nombre }))}
           onChange={selected => setProgramaAdicional(selected ? selected.map(opt => opt.value) : [])}
           placeholder="Buscar y seleccionar programas..."
           styles={{

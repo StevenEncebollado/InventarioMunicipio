@@ -27,17 +27,53 @@ def get_inventario():
     ]
     filtros = []
     valores = []
+    join_programa = False
+    programa_adicional = request.args.get('programa_adicional')
+    if programa_adicional:
+        # Puede ser una lista separada por comas
+        programa_ids = [int(pid) for pid in programa_adicional.split(',') if pid.isdigit()]
+        if programa_ids:
+            join_programa = True
+            # Filtrar inventarios que tengan TODOS los programas seleccionados
+            # Usar HAVING COUNT para asegurar que tenga todos los programas
     for campo in filtrables:
         valor = request.args.get(campo)
         if valor is not None and valor != '':
-            filtros.append(f"{campo} = %s")
+            filtros.append(f"inventario.{campo} = %s")
             valores.append(valor)
-    query = 'SELECT * FROM inventario'
-    if filtros:
-        query += ' WHERE ' + ' AND '.join(filtros)
-    cur.execute(query, valores)
+    if join_programa:
+        # Subquery para obtener solo los inventarios que tienen TODOS los programas seleccionados
+        subquery = f'''
+            SELECT inventario_id
+            FROM inventario_programa
+            WHERE programa_id IN ({', '.join(['%s']*len(programa_ids))})
+            GROUP BY inventario_id
+            HAVING COUNT(DISTINCT programa_id) = %s
+        '''
+        params = list(programa_ids) + [len(programa_ids)]
+        where_clauses = [f"inventario.id IN ({subquery})"]
+        if filtros:
+            where_clauses += filtros
+            params += valores
+        where_sql = ' AND '.join(where_clauses)
+        query = f'SELECT * FROM inventario WHERE {where_sql}'
+        cur.execute(query, params)
+    else:
+        query = 'SELECT * FROM inventario'
+        if filtros:
+            query += ' WHERE ' + ' AND '.join(filtros)
+        cur.execute(query, valores)
     columns = [desc[0] for desc in cur.description]
-    items = [dict(zip(columns, row)) for row in cur.fetchall()]
+    rows = cur.fetchall()
+    items = []
+    for row in rows:
+        item = dict(zip(columns, row))
+        # Obtener los programas adicionales asociados a este inventario
+        cur2 = conn.cursor()
+        cur2.execute('SELECT programa_id FROM inventario_programa WHERE inventario_id = %s', (item['id'],))
+        item['programa_adicional_ids'] = [r[0] for r in cur2.fetchall()]
+        cur2.close()
+        items.append(item)
     cur.close()
     conn.close()
     return jsonify(items)
@@ -73,6 +109,7 @@ def create_inventario():
         'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado'
     ]
     valores = [data.get(campo) for campo in campos]
+    programas = data.get('programa_adicional_ids', [])  # Recibe los programas seleccionados
     conn = get_db_connection()
     cur = conn.cursor()
     try:
@@ -87,6 +124,9 @@ def create_inventario():
             RETURNING id
         ''', valores)
         new_id = cur.fetchone()[0]
+        # Asociar programas adicionales
+        for programa_id in programas:
+            cur.execute('INSERT INTO inventario_programa (inventario_id, programa_id) VALUES (%s, %s)', (new_id, programa_id))
         # Registrar en historial (acción: agregado)
         cur.execute('''
             INSERT INTO historial_inventario (inventario_id, usuario_id, accion, datos_nuevos)

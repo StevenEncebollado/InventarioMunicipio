@@ -15,7 +15,7 @@ export function useAgregarEquipo() {
   const [disco, setDisco] = useState("");
   const [office, setOffice] = useState("");
   const [tipoConexion, setTipoConexion] = useState("");
-  const [programaAdicional, setProgramaAdicional] = useState<string[]>([]);
+  const [programaAdicional, setProgramaAdicional] = useState<number[]>([]);
   const [dependencia, setDependencia] = useState("");
   const [direccion, setDireccion] = useState("");
   const [equipamiento, setEquipamiento] = useState("");
@@ -79,8 +79,9 @@ export function useAgregarEquipo() {
     marca_id: marca,
     codigo_inventario: mac,
     tipo_conexion_id: tipoConexion,
-  anydesk: anydesk,
-  estado: estado
+    anydesk: anydesk,
+    estado: estado,
+    programa_adicional_ids: programaAdicional,
   });
 
   return {

@@ -104,11 +104,16 @@ export default function Dashboard() {
     router.push('/');
   };
 
+  // Si hay filtro de programa adicional, filtrar aquí también (por si el backend no lo hace)
+  const equiposFiltradosPrograma = filtros.programaAdicionalSeleccionado && filtros.programaAdicionalSeleccionado.length > 0
+    ? equipos.filter(e => filtros.programaAdicionalSeleccionado.every((p: string) => e.programa_adicional_ids?.includes(Number(p))))
+    : equipos;
+
   const getStats = () => ({
-    total: equipos.length,
-    active: equipos.filter(e => e.estado === 'Activo').length,
-    maintenance: equipos.filter(e => e.estado === 'Mantenimiento').length,
-    inactive: equipos.filter(e => e.estado === 'Inactivo').length,
+    total: equiposFiltradosPrograma.length,
+    active: equiposFiltradosPrograma.filter(e => e.estado === 'Activo').length,
+    maintenance: equiposFiltradosPrograma.filter(e => e.estado === 'Mantenimiento').length,
+    inactive: equiposFiltradosPrograma.filter(e => e.estado === 'Inactivo').length,
   });
 
   const handleSubmitEquipo = async (e: React.FormEvent) => {
