@@ -1,6 +1,7 @@
 import Modal from './Modal';
 import { useCatalogosContext } from '../context/CatalogosContext';
 import { selectStyle } from '../constants/catalogos';
+import Select from 'react-select';
 
 interface AgregarEquipoFormProps {
   showAddEquipo: boolean;
@@ -179,14 +180,46 @@ export default function AgregarEquipoForm({
         </select>
         
         <label style={{marginTop: 6, fontWeight: 500}}>Programa adicional:</label>
-        <select 
-          multiple 
-          value={programaAdicional} 
-          onChange={e => setProgramaAdicional(Array.from(e.target.selectedOptions, opt => opt.value))} 
-          style={{padding: '10px', borderRadius: 8, border: '1px solid #bdbdbd', fontSize: 15, minHeight: 70}}
-        >
-          {catalogos.programaAdicional.map(pa => <option key={pa.id} value={pa.nombre}>{pa.nombre}</option>)}
-        </select>
+        <Select
+          isMulti
+          options={catalogos.programaAdicional.map(pa => ({ value: pa.nombre, label: pa.nombre }))}
+          value={catalogos.programaAdicional
+            .filter(pa => programaAdicional.includes(pa.nombre))
+            .map(pa => ({ value: pa.nombre, label: pa.nombre }))}
+          onChange={selected => setProgramaAdicional(selected ? selected.map(opt => opt.value) : [])}
+          placeholder="Buscar y seleccionar programas..."
+          styles={{
+            control: (base, state) => ({
+              ...base,
+              background: '#fff',
+              border: '1px solid #bdbdbd',
+              borderRadius: 8,
+              fontSize: 15,
+              minHeight: 44,
+              boxShadow: state.isFocused ? '0 0 0 2px #2563eb33' : 'none',
+              padding: '2px',
+              outline: 'none',
+              transition: 'box-shadow 0.2s',
+            }),
+            menu: (base) => ({ ...base, zIndex: 9999, borderRadius: 8 }),
+            multiValue: (base) => ({ ...base, background: '#e0e7ef', borderRadius: 6 }),
+            multiValueLabel: (base) => ({ ...base, color: '#1e293b', fontWeight: 500 }),
+            multiValueRemove: (base) => ({ ...base, color: '#2563eb', ':hover': { background: '#c7d2fe', color: '#1e40af' } }),
+            option: (base, state) => ({
+              ...base,
+              background: state.isSelected ? '#2563eb' : state.isFocused ? '#e0e7ef' : '#fff',
+              color: state.isSelected ? '#fff' : '#1e293b',
+              fontWeight: state.isSelected ? 700 : 400,
+              fontSize: 15,
+            }),
+            placeholder: (base) => ({ ...base, color: '#64748b', fontSize: 15 }),
+            input: (base) => ({ ...base, fontSize: 15 }),
+          }}
+          filterOption={(option, input) =>
+            option.label.toLowerCase().includes(input.toLowerCase())
+          }
+          noOptionsMessage={() => 'No hay coincidencias'}
+        />
         
         <button 
           type="submit" 

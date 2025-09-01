@@ -6,7 +6,23 @@ interface NavbarProps {
   onLogout: () => void;
 }
 
+// Animación simple para el ícono (solo en cliente)
+import { useEffect } from 'react';
+
+function useSpinKeyframes() {
+  useEffect(() => {
+    if (typeof document !== 'undefined' && !document.getElementById('spin-keyframes')) {
+      const style = document.createElement('style');
+      style.id = 'spin-keyframes';
+      style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
+      document.head.appendChild(style);
+    }
+  }, []);
+}
+
+// Usar hook en el componente
 export default function Navbar({ user, onLogout }: NavbarProps) {
+  useSpinKeyframes();
   return (
     <nav className="navbar">
       <div className="nav-brand">
@@ -34,8 +50,3 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
     </nav>
   );
 }
-
-// Animación simple para el ícono
-const style = document.createElement('style');
-style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
-document.head.appendChild(style);

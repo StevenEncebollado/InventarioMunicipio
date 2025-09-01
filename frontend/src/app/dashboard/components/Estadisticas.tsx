@@ -9,6 +9,7 @@ interface EstadisticasProps {
 }
 
 export default function Estadisticas({ total, active, maintenance, inactive }: EstadisticasProps) {
+  usePulseKeyframes();
   return (
     <div className="dashboard-header">
       <h2>
@@ -49,7 +50,17 @@ export default function Estadisticas({ total, active, maintenance, inactive }: E
   );
 }
 
-// Animación sutil para los íconos
-const style = document.createElement('style');
-style.innerHTML = `@keyframes pulse { 0% { transform: scale(1);} 100% { transform: scale(1.12);} }`;
-document.head.appendChild(style);
+
+// Animación sutil para los íconos (solo en cliente)
+import { useEffect } from 'react';
+
+function usePulseKeyframes() {
+  useEffect(() => {
+    if (typeof document !== 'undefined' && !document.getElementById('pulse-keyframes')) {
+      const style = document.createElement('style');
+      style.id = 'pulse-keyframes';
+      style.innerHTML = `@keyframes pulse { 0% { transform: scale(1);} 100% { transform: scale(1.12);} }`;
+      document.head.appendChild(style);
+    }
+  }, []);
+}
