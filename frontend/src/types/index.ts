@@ -56,6 +56,7 @@ export interface Equipo {
   tipo_sistema_operativo_id?: number;
   usuario_id?: number;
   estado: 'Activo' | 'Mantenimiento' | 'Inactivo';
+  programa_adicional_ids?: number[];
 }
 
 export interface HistorialEquipo {
@@ -94,12 +95,19 @@ export interface LoginResponse {
 
 // Tipos para filtros y búsquedas
 export interface FiltrosEquipo {
-  tipo_equipo?: string;
-  marca?: string;
-  // estado eliminado, ya no existe en Equipo
-  dependencia?: string;
-  fecha_desde?: string;
-  fecha_hasta?: string;
+  dependencia_id?: string;
+  direccion_area_id?: string;
+  dispositivo_id?: string;
+  equipamiento_id?: string;
+  tipo_equipo_id?: string;
+  tipo_sistema_operativo_id?: string;
+  marca_id?: string;
+  caracteristicas_id?: string;
+  ram_id?: string;
+  disco_id?: string;
+  office_id?: string;
+  tipo_conexion_id?: string;
+  programa_adicional?: string;
 }
 
 export interface OpcionesPaginacion {

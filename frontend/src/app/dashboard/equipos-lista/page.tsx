@@ -7,6 +7,7 @@ import { getEquipos, APP_CONFIG } from '@/services/api';
 
 import Navbar from '../components/Navbar';
 import PanelControl from '../components/PanelControl';
+import Filtros from '../components/Filtros';
 
 
 const TITULOS: Record<string, string> = {
@@ -21,8 +22,23 @@ export default function EquiposLista() {
   const params = useSearchParams();
   const tipo = params.get('tipo') || 'total';
   const [equipos, setEquipos] = useState<Equipo[]>([]);
+  const [equiposFiltrados, setEquiposFiltrados] = useState<Equipo[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<Usuario | null>(null);
+  // Estados de filtros
+  const [dependenciaSeleccionada, setDependenciaSeleccionada] = useState('');
+  const [direccionSeleccionada, setDireccionSeleccionada] = useState('');
+  const [dispositivoSeleccionado, setDispositivoSeleccionado] = useState('');
+  const [equipamientoSeleccionado, setEquipamientoSeleccionado] = useState('');
+  const [tipoEquipoSeleccionado, setTipoEquipoSeleccionado] = useState('');
+  const [tipoSistemaOperativoSeleccionado, setTipoSistemaOperativoSeleccionado] = useState('');
+  const [marcaSeleccionada, setMarcaSeleccionada] = useState('');
+  const [caracteristicaSeleccionada, setCaracteristicaSeleccionada] = useState('');
+  const [ramSeleccionada, setRamSeleccionada] = useState('');
+  const [discoSeleccionado, setDiscoSeleccionado] = useState('');
+  const [officeSeleccionado, setOfficeSeleccionado] = useState('');
+  const [tipoConexionSeleccionada, setTipoConexionSeleccionada] = useState('');
+  const [programaAdicionalSeleccionado, setProgramaAdicionalSeleccionado] = useState<string[]>([]);
 
   // Cargar usuario de localStorage
   useEffect(() => {
@@ -32,25 +48,49 @@ export default function EquiposLista() {
     }
   }, []);
 
-  // Cargar equipos filtrados
+  // Cargar equipos filtrados desde el backend según los filtros principales
   useEffect(() => {
     setLoading(true);
-    getEquipos().then(data => {
-      let filtrados = data;
-      if (tipo === 'active') filtrados = data.filter((e: Equipo) => e.estado === 'Activo');
-      else if (tipo === 'maintenance') filtrados = data.filter((e: Equipo) => e.estado === 'Mantenimiento');
-      else if (tipo === 'inactive') filtrados = data.filter((e: Equipo) => e.estado === 'Inactivo');
-      setEquipos(filtrados);
+    const filtrosBackend: any = {};
+    if (dependenciaSeleccionada) filtrosBackend.dependencia = dependenciaSeleccionada;
+    if (direccionSeleccionada) filtrosBackend.direccion = direccionSeleccionada;
+    if (dispositivoSeleccionado) filtrosBackend.dispositivo = dispositivoSeleccionado;
+    if (equipamientoSeleccionado) filtrosBackend.equipamiento = equipamientoSeleccionado;
+    if (tipoEquipoSeleccionado) filtrosBackend.tipo_equipo = tipoEquipoSeleccionado;
+    if (tipoSistemaOperativoSeleccionado) filtrosBackend.tipo_sistema_operativo = tipoSistemaOperativoSeleccionado;
+    if (marcaSeleccionada) filtrosBackend.marca = marcaSeleccionada;
+    if (caracteristicaSeleccionada) filtrosBackend.caracteristica = caracteristicaSeleccionada;
+    if (ramSeleccionada) filtrosBackend.ram = ramSeleccionada;
+    if (discoSeleccionado) filtrosBackend.disco = discoSeleccionado;
+    if (officeSeleccionado) filtrosBackend.office = officeSeleccionado;
+    if (tipoConexionSeleccionada) filtrosBackend.tipo_conexion = tipoConexionSeleccionada;
+    getEquipos(filtrosBackend).then(data => {
+      setEquipos(data);
       setLoading(false);
     });
-  }, [tipo]);
+  }, [dependenciaSeleccionada, direccionSeleccionada, dispositivoSeleccionado, equipamientoSeleccionado, tipoEquipoSeleccionado, tipoSistemaOperativoSeleccionado, marcaSeleccionada, caracteristicaSeleccionada, ramSeleccionada, discoSeleccionado, officeSeleccionado, tipoConexionSeleccionada]);
+
+  // Filtrar equipos según todos los filtros y el tipo de estado
+  // Filtrar solo por programa adicional (si aplica) en frontend
+  const equiposFiltradosStats = programaAdicionalSeleccionado.length > 0
+    ? equipos.filter(e => programaAdicionalSeleccionado.every(p => e.programa_adicional_ids?.includes(Number(p))))
+    : equipos;
+
+  // Filtrar para listado (panel de dispositivos)
+  useEffect(() => {
+    let filtrados = equiposFiltradosStats;
+    if (tipo === 'active') filtrados = filtrados.filter((e: Equipo) => e.estado === 'Activo');
+    else if (tipo === 'maintenance') filtrados = filtrados.filter((e: Equipo) => e.estado === 'Mantenimiento');
+    else if (tipo === 'inactive') filtrados = filtrados.filter((e: Equipo) => e.estado === 'Inactivo');
+    setEquiposFiltrados(filtrados);
+  }, [equiposFiltradosStats, tipo, programaAdicionalSeleccionado]);
 
   // Estadísticas para PanelControl
   const stats = {
-    total: equipos.length,
-    active: equipos.filter(e => e.estado === 'Activo').length,
-    maintenance: equipos.filter(e => e.estado === 'Mantenimiento').length,
-    inactive: equipos.filter(e => e.estado === 'Inactivo').length,
+    total: equiposFiltradosStats.length,
+    active: equiposFiltradosStats.filter(e => e.estado === 'Activo').length,
+    maintenance: equiposFiltradosStats.filter(e => e.estado === 'Mantenimiento').length,
+    inactive: equiposFiltradosStats.filter(e => e.estado === 'Inactivo').length,
   };
 
   // Handler para navegar entre segmentos
@@ -69,6 +109,34 @@ export default function EquiposLista() {
     <div className="dashboard">
       <Navbar user={user} onLogout={handleLogout} />
       <main className="dashboard-content" style={{background: '#f4f6fa', minHeight: '100vh', padding: '0 0 48px 0'}}>
+        <Filtros
+          dependenciaSeleccionada={dependenciaSeleccionada}
+          setDependenciaSeleccionada={setDependenciaSeleccionada}
+          direccionSeleccionada={direccionSeleccionada}
+          setDireccionSeleccionada={setDireccionSeleccionada}
+          dispositivoSeleccionado={dispositivoSeleccionado}
+          setDispositivoSeleccionado={setDispositivoSeleccionado}
+          equipamientoSeleccionado={equipamientoSeleccionado}
+          setEquipamientoSeleccionado={setEquipamientoSeleccionado}
+          tipoEquipoSeleccionado={tipoEquipoSeleccionado}
+          setTipoEquipoSeleccionado={setTipoEquipoSeleccionado}
+          tipoSistemaOperativoSeleccionado={tipoSistemaOperativoSeleccionado}
+          setTipoSistemaOperativoSeleccionado={setTipoSistemaOperativoSeleccionado}
+          marcaSeleccionada={marcaSeleccionada}
+          setMarcaSeleccionada={setMarcaSeleccionada}
+          caracteristicaSeleccionada={caracteristicaSeleccionada}
+          setCaracteristicaSeleccionada={setCaracteristicaSeleccionada}
+          ramSeleccionada={ramSeleccionada}
+          setRamSeleccionada={setRamSeleccionada}
+          discoSeleccionado={discoSeleccionado}
+          setDiscoSeleccionado={setDiscoSeleccionado}
+          officeSeleccionado={officeSeleccionado}
+          setOfficeSeleccionado={setOfficeSeleccionado}
+          tipoConexionSeleccionada={tipoConexionSeleccionada}
+          setTipoConexionSeleccionada={setTipoConexionSeleccionada}
+          programaAdicionalSeleccionado={programaAdicionalSeleccionado}
+          setProgramaAdicionalSeleccionado={setProgramaAdicionalSeleccionado}
+        />
         <PanelControl
           total={stats.total}
           active={stats.active}
@@ -85,11 +153,11 @@ export default function EquiposLista() {
               </div>
               <div style={{ color: '#2563eb', fontWeight: 600, fontSize: 18, letterSpacing: 0.5 }}>Cargando...</div>
             </div>
-          ) : equipos.length === 0 ? (
+          ) : equiposFiltrados.length === 0 ? (
             <p>No hay dispositivos en este segmento.</p>
           ) : (
             <ul style={{ padding: 0, listStyle: 'none', maxHeight: 400, overflowY: 'auto' }}>
-              {equipos.map(eq => (
+              {equiposFiltrados.map(eq => (
                 <li key={eq.id} style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
                   <strong>{eq.nombres_funcionario || 'Sin asignar'}</strong> - {eq.codigo_inventario || 'Sin código'} - Estado: {eq.estado}
                 </li>

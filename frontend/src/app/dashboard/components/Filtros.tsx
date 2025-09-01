@@ -110,28 +110,28 @@ export default function Filtros({
           <label style={{ fontWeight: 600 }}>Dependencia</label>
           <select style={selectStyle} value={dependenciaSeleccionada} onChange={e => setDependenciaSeleccionada(e.target.value)}>
             <option value="">Todas</option>
-            {catalogos.dependencias.map(dep => (<option key={dep.id} value={dep.nombre}>{dep.nombre}</option>))}
+            {catalogos.dependencias.map(dep => (<option key={dep.id} value={dep.id}>{dep.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Dirección/Área</label>
           <select style={selectStyle} value={direccionSeleccionada} onChange={e => setDireccionSeleccionada(e.target.value)}>
             <option value="">Todas</option>
-            {catalogos.direcciones.map(dir => (<option key={dir.id} value={dir.nombre}>{dir.nombre}</option>))}
+            {catalogos.direcciones.map(dir => (<option key={dir.id} value={dir.id}>{dir.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Dispositivo</label>
           <select style={selectStyle} value={dispositivoSeleccionado} onChange={e => setDispositivoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
-            {catalogos.dispositivos.map(d => (<option key={d.id} value={d.nombre}>{d.nombre}</option>))}
+            {catalogos.dispositivos.map(d => (<option key={d.id} value={d.id}>{d.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Equipamiento</label>
           <select style={selectStyle} value={equipamientoSeleccionado} onChange={e => setEquipamientoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
-            {catalogos.equipamientos.map(eq => (<option key={eq.id} value={eq.nombre}>{eq.nombre}</option>))}
+            {catalogos.equipamientos.map(eq => (<option key={eq.id} value={eq.id}>{eq.nombre}</option>))}
           </select>
         </div>
         {/* Fila 2 */}
@@ -139,28 +139,28 @@ export default function Filtros({
           <label style={{ fontWeight: 600 }}>Tipo de Equipo</label>
           <select style={selectStyle} value={tipoEquipoSeleccionado} onChange={e => setTipoEquipoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
-            {catalogos.tiposEquipo.map(te => (<option key={te.id} value={te.nombre}>{te.nombre}</option>))}
+            {catalogos.tiposEquipo.map(te => (<option key={te.id} value={te.id}>{te.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Tipo de Sistema Operativo</label>
           <select style={selectStyle} value={tipoSistemaOperativoSeleccionado} onChange={e => setTipoSistemaOperativoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
-            {catalogos.sistemasOperativos.map(so => (<option key={so.id} value={so.nombre}>{so.nombre}</option>))}
+            {catalogos.sistemasOperativos.map(so => (<option key={so.id} value={so.id}>{so.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Características</label>
           <select style={selectStyle} value={caracteristicaSeleccionada} onChange={e => setCaracteristicaSeleccionada(e.target.value)}>
             <option value="">Todas</option>
-            {catalogos.caracteristicas.map(c => (<option key={c.id} value={c.descripcion}>{c.descripcion}</option>))}
+            {catalogos.caracteristicas.map(c => (<option key={c.id} value={c.id}>{c.descripcion}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Marca</label>
           <select style={selectStyle} value={marcaSeleccionada} onChange={e => setMarcaSeleccionada(e.target.value)}>
             <option value="">Todas</option>
-            {catalogos.marcas.map(m => (<option key={m.id} value={m.nombre}>{m.nombre}</option>))}
+            {catalogos.marcas.map(m => (<option key={m.id} value={m.id}>{m.nombre}</option>))}
           </select>
         </div>
         {/* Fila 3 */}
@@ -168,28 +168,28 @@ export default function Filtros({
           <label style={{ fontWeight: 600 }}>RAM</label>
           <select style={selectStyle} value={ramSeleccionada} onChange={e => setRamSeleccionada(e.target.value)}>
             <option value="">Todas</option>
-            {catalogos.ram.map(r => (<option key={r.id} value={r.capacidad}>{r.capacidad}</option>))}
+            {catalogos.ram.map(r => (<option key={r.id} value={r.id}>{r.capacidad}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Disco</label>
           <select style={selectStyle} value={discoSeleccionado} onChange={e => setDiscoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
-            {catalogos.disco.map(d => (<option key={d.id} value={d.capacidad}>{d.capacidad}</option>))}
+            {catalogos.disco.map(d => (<option key={d.id} value={d.id}>{d.capacidad}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Office</label>
           <select style={selectStyle} value={officeSeleccionado} onChange={e => setOfficeSeleccionado(e.target.value)}>
             <option value="">Todos</option>
-            {catalogos.office.map(o => (<option key={o.id} value={o.version}>{o.version}</option>))}
+            {catalogos.office.map(o => (<option key={o.id} value={o.id}>{o.version}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Tipo de Conexión</label>
           <select style={selectStyle} value={tipoConexionSeleccionada} onChange={e => setTipoConexionSeleccionada(e.target.value)}>
             <option value="">Todas</option>
-            {catalogos.tipoConexion.map(tc => (<option key={tc.id} value={tc.nombre}>{tc.nombre}</option>))}
+            {catalogos.tipoConexion.map(tc => (<option key={tc.id} value={tc.id}>{tc.nombre}</option>))}
           </select>
         </div>
         {/* Fila 4: Programa Adicional ocupa las 4 columnas */}
@@ -198,18 +198,18 @@ export default function Filtros({
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, background: '#f8fafc', borderRadius: 10, boxShadow: '0 2px 8px rgba(56,189,248,0.08)', padding: 14, maxHeight: 180, overflowY: 'auto', border: '1.5px solid var(--primary-color)' }}>
             {(catalogos.programaAdicional || []).map((pa: any) => {
               const nombre = typeof pa === 'string' ? pa : pa.nombre;
-              const key = typeof pa === 'string' ? pa : pa.id || pa.nombre;
+              const id = typeof pa === 'string' ? pa : pa.id;
               return (
-                <label key={key} style={{ fontWeight: 400, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <label key={id} style={{ fontWeight: 400, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <input
                     type="checkbox"
-                    value={nombre}
-                    checked={programaAdicionalSeleccionado.includes(nombre)}
+                    value={id}
+                    checked={programaAdicionalSeleccionado.includes(String(id))}
                     onChange={e => {
                       if (e.target.checked) {
-                        setProgramaAdicionalSeleccionado([...programaAdicionalSeleccionado, nombre]);
+                        setProgramaAdicionalSeleccionado([...programaAdicionalSeleccionado, String(id)]);
                       } else {
-                        setProgramaAdicionalSeleccionado(programaAdicionalSeleccionado.filter(item => item !== nombre));
+                        setProgramaAdicionalSeleccionado(programaAdicionalSeleccionado.filter(item => item !== String(id)));
                       }
                     }}
                     style={{ accentColor: 'var(--primary-color)' }}
