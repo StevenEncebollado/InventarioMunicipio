@@ -8,10 +8,11 @@ interface PanelControlProps {
   maintenance: number;
   inactive: number;
   onInfoClick: (type: 'total' | 'active' | 'maintenance' | 'inactive') => void;
+  loading?: boolean;
 }
 
 
-export default function PanelControl({ total, active, maintenance, inactive, onInfoClick }: PanelControlProps) {
+export default function PanelControl({ total, active, maintenance, inactive, onInfoClick, loading }: PanelControlProps) {
   // Estilos de card grandes
   const cardBase: React.CSSProperties = {
     background: '#fff',
@@ -47,7 +48,11 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
         <div style={{ fontWeight: 600, color: '#555', fontSize: 17, marginBottom: 8 }}>Total</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <FaServer style={{ fontSize: 32, color: '#2563eb' }} />
-          <span style={{ fontSize: 28, fontWeight: 700, color: '#2563eb' }}>{total}</span>
+          {loading ? (
+            <div className="spinner-border text-primary" role="status" style={{ width: 28, height: 28 }}></div>
+          ) : (
+            <span style={{ fontSize: 28, fontWeight: 700, color: '#2563eb' }}>{total}</span>
+          )}
           <button title="Ver detalles" onClick={() => onInfoClick('total')} style={{ ...iconButtonStyle, color: '#2563eb', position: 'static', marginLeft: 6 }}>
             <FaInfoCircle style={{ fontSize: 20 }} />
           </button>
@@ -58,7 +63,11 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
         <div style={{ fontWeight: 600, color: '#555', fontSize: 17, marginBottom: 8 }}>Activos</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <FaCheckCircle style={{ fontSize: 32, color: '#22c55e' }} />
-          <span style={{ fontSize: 28, fontWeight: 700, color: '#22c55e' }}>{active}</span>
+          {loading ? (
+            <div className="spinner-border text-success" role="status" style={{ width: 28, height: 28 }}></div>
+          ) : (
+            <span style={{ fontSize: 28, fontWeight: 700, color: '#22c55e' }}>{active}</span>
+          )}
           <button title="Ver detalles" onClick={() => onInfoClick('active')} style={{ ...iconButtonStyle, color: '#22c55e', position: 'static', marginLeft: 6 }}>
             <FaInfoCircle style={{ fontSize: 20 }} />
           </button>
@@ -69,7 +78,11 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
         <div style={{ fontWeight: 600, color: '#555', fontSize: 17, marginBottom: 8 }}>Mantenimiento</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <FaTools style={{ fontSize: 32, color: '#facc15' }} />
-          <span style={{ fontSize: 28, fontWeight: 700, color: '#facc15' }}>{maintenance}</span>
+          {loading ? (
+            <div className="spinner-border text-warning" role="status" style={{ width: 28, height: 28 }}></div>
+          ) : (
+            <span style={{ fontSize: 28, fontWeight: 700, color: '#facc15' }}>{maintenance}</span>
+          )}
           <button title="Ver detalles" onClick={() => onInfoClick('maintenance')} style={{ ...iconButtonStyle, color: '#facc15', position: 'static', marginLeft: 6 }}>
             <FaInfoCircle style={{ fontSize: 20 }} />
           </button>
@@ -80,7 +93,11 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
         <div style={{ fontWeight: 600, color: '#555', fontSize: 17, marginBottom: 8 }}>Inactivos</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <FaBan style={{ fontSize: 32, color: '#ef4444' }} />
-          <span style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>{inactive}</span>
+          {loading ? (
+            <div className="spinner-border text-danger" role="status" style={{ width: 28, height: 28 }}></div>
+          ) : (
+            <span style={{ fontSize: 28, fontWeight: 700, color: '#ef4444' }}>{inactive}</span>
+          )}
           <button title="Ver detalles" onClick={() => onInfoClick('inactive')} style={{ ...iconButtonStyle, color: '#ef4444', position: 'static', marginLeft: 6 }}>
             <FaInfoCircle style={{ fontSize: 20 }} />
           </button>

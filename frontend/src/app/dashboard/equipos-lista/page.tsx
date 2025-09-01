@@ -75,13 +75,13 @@ export default function EquiposLista() {
           maintenance={stats.maintenance}
           inactive={stats.inactive}
           onInfoClick={handlePanelInfo}
+          loading={loading}
         />
         <div style={{ maxWidth: 520, margin: '48px auto', background: '#fff', borderRadius: 14, boxShadow: '0 2px 16px rgba(0,0,0,0.08)', padding: 32 }}>
           <h2 style={{ marginBottom: 18 }}>{TITULOS[tipo] || 'Equipos'}</h2>
           {loading ? (
             <div style={{ minHeight: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <div className="spinner-border text-primary" role="status" style={{ width: 56, height: 56, marginBottom: 18 }}>
-                <span className="sr-only">Cargando...</span>
               </div>
               <div style={{ color: '#2563eb', fontWeight: 600, fontSize: 18, letterSpacing: 0.5 }}>Cargando...</div>
             </div>

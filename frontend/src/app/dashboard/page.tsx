@@ -170,6 +170,7 @@ export default function Dashboard() {
           maintenance={stats.maintenance}
           inactive={stats.inactive}
           onInfoClick={handlePanelInfo}
+          loading={isLoading}
         />
 
         {/* Puedes dejar Estadisticas si quieres ambas vistas, o eliminarla si solo usarás PanelControl */}
