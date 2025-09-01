@@ -8,6 +8,7 @@ import type { Usuario, Equipo } from '@/types';
 
 // Componentes modulares
 import Navbar from './components/Navbar';
+import PanelControl from './components/PanelControl';
 import Estadisticas from './components/Estadisticas';
 import Filtros from './components/Filtros';
 import TablaEquipos from './components/TablaEquipos';
@@ -153,17 +154,31 @@ export default function Dashboard() {
 
   const stats = getStats();
 
+  // Handler para mostrar detalles de dispositivos según el tipo de card
+  const handlePanelInfo = (type: 'total' | 'active' | 'maintenance' | 'inactive') => {
+    router.push(`/dashboard/equipos-lista?tipo=${type}`);
+  };
+
   return (
     <div className="dashboard">
       <Navbar user={user} onLogout={handleLogout} />
       
       <main className="dashboard-content" style={{background: '#f4f6fa', minHeight: '100vh', padding: '0 0 48px 0'}}>
-        <Estadisticas 
+        <PanelControl
           total={stats.total}
           active={stats.active}
           maintenance={stats.maintenance}
           inactive={stats.inactive}
+          onInfoClick={handlePanelInfo}
         />
+
+        {/* Puedes dejar Estadisticas si quieres ambas vistas, o eliminarla si solo usarás PanelControl */}
+        {/* <Estadisticas 
+          total={stats.total}
+          active={stats.active}
+          maintenance={stats.maintenance}
+          inactive={stats.inactive}
+        /> */}
 
         <Filtros {...filtros} />
         
@@ -180,10 +195,13 @@ export default function Dashboard() {
           </div>
         )}
         
+
         <TablaEquipos 
           equipos={equipos}
           onAgregarClick={() => setShowAddEquipo(true)}
         />
+
+
 
         <AgregarEquipoForm
           showAddEquipo={showAddEquipo}
