@@ -1,5 +1,7 @@
+
 import { FaCity, FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
 import type { Usuario } from '@/types';
+import { useRouter } from 'next/navigation';
 
 interface NavbarProps {
   user: Usuario | null;
@@ -20,21 +22,25 @@ function useSpinKeyframes() {
   }, []);
 }
 
-// Usar hook en el componente
 export default function Navbar({ user, onLogout }: NavbarProps) {
   useSpinKeyframes();
+  const router = useRouter();
+  const handleGoHome = () => {
+    router.push('/dashboard');
+  };
   return (
     <nav className="navbar">
-      <div className="nav-brand">
-        <FaCity style={{ fontSize: '2.1rem', marginRight: 8, color: '#fff', animation: 'spin 2.5s linear infinite' }} />
-        <h1>Inventario Municipio</h1>
+      <div className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <FaCity style={{ fontSize: '2.1rem', marginRight: 0, color: '#fff', animation: 'spin 2.5s linear infinite' }} />
+        <button onClick={handleGoHome} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.6rem', fontWeight: 700, cursor: 'pointer', margin: 0, padding: 0 }}>
+          Inventario Municipio
+        </button>
       </div>
       <div className="nav-user">
         {user && (
           <>
             <FaUserCircle style={{ fontSize: '1.5rem', marginRight: 6, color: '#fff' }} />
             <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>Bienvenido, <strong>{user.username}</strong></span>
-            <span style={{ marginLeft: 8, fontStyle: 'italic', fontSize: '1rem', color: '#c7d2fe' }}>({user.rol})</span>
             <button 
               onClick={onLogout}
               className="btn btn-secondary"

@@ -1,6 +1,11 @@
 import { FaUser, FaDesktop, FaEye, FaMousePointer } from 'react-icons/fa';
 import type { Equipo } from '@/types';
 import { useCatalogosContext } from '../context/CatalogosContext';
+import { useState } from 'react';
+import Modal from './Modal';
+import EquipoDetalle from './EquipoDetalle';
+
+
 
 interface TablaEquiposProps {
   equipos: Equipo[];
@@ -12,6 +17,14 @@ export default function TablaEquipos({ equipos, onAgregarClick }: TablaEquiposPr
   // Mostrar solo los últimos 3 equipos creados (orden descendente por id)
   const ultimosEquipos = Array.isArray(equipos) ? [...equipos].sort((a, b) => b.id - a.id).slice(0, 3) : [];
   const { catalogos } = useCatalogosContext();
+  const [showDetalle, setShowDetalle] = useState(false);
+  const [equipoDetalle, setEquipoDetalle] = useState<Equipo | null>(null);
+
+  const handleVerClick = (equipo: Equipo) => {
+    setEquipoDetalle(equipo);
+    setShowDetalle(true);
+  };
+
   return (
     <section className="equipos-section">
       <div className="section-header">
@@ -46,7 +59,7 @@ export default function TablaEquipos({ equipos, onAgregarClick }: TablaEquiposPr
                     </td>
                     <td>
                       <div className="action-buttons">
-                        <button className="btn btn-sm btn-ver" title="Ver" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <button className="btn btn-sm btn-ver" title="Ver" style={{ display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleVerClick(equipo)}>
                           <FaEye style={{ marginRight: 4, color: '#111', animation: 'pulse 2s infinite alternate' }} /> Ver
                         </button>
                       </div>
@@ -66,6 +79,9 @@ export default function TablaEquipos({ equipos, onAgregarClick }: TablaEquiposPr
           </button>
         </div>
       )}
+      <Modal open={showDetalle} onClose={() => setShowDetalle(false)}>
+        {equipoDetalle && <EquipoDetalle equipo={equipoDetalle} />}
+      </Modal>
     </section>
   );
 }
