@@ -1,3 +1,5 @@
+// Gestiona el estado de los filtros aplicados en la búsqueda/listado de equipos.
+
 import { useState } from 'react';
 
 export interface Filtros {

@@ -1,7 +1,9 @@
 
+
 import { FaCity, FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
 import type { Usuario } from '@/types';
 import { useRouter } from 'next/navigation';
+import { navbarStyles } from '../Estilos/Navbar.estilo';
 
 interface NavbarProps {
   user: Usuario | null;
@@ -29,23 +31,36 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
     router.push('/dashboard');
   };
   return (
-    <nav className="navbar">
-      <div className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <FaCity style={{ fontSize: '2.1rem', marginRight: 0, color: '#fff', animation: 'spin 2.5s linear infinite' }} />
-        <button onClick={handleGoHome} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '1.6rem', fontWeight: 700, cursor: 'pointer', margin: 0, padding: 0 }}>
+    <nav style={navbarStyles.navbar}>
+      <div style={navbarStyles.navBrand}>
+        <FaCity style={{ fontSize: '2.1rem', color: '#fff', animation: 'spin 2.5s linear infinite' }} />
+        <button
+          onClick={handleGoHome}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#fff',
+            fontSize: '1.6rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            margin: 0,
+            padding: 0,
+          }}
+        >
           Inventario Municipio
         </button>
       </div>
-      <div className="nav-user">
+      <div style={navbarStyles.navUser}>
         {user && (
           <>
             <FaUserCircle style={{ fontSize: '1.5rem', marginRight: 6, color: '#fff' }} />
             <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>Bienvenido, <strong>{user.username}</strong></span>
-            <button 
+            <button
               onClick={onLogout}
-              className="btn btn-secondary"
-              style={{ marginLeft: 18, display: 'flex', alignItems: 'center', gap: 6 }}
               type="button"
+              style={navbarStyles.logoutBtn}
+              onMouseOver={e => Object.assign(e.currentTarget.style, navbarStyles.logoutBtnHover)}
+              onMouseOut={e => Object.assign(e.currentTarget.style, navbarStyles.logoutBtn)}
             >
               <FaSignOutAlt style={{ fontSize: '1.1rem', marginRight: 4 }} />
               Cerrar Sesión

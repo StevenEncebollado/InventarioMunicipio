@@ -1,3 +1,6 @@
+// Hace que los catálogos estén disponibles para todo el dashboard 
+// de forma sencilla y centralizada.
+
 "use client";
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useCatalogos as useCatalogosHook } from '../hooks/useCatalogos';

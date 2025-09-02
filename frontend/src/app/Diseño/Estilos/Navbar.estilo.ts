@@ -1,0 +1,61 @@
+// Estilos modulares para el Navbar
+export const navbarStyles = {
+  navbar: {
+    background: 'linear-gradient(90deg, #2563eb 0%, #38bdf8 100%)',
+    color: '#fff',
+    padding: '1.2rem 2.5rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    boxShadow: '0 4px 16px rgba(30,41,59,0.10)',
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  navBrand: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.7rem',
+  },
+  navBrandH1: {
+    fontSize: '2.1rem',
+    fontWeight: 800,
+    letterSpacing: '1px',
+    color: '#fff',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.7rem',
+    margin: 0,
+  },
+  navUser: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1.5rem',
+  },
+  welcomeText: {
+    fontSize: '0.9rem',
+  },
+  userRole: {
+    fontSize: '0.8rem',
+    color: '#adb5bd',
+  },
+  logoutBtn: {
+    fontSize: '0.875rem',
+    padding: '0.5rem 1rem',
+    backgroundColor: '#64748b',
+    borderColor: '#64748b',
+    color: '#fff',
+    borderRadius: 12,
+    border: 'none',
+    fontWeight: 500,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    marginLeft: 18,
+    transition: 'all 0.2s ease',
+  },
+  logoutBtnHover: {
+    backgroundColor: '#545b62',
+    borderColor: '#545b62',
+  },
+};

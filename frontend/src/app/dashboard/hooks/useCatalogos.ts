@@ -1,3 +1,6 @@
+// Se encarga de cargar y exponer los catálogos (listas de opciones)
+// necesarios para los formularios y filtros del sistema
+
 import { useState, useEffect } from 'react';
 import { getCatalogosUnificados, getErrorMessage } from '@/services/api';
 

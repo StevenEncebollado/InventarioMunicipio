@@ -1,6 +1,6 @@
-import Modal from './Modal';
+import Modal from '../../Diseño/Diseño dashboard/Modal';
 import { useCatalogosContext } from '../context/CatalogosContext';
-import { selectStyle } from '../constants/catalogos';
+import { selectStyle } from '../../Diseño/Estilos/EstiloCatalogos';
 import Select from 'react-select';
 
 interface AgregarEquipoFormProps {

@@ -2,7 +2,7 @@ import { FaUser, FaDesktop, FaEye, FaMousePointer } from 'react-icons/fa';
 import type { Equipo } from '@/types';
 import { useCatalogosContext } from '../context/CatalogosContext';
 import { useState } from 'react';
-import Modal from './Modal';
+import Modal from '../../Diseño/Diseño dashboard/Modal';
 import EquipoDetalle from './EquipoDetalle';
 
 

@@ -1,3 +1,7 @@
+// Es la página central donde los usuarios gestionan y visualizan el inventario
+// de equipos, con todas las funcionalidades principales del dashboard
+
+
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -5,18 +9,14 @@ import { getEquipos, logout, getErrorMessage, APP_CONFIG } from '@/services/api'
 import { useLoading, useError } from '@/hooks';
 import { formatDate } from '@/utils';
 import type { Usuario, Equipo } from '@/types';
-
-// Componentes modulares
-import Navbar from './components/Navbar';
-import PanelControl from './components/PanelControl';
-import Estadisticas from './components/Estadisticas';
-import Filtros from './components/Filtros';
-import TablaEquipos from './components/TablaEquipos';
-import AgregarEquipoForm from './components/AgregarEquipoForm';
-
-// Hooks personalizados
+import Navbar from '../Diseño/Diseño dashboard/Navbar';
+import PanelControl from '../Diseño/Diseño dashboard/PanelControl';
+import Filtros from './componentes/Filtros';
+import TablaEquipos from './componentes/TablaEquipos';
+import AgregarEquipoForm from './componentes/AgregarEquipoForm';
 import { useFiltros } from './hooks/useFiltros';
 import { useAgregarEquipo } from './hooks/useAgregarEquipo';
+
 
 export default function Dashboard() {
   const [user, setUser] = useState<Usuario | null>(null);
@@ -28,7 +28,8 @@ export default function Dashboard() {
 
   // Hooks personalizados
   const filtros = useFiltros();
-  const agregarEquipo = useAgregarEquipo();
+  // Pasar el usuarioId solo si user existe, si no, pasar 0 o null según tu lógica
+  const agregarEquipo = useAgregarEquipo(user?.id ?? 0);
 
   useEffect(() => {
     initializeDashboard();
@@ -177,14 +178,6 @@ export default function Dashboard() {
           onInfoClick={handlePanelInfo}
           loading={isLoading}
         />
-
-        {/* Puedes dejar Estadisticas si quieres ambas vistas, o eliminarla si solo usarás PanelControl */}
-        {/* <Estadisticas 
-          total={stats.total}
-          active={stats.active}
-          maintenance={stats.maintenance}
-          inactive={stats.inactive}
-        /> */}
 
         <Filtros {...filtros} />
         

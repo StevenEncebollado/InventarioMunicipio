@@ -1,6 +1,8 @@
+  //Este hook gestiona el estado y la lógica de un formulario para agregar un equipo.
+
 import { useState } from 'react';
 
-export function useAgregarEquipo() {
+export function useAgregarEquipo(usuarioId: number) {
   // Campos de texto
   const [ip, setIp] = useState("");
   const [mac, setMac] = useState("");
@@ -24,6 +26,7 @@ export function useAgregarEquipo() {
   
   // Estado del equipo
   const [estado, setEstado] = useState("");
+
   // Estados de validación
   const [addLoading, setAddLoading] = useState(false);
   const [addError, setAddError] = useState("");
@@ -61,7 +64,7 @@ export function useAgregarEquipo() {
   };
 
   const getFormData = () => ({
-    usuario_id: 4, // O el id real del usuario logueado
+    usuario_id: usuarioId,
     dependencia_id: dependencia,
     direccion_area_id: direccion,
     dispositivo_id: tipoEquipo,

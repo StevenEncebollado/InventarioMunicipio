@@ -1,6 +1,6 @@
 
 import { useCatalogosContext } from '../context/CatalogosContext';
-import { selectStyle } from '../constants/catalogos';
+import { selectStyle } from '../../Diseño/Estilos/EstiloCatalogos';
 import { FaBroom, FaSearch } from 'react-icons/fa';
 
 interface FiltrosProps {

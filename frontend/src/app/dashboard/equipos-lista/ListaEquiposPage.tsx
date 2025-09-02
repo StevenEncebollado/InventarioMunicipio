@@ -1,3 +1,7 @@
+// Sirve para que el usuario pueda ver, filtrar y navegar
+// una lista detallada de equipos del inventario municipal,
+// con opciones avanzadas de filtrado y navegación.
+
 "use client";
 
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -5,9 +9,9 @@ import type { Equipo, Usuario } from '@/types';
 import { useEffect, useState } from 'react';
 import { getEquipos, APP_CONFIG } from '@/services/api';
 
-import Navbar from '../components/Navbar';
-import PanelControl from '../components/PanelControl';
-import Filtros from '../components/Filtros';
+import Navbar from '../../Diseño/Diseño dashboard/Navbar';
+import PanelControl from '../../Diseño/Diseño dashboard/PanelControl';
+import Filtros from '../componentes/Filtros';
 
 
 const TITULOS: Record<string, string> = {
