@@ -2,6 +2,7 @@ import Modal from '../../Diseño/Diseño dashboard/Modal';
 import { useCatalogosContext } from '../context/CatalogosContext';
 import { selectStyle } from '../../Diseño/Estilos/EstiloCatalogos';
 import Select from 'react-select';
+import { estiloBoton } from '../../Diseño/Estilos/EstiloBoton';
 
 interface AgregarEquipoFormProps {
   showAddEquipo: boolean;
@@ -223,9 +224,8 @@ export default function AgregarEquipoForm({
         
         <button 
           type="submit" 
-          className="btn btn-primary" 
           disabled={addLoading} 
-          style={{marginTop: 12, fontWeight: 700, fontSize: 17, borderRadius: 8, padding: '12px 0'}}
+          style={{ ...estiloBoton.btn, ...estiloBoton.btnPrimary, marginTop: 12, fontWeight: 700, fontSize: 17, borderRadius: 8, padding: '12px 0' }}
         >
           {addLoading ? 'Guardando...' : 'Guardar equipo'}
         </button>

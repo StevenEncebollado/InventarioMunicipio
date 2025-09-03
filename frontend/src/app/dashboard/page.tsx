@@ -10,6 +10,7 @@ import { useLoading, useError } from '@/hooks';
 import { formatDate } from '@/utils';
 import type { Usuario, Equipo } from '@/types';
 
+
 import Navbar from '../Diseño/Diseño dashboard/Navbar';
 import PanelControl from '../Diseño/Diseño dashboard/PanelControl';
 import Filtros from './componentes/Filtros';
@@ -17,6 +18,8 @@ import TablaEquipos from './componentes/TablaEquipos';
 import AgregarEquipoForm from './componentes/AgregarEquipoForm';
 import { useFiltros } from './hooks/useFiltros';
 import { useAgregarEquipo } from './hooks/useAgregarEquipo';
+import { estiloGlobal } from '../Diseño/Estilos/EstiloGlobal';
+import { estiloBoton } from '../Diseño/Estilos/EstiloBoton';
 
 
 
@@ -151,9 +154,9 @@ export default function Dashboard() {
 
   if (error && !user) {
     return (
-      <div className="error-container">
-        <p className="error-message">{error}</p>
-        <button onClick={() => router.push('/')} className="btn btn-primary">
+      <div style={estiloGlobal.errorContainer}>
+        <p style={estiloGlobal.errorMessage}>{error}</p>
+        <button onClick={() => router.push('/')} style={{...estiloBoton.btn, ...estiloBoton.btnPrimary}}>
           Volver al login
         </button>
       </div>
@@ -168,9 +171,9 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="dashboard">
+    <div style={estiloGlobal.dashboard}>
       <Navbar user={user} onLogout={handleLogout} />
-      <main className="dashboard-content" style={{background: '#f4f6fa', minHeight: '100vh', padding: '0 0 48px 0'}}>
+      <main style={{...estiloGlobal.dashboardContent, background: '#f4f6fa', minHeight: '100vh', padding: '0 0 48px 0'}}>
         <PanelControl
           total={stats.total}
           active={stats.active}
@@ -181,11 +184,11 @@ export default function Dashboard() {
         />
         <Filtros {...filtros} />
         {error && (
-          <div className="alert alert-error">
+          <div style={{...estiloGlobal.alert, ...estiloGlobal.alertError}}>
             {error}
             <button 
               onClick={clearError}
-              className="alert-close"
+              style={estiloGlobal.alertClose}
               aria-label="Cerrar"
             >
               ×

@@ -2,6 +2,8 @@
 import { useCatalogosContext } from '../context/CatalogosContext';
 import { selectStyle } from '../../Diseño/Estilos/EstiloCatalogos';
 import { FaBroom, FaSearch } from 'react-icons/fa';
+import { estiloTablas } from '../../Diseño/Estilos/EstiloTablas';
+import { estiloBoton } from '../../Diseño/Estilos/EstiloBoton';
 
 interface FiltrosProps {
   dependenciaSeleccionada: string;
@@ -89,19 +91,18 @@ export default function Filtros({
   }
 
   return (
-    <section className="equipos-section" style={{ marginBottom: 32, padding: 0 }}>
-      <div className="section-header" style={{ borderBottom: '2px solid var(--primary-color)', background: 'rgba(56,189,248,0.07)', borderTopLeftRadius: 12, borderTopRightRadius: 12, marginBottom: 0, padding: '1.2rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <section style={{ ...estiloTablas.equiposSection, marginBottom: 32, padding: 0 }}>
+      <div style={{ ...estiloTablas.sectionHeader, borderBottom: '2px solid #2563eb', background: 'rgba(56,189,248,0.07)', borderTopLeftRadius: 12, borderTopRightRadius: 12, marginBottom: 0, padding: '1.2rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <FaSearch style={{ fontSize: 26, color: 'var(--primary-color)' }} />
-          <span style={{ fontWeight: 800, fontSize: '1.3rem', color: 'var(--primary-color)' }}>Filtros de Inventario</span>
+          <FaSearch style={{ fontSize: 26, color: '#2563eb' }} />
+          <span style={{ fontWeight: 800, fontSize: '1.3rem', color: '#2563eb' }}>Filtros de Inventario</span>
         </div>
         <button
-          className="btn btn-outline"
-          style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, border: '1.5px solid var(--primary-color)', color: 'var(--primary-color)', background: '#fff', boxShadow: '0 1px 4px rgba(56,189,248,0.07)' }}
+          style={{ ...estiloBoton.btn, ...estiloBoton.btnOutline, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, border: '1.5px solid #2563eb', color: '#2563eb', background: '#fff', boxShadow: '0 1px 4px rgba(56,189,248,0.07)' }}
           onClick={limpiarFiltros}
           type="button"
         >
-          <FaBroom style={{ fontSize: 18, color: 'var(--primary-color)' }} /> Limpiar filtros
+          <FaBroom style={{ fontSize: 18, color: '#2563eb' }} /> Limpiar filtros
         </button>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, padding: '2rem', alignItems: 'start' }}>

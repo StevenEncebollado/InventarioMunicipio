@@ -12,6 +12,8 @@ import { getEquipos, APP_CONFIG } from '@/services/api';
 import Navbar from '../../Diseño/Diseño dashboard/Navbar';
 import PanelControl from '../../Diseño/Diseño dashboard/PanelControl';
 import Filtros from '../componentes/Filtros';
+import { estiloGlobal } from '../../Diseño/Estilos/EstiloGlobal';
+import { estiloTablas } from '../../Diseño/Estilos/EstiloTablas';
 
 
 const TITULOS: Record<string, string> = {
@@ -110,9 +112,9 @@ export default function EquiposLista() {
   };
 
   return (
-    <div className="dashboard">
+    <div style={estiloGlobal.dashboard}>
       <Navbar user={user} onLogout={handleLogout} />
-      <main className="dashboard-content" style={{background: '#f4f6fa', minHeight: '100vh', padding: '0 0 48px 0'}}>
+      <main style={{...estiloGlobal.dashboardContent, background: '#f4f6fa', minHeight: '100vh', padding: '0 0 48px 0'}}>
         <Filtros
           dependenciaSeleccionada={dependenciaSeleccionada}
           setDependenciaSeleccionada={setDependenciaSeleccionada}
@@ -149,11 +151,12 @@ export default function EquiposLista() {
           onInfoClick={handlePanelInfo}
           loading={loading}
         />
-        <div style={{ maxWidth: 520, margin: '48px auto', background: '#fff', borderRadius: 14, boxShadow: '0 2px 16px rgba(0,0,0,0.08)', padding: 32 }}>
+  <div style={{ maxWidth: 520, margin: '48px auto', background: '#fff', borderRadius: 14, boxShadow: '0 2px 16px rgba(0,0,0,0.08)', padding: 32 }}>
           <h2 style={{ marginBottom: 18 }}>{TITULOS[tipo] || 'Equipos'}</h2>
           {loading ? (
             <div style={{ minHeight: 180, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <div className="spinner-border text-primary" role="status" style={{ width: 56, height: 56, marginBottom: 18 }}>
+              <div style={{ ...estiloGlobal.spinner, width: 56, height: 56, color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
+                <svg width="56" height="56" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#2563eb" strokeWidth="5" strokeDasharray="31.4 31.4" strokeLinecap="round"><animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite"/></circle></svg>
               </div>
               <div style={{ color: '#2563eb', fontWeight: 600, fontSize: 18, letterSpacing: 0.5 }}>Cargando...</div>
             </div>

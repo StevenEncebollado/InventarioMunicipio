@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { estiloFormulario } from './Diseño/Estilos/EstiloFormulario';
+import { estiloBoton } from './Diseño/Estilos/EstiloBoton';
+import { estiloGlobal } from './Diseño/Estilos/EstiloGlobal';
 import { useRouter } from 'next/navigation';
 import { login, getErrorMessage, APP_CONFIG } from '@/services/api';
 import { useLoading, useError } from '@/hooks';
@@ -96,15 +99,14 @@ export default function LoginPage() {
   const userId = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(APP_CONFIG.session.storageKey) || '{}').id : null;
 
   return (
-  <div className="form-container">
-      <div className="logo-section">
-        <h1>Inventario Municipio</h1>
-        <p>Sistema de Gestión de Equipos</p>
+  <div style={estiloFormulario.formContainer}>
+      <div style={estiloFormulario.logoSection}>
+        <h1 style={estiloFormulario.logoH1}>Inventario Municipio</h1>
+        <p style={estiloFormulario.logoP}>Sistema de Gestión de Equipos</p>
       </div>
-      
-  <form onSubmit={handleSubmit} className="login-form">
-        <div className="form-group">
-          <label htmlFor="username">Usuario:</label>
+      <form onSubmit={handleSubmit} style={estiloFormulario.loginForm}>
+        <div style={estiloFormulario.formGroup}>
+          <label htmlFor="username" style={estiloFormulario.formLabel}>Usuario:</label>
           <input
             id="username"
             type="text"
@@ -114,11 +116,11 @@ export default function LoginPage() {
             disabled={isLoading}
             autoComplete="off"
             required
+            style={estiloFormulario.formInput}
           />
         </div>
-        
-        <div className="form-group" style={{ position: 'relative' }}>
-          <label htmlFor="password">Contraseña:</label>
+        <div style={{ ...estiloFormulario.formGroup, position: 'relative' }}>
+          <label htmlFor="password" style={estiloFormulario.formLabel}>Contraseña:</label>
           <input
             id="password"
             type={showPassword ? 'text' : 'password'}
@@ -128,7 +130,7 @@ export default function LoginPage() {
             disabled={isLoading}
             autoComplete="current-password"
             required
-            style={{ paddingRight: '2.5rem' }}
+            style={{ ...estiloFormulario.formInput, paddingRight: '2.5rem' }}
           />
           <button
             type="button"
@@ -158,18 +160,16 @@ export default function LoginPage() {
             )}
           </button>
         </div>
-        
-        <button 
-          type="submit" 
-          className="btn btn-primary"
+        <button
+          type="submit"
+          style={{ ...estiloBoton.btn, ...estiloBoton.btnPrimary }}
           disabled={isLoading}
         >
           {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
         </button>
         <button
           type="button"
-          className="btn btn-secondary"
-          style={{ marginTop: '1rem', width: '100%' }}
+          style={{ ...estiloBoton.btn, ...estiloBoton.btnSecondary, marginTop: '1rem', width: '100%' }}
           onClick={() => {
             setShowRegister(true);
             setRegisterError('');
@@ -180,20 +180,19 @@ export default function LoginPage() {
           Registrarse
         </button>
       </form>
-      
       {error && (
-        <div className="error-message" role="alert">
+        <div style={estiloGlobal.errorMessage} role="alert">
           {error}
         </div>
       )}
       {passwordExpiryWarning && !passwordChangeRequired && (
-        <div className="warning-message" style={{ color: '#e67e22', margin: '1rem 0', textAlign: 'center' }}>
+        <div style={{ color: '#e67e22', margin: '1rem 0', textAlign: 'center' }}>
           {passwordExpiryWarning}
         </div>
       )}
       {/* Modal de cambio de contraseña obligatorio */}
       {showPasswordChangeModal && (
-        <div className="modal-overlay" style={{
+        <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
@@ -205,7 +204,7 @@ export default function LoginPage() {
           justifyContent: 'center',
           zIndex: 1000
         }}>
-          <div className="modal-content" style={{
+          <div style={{
             background: '#fff',
             padding: '2rem',
             borderRadius: '8px',
@@ -259,8 +258,8 @@ export default function LoginPage() {
                 }
               }}
             >
-              <div className="form-group">
-                <label htmlFor="current-username">Usuario actual:</label>
+              <div style={estiloFormulario.formGroup}>
+                <label htmlFor="current-username" style={estiloFormulario.formLabel}>Usuario actual:</label>
                 <input
                   id="current-username"
                   type="text"
@@ -268,6 +267,7 @@ export default function LoginPage() {
                   onChange={e => setCurrentUsername(e.target.value)}
                   autoComplete="username"  
                   required
+                  style={estiloFormulario.formInput}
                 />
               </div>
               <div style={{ marginBottom: '0.5rem', fontSize: '0.95rem', color: '#555' }}>
@@ -290,8 +290,8 @@ export default function LoginPage() {
                   </li>
                 </ul>
               </div>
-              <div className="form-group" style={{ position: 'relative' }}>
-                <label htmlFor="new-password">Nueva contraseña:</label>
+              <div style={{ ...estiloFormulario.formGroup, position: 'relative' }}>
+                <label htmlFor="new-password" style={estiloFormulario.formLabel}>Nueva contraseña:</label>
                 <input
                   id="new-password"
                   type={showNewPassword ? 'text' : 'password'}
@@ -299,7 +299,7 @@ export default function LoginPage() {
                   onChange={e => setNewPassword(e.target.value)}
                   autoComplete="new-password"
                   required
-                  style={{ paddingRight: '2.5rem' }}
+                  style={{ ...estiloFormulario.formInput, paddingRight: '2.5rem' }}
                 />
                 <button
                   type="button"
@@ -345,8 +345,8 @@ export default function LoginPage() {
                   })()}
                 </div>
               </div>
-              <div className="form-group" style={{ position: 'relative' }}>
-                <label htmlFor="confirm-new-password">Confirmar nueva contraseña:</label>
+              <div style={{ ...estiloFormulario.formGroup, position: 'relative' }}>
+                <label htmlFor="confirm-new-password" style={estiloFormulario.formLabel}>Confirmar nueva contraseña:</label>
                 <input
                   id="confirm-new-password"
                   type={showConfirmNewPassword ? 'text' : 'password'}
@@ -354,7 +354,7 @@ export default function LoginPage() {
                   onChange={e => setConfirmNewPassword(e.target.value)}
                   autoComplete="new-password"
                   required
-                  style={{ paddingRight: '2.5rem' }}
+                  style={{ ...estiloFormulario.formInput, paddingRight: '2.5rem' }}
                 />
                 <button
                   type="button"
@@ -386,13 +386,12 @@ export default function LoginPage() {
               </div>
               <button
                 type="submit"
-                className="btn btn-primary"
-                style={{ width: '100%', marginTop: '1rem' }}
+                style={{ ...estiloBoton.btn, ...estiloBoton.btnPrimary, width: '100%', marginTop: '1rem' }}
               >
                 Cambiar contraseña
               </button>
               {changePasswordError && (
-                <div className="error-message" role="alert" style={{ marginTop: '1rem' }}>
+                <div style={{ ...estiloGlobal.errorMessage, marginTop: '1rem' }} role="alert">
                   {changePasswordError}
                 </div>
               )}
@@ -402,7 +401,7 @@ export default function LoginPage() {
       )}
       {/* Modal de registro */}
       {showRegister && (
-        <div className="modal-overlay" style={{
+        <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
@@ -414,7 +413,7 @@ export default function LoginPage() {
           justifyContent: 'center',
           zIndex: 1000
         }}>
-          <div className="modal-content" style={{
+          <div style={{
             background: '#fff',
             padding: '2rem',
             borderRadius: '8px',
@@ -462,8 +461,8 @@ export default function LoginPage() {
                 }
               }}
             >
-              <div className="form-group">
-                <label htmlFor="register-username">Usuario:</label>
+              <div style={estiloFormulario.formGroup}>
+                <label htmlFor="register-username" style={estiloFormulario.formLabel}>Usuario:</label>
                 <input
                   id="register-username"
                   type="text"
@@ -472,6 +471,7 @@ export default function LoginPage() {
                   autoComplete="username"
                   required
                   disabled={registerLoading}
+                  style={estiloFormulario.formInput}
                 />
               </div>
               <div style={{ marginBottom: '0.5rem', fontSize: '0.95rem', color: '#555' }}>
@@ -494,8 +494,8 @@ export default function LoginPage() {
                   </li>
                 </ul>
               </div>
-              <div className="form-group" style={{ position: 'relative' }}>
-                <label htmlFor="register-password">Contraseña:</label>
+              <div style={{ ...estiloFormulario.formGroup, position: 'relative' }}>
+                <label htmlFor="register-password" style={estiloFormulario.formLabel}>Contraseña:</label>
                 <input
                   id="register-password"
                   type={showRegisterPassword ? 'text' : 'password'}
@@ -504,7 +504,7 @@ export default function LoginPage() {
                   autoComplete="new-password"
                   required
                   disabled={registerLoading}
-                  style={{ paddingRight: '2.5rem' }}
+                  style={{ ...estiloFormulario.formInput, paddingRight: '2.5rem' }}
                 />
                 <button
                   type="button"
@@ -564,8 +564,8 @@ export default function LoginPage() {
                   )}
                 </div>
               </div>
-              <div className="form-group" style={{ position: 'relative' }}>
-                <label htmlFor="register-confirm-password">Confirmar contraseña:</label>
+              <div style={{ ...estiloFormulario.formGroup, position: 'relative' }}>
+                <label htmlFor="register-confirm-password" style={estiloFormulario.formLabel}>Confirmar contraseña:</label>
                 <input
                   id="register-confirm-password"
                   type={showRegisterConfirmPassword ? 'text' : 'password'}
@@ -574,7 +574,7 @@ export default function LoginPage() {
                   autoComplete="new-password"
                   required
                   disabled={registerLoading}
-                  style={{ paddingRight: '2.5rem' }}
+                  style={{ ...estiloFormulario.formInput, paddingRight: '2.5rem' }}
                 />
                 <button
                   type="button"
@@ -606,23 +606,21 @@ export default function LoginPage() {
               </div>
               <button
                 type="submit"
-                className="btn btn-primary"
+                style={{ ...estiloBoton.btn, ...estiloBoton.btnPrimary, width: '100%', marginTop: '1rem' }}
                 disabled={registerLoading}
-                style={{ width: '100%', marginTop: '1rem' }}
               >
                 {registerLoading ? 'Registrando...' : 'Registrar'}
               </button>
               <button
                 type="button"
-                className="btn btn-secondary"
-                style={{ width: '100%', marginTop: '0.5rem' }}
+                style={{ ...estiloBoton.btn, ...estiloBoton.btnSecondary, width: '100%', marginTop: '0.5rem' }}
                 onClick={() => setShowRegister(false)}
                 disabled={registerLoading}
               >
                 Cancelar
               </button>
               {registerError && (
-                <div className="error-message" role="alert" style={{ marginTop: '1rem' }}>
+                <div style={{ ...estiloGlobal.errorMessage, marginTop: '1rem' }} role="alert">
                   {registerError}
                 </div>
               )}

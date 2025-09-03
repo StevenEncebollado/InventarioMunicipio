@@ -4,6 +4,8 @@ import { useCatalogosContext } from '../context/CatalogosContext';
 import { useState } from 'react';
 import Modal from '../../Diseño/Diseño dashboard/Modal';
 import EquipoDetalle from './EquipoDetalle';
+import { estiloTablas } from '../../Diseño/Estilos/EstiloTablas';
+import { estiloBoton } from '../../Diseño/Estilos/EstiloBoton';
 
 
 
@@ -26,41 +28,41 @@ export default function TablaEquipos({ equipos, onAgregarClick }: TablaEquiposPr
   };
 
   return (
-    <section className="equipos-section">
-      <div className="section-header">
-        <h3 className="section-header">
-          <FaDesktop style={{ fontSize: '1.3rem', color: 'var(--primary-color)', animation: 'pulse 2s infinite alternate' }} /> Equipos Recientes
+    <section style={estiloTablas.equiposSection}>
+      <div style={estiloTablas.sectionHeader}>
+        <h3 style={estiloTablas.sectionHeaderH3}>
+          <FaDesktop style={{ fontSize: '1.3rem', color: '#2563eb', animation: 'pulse 2s infinite alternate' }} /> Equipos Recientes
         </h3>
-        <button className="btn btn-primary" onClick={onAgregarClick} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <button onClick={onAgregarClick} style={{ ...estiloBoton.btn, ...estiloBoton.btnPrimary, display: 'flex', alignItems: 'center', gap: 6 }}>
           <FaDesktop style={{ fontSize: '1.1rem', color: '#fff', animation: 'pulse 2s infinite alternate' }} />
           Agregar Equipo
         </button>
       </div>
       {ultimosEquipos.length > 0 ? (
-        <div className="table-container">
-          <table className="equipos-table equipos-table-modern">
+        <div style={estiloTablas.tableContainer}>
+          <table style={estiloTablas.equiposTable}>
             <thead>
               <tr>
-                <th><FaUser style={{ marginRight: 4, color: '#111' }} /> Funcionario</th>
-                <th><FaDesktop style={{ marginRight: 4, color: '#111' }} /> Tipo de Dispositivo</th>
-                <th><FaMousePointer style={{ marginRight: 4, color: '#111' }} /> Acciones</th>
+                <th style={estiloTablas.equiposTableTh}><FaUser style={{ marginRight: 4, color: '#111' }} /> Funcionario</th>
+                <th style={estiloTablas.equiposTableTh}><FaDesktop style={{ marginRight: 4, color: '#111' }} /> Tipo de Dispositivo</th>
+                <th style={estiloTablas.equiposTableTh}><FaMousePointer style={{ marginRight: 4, color: '#111' }} /> Acciones</th>
               </tr>
             </thead>
             <tbody>
               {ultimosEquipos.map((equipo) => {
                 const tipo = catalogos.tiposEquipo.find((t: { id: number; nombre: string }) => t.id === equipo.tipo_equipo_id)?.nombre || '-';
                 return (
-                  <tr key={equipo.id} className="equipo-row">
-                    <td className="funcionario-cell">{equipo.nombres_funcionario || 'Sin asignar'}</td>
-                    <td>
-                      <span className="badge-tipo">
+                  <tr key={equipo.id} style={estiloTablas.equipoRow}>
+                    <td style={{ fontWeight: 500, color: '#333', ...estiloTablas.equiposTableTd }}>{equipo.nombres_funcionario || 'Sin asignar'}</td>
+                    <td style={estiloTablas.equiposTableTd}>
+                      <span style={estiloTablas.badgeTipo}>
                         {tipo}
                       </span>
                     </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button className="btn btn-sm btn-ver" title="Ver" style={{ display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleVerClick(equipo)}>
-                          <FaEye style={{ marginRight: 4, color: '#111', animation: 'pulse 2s infinite alternate' }} /> Ver
+                    <td style={estiloTablas.equiposTableTd}>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button title="Ver" style={{ ...estiloBoton.btn, ...estiloBoton.btnPrimary, ...estiloBoton.btnSm, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => handleVerClick(equipo)}>
+                          <FaEye style={{ marginRight: 4, color: '#fff', animation: 'pulse 2s infinite alternate' }} /> Ver
                         </button>
                       </div>
                     </td>
@@ -71,9 +73,9 @@ export default function TablaEquipos({ equipos, onAgregarClick }: TablaEquiposPr
           </table>
         </div>
       ) : (
-        <div className="empty-state">
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
           <p>No hay equipos registrados.</p>
-          <button className="btn btn-primary" onClick={onAgregarClick} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button onClick={onAgregarClick} style={{ ...estiloBoton.btn, ...estiloBoton.btnPrimary, display: 'flex', alignItems: 'center', gap: 6 }}>
             <FaDesktop style={{ fontSize: '1.1rem', color: '#fff', animation: 'pulse 2s infinite alternate' }} />
             Agregar primer equipo
           </button>
