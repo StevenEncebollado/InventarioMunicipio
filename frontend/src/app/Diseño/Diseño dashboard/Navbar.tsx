@@ -30,6 +30,11 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
   const handleGoHome = () => {
     router.push('/dashboard');
   };
+  
+  const handleGoToAddEquipo = () => {
+    router.push('/dashboard/agregar_equipo');
+  };
+  
   return (
     <nav style={navbarStyles.navbar}>
       <div style={navbarStyles.navBrand}>
@@ -50,6 +55,33 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
           Inventario Municipio
         </button>
       </div>
+      
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <button
+          onClick={handleGoToAddEquipo}
+          style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            color: '#fff',
+            fontSize: '14px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            padding: '8px 16px',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseOver={e => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+          }}
+          onMouseOut={e => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+          }}
+        >
+          Agregar Equipo
+        </button>
+      </div>
+      
       <div style={navbarStyles.navUser}>
         {user && (
           <>

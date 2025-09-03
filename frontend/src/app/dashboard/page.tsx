@@ -15,9 +15,7 @@ import Navbar from '../Diseño/Diseño dashboard/Navbar';
 import PanelControl from '../Diseño/Diseño dashboard/PanelControl';
 import Filtros from './componentes/Filtros';
 import TablaEquipos from './componentes/TablaEquipos';
-import AgregarEquipoForm from './componentes/AgregarEquipoForm';
 import { useFiltros } from './hooks/useFiltros';
-import { useAgregarEquipo } from './hooks/useAgregarEquipo';
 import { estiloGlobal } from '../Diseño/Estilos/EstiloGlobal';
 import { estiloBoton } from '../Diseño/Estilos/EstiloBoton';
 
@@ -26,15 +24,12 @@ import { estiloBoton } from '../Diseño/Estilos/EstiloBoton';
 export default function Dashboard() {
   const [user, setUser] = useState<Usuario | null>(null);
   const [equipos, setEquipos] = useState<Equipo[]>([]);
-  const [showAddEquipo, setShowAddEquipo] = useState(false);
   const { isLoading, setLoading } = useLoading(true);
   const { error, setError, clearError } = useError();
   const router = useRouter();
 
   // Hooks personalizados
   const filtros = useFiltros();
-  // Pasar el usuarioId solo si user existe, si no, pasar 0 o null según tu lógica
-  const agregarEquipo = useAgregarEquipo(user?.id ?? 0);
 
   useEffect(() => {
     initializeDashboard();
@@ -122,36 +117,6 @@ export default function Dashboard() {
     inactive: equiposFiltradosPrograma.filter(e => e.estado === 'Inactivo').length,
   });
 
-  const handleSubmitEquipo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    agregarEquipo.setAddError("");
-    agregarEquipo.setAddLoading(true);
-    
-    if (!agregarEquipo.validarCampos()) {
-      agregarEquipo.setAddLoading(false);
-      return;
-    }
-    
-    try {
-      await fetch('http://localhost:8081/inventario', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(agregarEquipo.getFormData())
-      });
-      
-      setShowAddEquipo(false);
-      agregarEquipo.limpiarCampos();
-      
-      // Refrescar lista
-      const data = await getEquipos();
-      setEquipos(data);
-    } catch (err: any) {
-      agregarEquipo.setAddError("Error al crear equipo");
-    } finally {
-      agregarEquipo.setAddLoading(false);
-    }
-  };
-
   if (error && !user) {
     return (
       <div style={estiloGlobal.errorContainer}>
@@ -197,13 +162,6 @@ export default function Dashboard() {
         )}
         <TablaEquipos 
           equipos={equipos}
-          onAgregarClick={() => setShowAddEquipo(true)}
-        />
-        <AgregarEquipoForm
-          showAddEquipo={showAddEquipo}
-          setShowAddEquipo={setShowAddEquipo}
-          onSubmit={handleSubmitEquipo}
-          {...agregarEquipo}
         />
       </main>
     </div>

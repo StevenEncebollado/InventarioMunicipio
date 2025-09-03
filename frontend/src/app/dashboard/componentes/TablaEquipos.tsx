@@ -11,11 +11,10 @@ import { estiloBoton } from '../../Diseño/Estilos/EstiloBoton';
 
 interface TablaEquiposProps {
   equipos: Equipo[];
-  onAgregarClick: () => void;
 }
 
 
-export default function TablaEquipos({ equipos, onAgregarClick }: TablaEquiposProps) {
+export default function TablaEquipos({ equipos }: TablaEquiposProps) {
   // Mostrar solo los últimos 3 equipos creados (orden descendente por id)
   const ultimosEquipos = Array.isArray(equipos) ? [...equipos].sort((a, b) => b.id - a.id).slice(0, 3) : [];
   const { catalogos } = useCatalogosContext();
@@ -33,10 +32,6 @@ export default function TablaEquipos({ equipos, onAgregarClick }: TablaEquiposPr
         <h3 style={estiloTablas.sectionHeaderH3}>
           <FaDesktop style={{ fontSize: '1.3rem', color: '#2563eb', animation: 'pulse 2s infinite alternate' }} /> Equipos Recientes
         </h3>
-        <button onClick={onAgregarClick} style={{ ...estiloBoton.btn, ...estiloBoton.btnPrimary, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <FaDesktop style={{ fontSize: '1.1rem', color: '#fff', animation: 'pulse 2s infinite alternate' }} />
-          Agregar Equipo
-        </button>
       </div>
       {ultimosEquipos.length > 0 ? (
         <div style={estiloTablas.tableContainer}>
@@ -75,10 +70,9 @@ export default function TablaEquipos({ equipos, onAgregarClick }: TablaEquiposPr
       ) : (
         <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
           <p>No hay equipos registrados.</p>
-          <button onClick={onAgregarClick} style={{ ...estiloBoton.btn, ...estiloBoton.btnPrimary, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <FaDesktop style={{ fontSize: '1.1rem', color: '#fff', animation: 'pulse 2s infinite alternate' }} />
-            Agregar primer equipo
-          </button>
+          <p style={{ fontSize: '0.9rem', marginTop: '1rem' }}>
+            Use el botón "Agregar Equipo" en la barra de navegación para registrar su primer equipo.
+          </p>
         </div>
       )}
       <Modal open={showDetalle} onClose={() => setShowDetalle(false)}>

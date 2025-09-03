@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export function useAgregarEquipo(usuarioId: number) {
+export function useAgregarEquipo(usuarioId?: number) {
   // Campos de texto
   const [ip, setIp] = useState("");
   const [mac, setMac] = useState("");
@@ -53,36 +53,35 @@ export function useAgregarEquipo(usuarioId: number) {
   };
 
   const validarCampos = (): boolean => {
-    if (!ip || !mac || !nombrePc || !funcionario || !anydesk || 
-        !tipoEquipo || !marca || !ram || !disco || !office || 
-        !tipoConexion || !dependencia || !direccion || !equipamiento || 
-        !caracteristica || !sistemaOperativo || !estado) {
-      setAddError("Todos los campos son obligatorios");
+    if (!ip || !mac || !nombrePc || !funcionario || 
+        !tipoEquipo || !marca || !ram || !disco || 
+        !dependencia || !estado) {
+      setAddError("Los campos marcados con * son obligatorios");
       return false;
     }
     return true;
   };
 
   const getFormData = () => ({
-    usuario_id: usuarioId,
+    usuario_id: usuarioId || 1, // Default value if not provided
     dependencia_id: dependencia,
-    direccion_area_id: direccion,
+    direccion_area_id: direccion || null,
     dispositivo_id: tipoEquipo,
     direccion_ip: ip,
     direccion_mac: mac,
     nombre_pc: nombrePc,
     nombres_funcionario: funcionario,
-    equipamiento_id: equipamiento,
+    equipamiento_id: equipamiento || null,
     tipo_equipo_id: tipoEquipo,
-    tipo_sistema_operativo_id: sistemaOperativo,
-    caracteristicas_id: caracteristica,
+    tipo_sistema_operativo_id: sistemaOperativo || null,
+    caracteristicas_id: caracteristica || null,
     ram_id: ram,
     disco_id: disco,
-    office_id: office,
+    office_id: office || null,
     marca_id: marca,
     codigo_inventario: mac,
-    tipo_conexion_id: tipoConexion,
-    anydesk: anydesk,
+    tipo_conexion_id: tipoConexion || null,
+    anydesk: anydesk || null,
     estado: estado,
     programa_adicional_ids: programaAdicional,
   });
