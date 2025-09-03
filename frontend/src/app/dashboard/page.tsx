@@ -9,6 +9,7 @@ import { getEquipos, logout, getErrorMessage, APP_CONFIG } from '@/services/api'
 import { useLoading, useError } from '@/hooks';
 import { formatDate } from '@/utils';
 import type { Usuario, Equipo } from '@/types';
+
 import Navbar from '../Diseño/Diseño dashboard/Navbar';
 import PanelControl from '../Diseño/Diseño dashboard/PanelControl';
 import Filtros from './componentes/Filtros';
@@ -16,6 +17,7 @@ import TablaEquipos from './componentes/TablaEquipos';
 import AgregarEquipoForm from './componentes/AgregarEquipoForm';
 import { useFiltros } from './hooks/useFiltros';
 import { useAgregarEquipo } from './hooks/useAgregarEquipo';
+
 
 
 export default function Dashboard() {
@@ -168,7 +170,6 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       <Navbar user={user} onLogout={handleLogout} />
-      
       <main className="dashboard-content" style={{background: '#f4f6fa', minHeight: '100vh', padding: '0 0 48px 0'}}>
         <PanelControl
           total={stats.total}
@@ -178,9 +179,7 @@ export default function Dashboard() {
           onInfoClick={handlePanelInfo}
           loading={isLoading}
         />
-
         <Filtros {...filtros} />
-        
         {error && (
           <div className="alert alert-error">
             {error}
@@ -193,15 +192,10 @@ export default function Dashboard() {
             </button>
           </div>
         )}
-        
-
         <TablaEquipos 
           equipos={equipos}
           onAgregarClick={() => setShowAddEquipo(true)}
         />
-
-
-
         <AgregarEquipoForm
           showAddEquipo={showAddEquipo}
           setShowAddEquipo={setShowAddEquipo}
