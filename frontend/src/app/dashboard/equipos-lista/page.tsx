@@ -28,7 +28,7 @@ export default function EquiposLista() {
   const params = useSearchParams();
   const tipo = params.get('tipo') || 'total';
   const [equipos, setEquipos] = useState<Equipo[]>([]);
-  const [equiposFiltrados, setEquiposFiltrados] = useState<Equipo[]>([]);
+  // Eliminado el estado equiposFiltrados para evitar ciclos
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<Usuario | null>(null);
   // Estados de filtros
@@ -82,14 +82,14 @@ export default function EquiposLista() {
     ? equipos.filter(e => programaAdicionalSeleccionado.every(p => e.programa_adicional_ids?.includes(Number(p))))
     : equipos;
 
-  // Filtrar para listado (panel de dispositivos)
-  useEffect(() => {
+  // Filtrar para listado (panel de dispositivos) directamente en el render
+  const equiposFiltrados = (() => {
     let filtrados = equiposFiltradosStats;
     if (tipo === 'active') filtrados = filtrados.filter((e: Equipo) => e.estado === 'Activo');
     else if (tipo === 'maintenance') filtrados = filtrados.filter((e: Equipo) => e.estado === 'Mantenimiento');
     else if (tipo === 'inactive') filtrados = filtrados.filter((e: Equipo) => e.estado === 'Inactivo');
-    setEquiposFiltrados(filtrados);
-  }, [equiposFiltradosStats, tipo, programaAdicionalSeleccionado]);
+    return filtrados;
+  })();
 
   // Estadísticas para PanelControl
   const stats = {
