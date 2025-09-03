@@ -4,6 +4,7 @@ import { selectStyle } from '../../Diseño/Estilos/EstiloCatalogos';
 import { FaBroom, FaSearch } from 'react-icons/fa';
 import { estiloTablas } from '../../Diseño/Estilos/EstiloTablas';
 import { estiloBoton } from '../../Diseño/Estilos/EstiloBoton';
+import MultiSelectTags from './MultiSelectTags';
 
 interface FiltrosProps {
   dependenciaSeleccionada: string;
@@ -195,31 +196,20 @@ export default function Filtros({
         </div>
         {/* Fila 4: Programa Adicional ocupa las 4 columnas */}
         <div style={{ gridColumn: '1 / span 4', marginTop: 8 }}>
-          <label style={{ fontWeight: 600 }}>Programa Adicional</label>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, background: '#f8fafc', borderRadius: 10, boxShadow: '0 2px 8px rgba(56,189,248,0.08)', padding: 14, maxHeight: 180, overflowY: 'auto', border: '1.5px solid var(--primary-color)' }}>
-            {(catalogos.programaAdicional || []).map((pa: any) => {
-              const nombre = typeof pa === 'string' ? pa : pa.nombre;
-              const id = typeof pa === 'string' ? pa : pa.id;
-              return (
-                <label key={id} style={{ fontWeight: 400, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <input
-                    type="checkbox"
-                    value={id}
-                    checked={programaAdicionalSeleccionado.includes(String(id))}
-                    onChange={e => {
-                      if (e.target.checked) {
-                        setProgramaAdicionalSeleccionado([...programaAdicionalSeleccionado, String(id)]);
-                      } else {
-                        setProgramaAdicionalSeleccionado(programaAdicionalSeleccionado.filter(item => item !== String(id)));
-                      }
-                    }}
-                    style={{ accentColor: 'var(--primary-color)' }}
-                  />
-                  {nombre}
-                </label>
-              );
-            })}
-          </div>
+          <label style={{ fontWeight: 600, display: 'block', marginBottom: '8px', color: '#374151' }}>
+            Programa Adicional
+          </label>
+          <MultiSelectTags
+            options={catalogos.programaAdicional.map(pa => ({
+              value: pa.id,
+              label: pa.nombre
+            }))}
+            value={programaAdicionalSeleccionado.map(p => Number(p))}
+            onChange={(selectedIds) => setProgramaAdicionalSeleccionado(selectedIds.map(id => String(id)))}
+            placeholder="Buscar y seleccionar programas..."
+            searchPlaceholder="Buscar programas..."
+            maxHeight={200}
+          />
         </div>
       </div>
     </section>

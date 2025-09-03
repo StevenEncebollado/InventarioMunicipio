@@ -132,7 +132,7 @@ export default function Dashboard() {
 
   // Handler para mostrar detalles de dispositivos según el tipo de card
   const handlePanelInfo = (type: 'total' | 'active' | 'maintenance' | 'inactive') => {
-    router.push(`/dashboard/equipos-lista?tipo=${type}`);
+    router.push(`/dashboard/detalle_estados?tipo=${type}`);
   };
 
   return (
