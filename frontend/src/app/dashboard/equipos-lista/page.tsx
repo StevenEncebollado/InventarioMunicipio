@@ -6,14 +6,13 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { Equipo, Usuario } from '@/types';
+import { filtrarEquipos } from '@/utils/filtrarEquipos';
 import { useEffect, useState } from 'react';
 import { getEquipos, APP_CONFIG } from '@/services/api';
-
 import Navbar from '../../Diseño/Diseño dashboard/Navbar';
 import PanelControl from '../../Diseño/Diseño dashboard/PanelControl';
 import Filtros from '../componentes/Filtros';
 import { estiloGlobal } from '../../Diseño/Estilos/EstiloGlobal';
-import { estiloTablas } from '../../Diseño/Estilos/EstiloTablas';
 
 
 const TITULOS: Record<string, string> = {
@@ -76,27 +75,57 @@ export default function EquiposLista() {
     });
   }, [dependenciaSeleccionada, direccionSeleccionada, dispositivoSeleccionado, equipamientoSeleccionado, tipoEquipoSeleccionado, tipoSistemaOperativoSeleccionado, marcaSeleccionada, caracteristicaSeleccionada, ramSeleccionada, discoSeleccionado, officeSeleccionado, tipoConexionSeleccionada]);
 
-  // Filtrar equipos según todos los filtros y el tipo de estado
-  // Filtrar solo por programa adicional (si aplica) en frontend
-  const equiposFiltradosStats = programaAdicionalSeleccionado.length > 0
-    ? equipos.filter(e => programaAdicionalSeleccionado.every(p => e.programa_adicional_ids?.includes(Number(p))))
-    : equipos;
 
-  // Filtrar para listado (panel de dispositivos) directamente en el render
-  const equiposFiltrados = (() => {
-    let filtrados = equiposFiltradosStats;
-    if (tipo === 'active') filtrados = filtrados.filter((e: Equipo) => e.estado === 'Activo');
-    else if (tipo === 'maintenance') filtrados = filtrados.filter((e: Equipo) => e.estado === 'Mantenimiento');
-    else if (tipo === 'inactive') filtrados = filtrados.filter((e: Equipo) => e.estado === 'Inactivo');
-    return filtrados;
-  })();
+  // Unificar todos los filtros en un objeto, pero si no hay filtros avanzados, solo filtra por tipo
+  let estadoFiltro: '' | 'Activo' | 'Mantenimiento' | 'Inactivo' | undefined = '';
+  if (tipo === 'active') estadoFiltro = 'Activo';
+  else if (tipo === 'maintenance') estadoFiltro = 'Mantenimiento';
+  else if (tipo === 'inactive') estadoFiltro = 'Inactivo';
+
+  const filtros = {
+    dependenciaSeleccionada,
+    direccionSeleccionada,
+    dispositivoSeleccionado,
+    equipamientoSeleccionado,
+    tipoEquipoSeleccionado,
+    tipoSistemaOperativoSeleccionado,
+    marcaSeleccionada,
+    caracteristicaSeleccionada,
+    ramSeleccionada,
+    discoSeleccionado,
+    officeSeleccionado,
+    tipoConexionSeleccionada,
+    programaAdicionalSeleccionado,
+    estado: estadoFiltro
+  };
+
+  // Si no hay ningún filtro avanzado, solo filtra por estado (tipo)
+  const hayFiltrosAvanzados = [
+    dependenciaSeleccionada,
+    direccionSeleccionada,
+    dispositivoSeleccionado,
+    equipamientoSeleccionado,
+    tipoEquipoSeleccionado,
+    tipoSistemaOperativoSeleccionado,
+    marcaSeleccionada,
+    caracteristicaSeleccionada,
+    ramSeleccionada,
+    discoSeleccionado,
+    officeSeleccionado,
+    tipoConexionSeleccionada,
+    programaAdicionalSeleccionado.length > 0
+  ].some(Boolean);
+
+  const equiposFiltrados = hayFiltrosAvanzados
+    ? filtrarEquipos(equipos, filtros)
+    : filtrarEquipos(equipos, { estado: estadoFiltro });
 
   // Estadísticas para PanelControl
   const stats = {
-    total: equiposFiltradosStats.length,
-    active: equiposFiltradosStats.filter(e => e.estado === 'Activo').length,
-    maintenance: equiposFiltradosStats.filter(e => e.estado === 'Mantenimiento').length,
-    inactive: equiposFiltradosStats.filter(e => e.estado === 'Inactivo').length,
+    total: filtrarEquipos(equipos, { ...filtros, estado: '' }).length,
+    active: filtrarEquipos(equipos, { ...filtros, estado: 'Activo' }).length,
+    maintenance: filtrarEquipos(equipos, { ...filtros, estado: 'Mantenimiento' }).length,
+    inactive: filtrarEquipos(equipos, { ...filtros, estado: 'Inactivo' }).length,
   };
 
   // Handler para navegar entre segmentos

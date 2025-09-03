@@ -16,6 +16,7 @@ import PanelControl from '../Diseño/Diseño dashboard/PanelControl';
 import Filtros from './componentes/Filtros';
 import TablaEquipos from './componentes/TablaEquipos';
 import { useFiltros } from './hooks/useFiltros';
+import { filtrarEquipos } from '@/utils/filtrarEquipos';
 import { estiloGlobal } from '../Diseño/Estilos/EstiloGlobal';
 import { estiloBoton } from '../Diseño/Estilos/EstiloBoton';
 
@@ -35,40 +36,8 @@ export default function Dashboard() {
     initializeDashboard();
   }, []);
 
-  // Actualizar equipos al cambiar filtros
-  useEffect(() => {
-    if (user) {
-      filtrarEquipos();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    filtros.dependenciaSeleccionada,
-    filtros.direccionSeleccionada,
-    filtros.dispositivoSeleccionado,
-    filtros.equipamientoSeleccionado,
-    filtros.tipoEquipoSeleccionado,
-    filtros.tipoSistemaOperativoSeleccionado,
-    filtros.marcaSeleccionada,
-    filtros.caracteristicaSeleccionada,
-    filtros.ramSeleccionada,
-    filtros.discoSeleccionado,
-    filtros.officeSeleccionado,
-    filtros.tipoConexionSeleccionada,
-    filtros.programaAdicionalSeleccionado
-  ]);
 
-  const filtrarEquipos = async () => {
-    setLoading(true);
-    clearError();
-    try {
-      const data = await getEquipos(filtros.getFiltros());
-      setEquipos(data);
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Ya no se filtra en el backend, solo se obtiene la lista y se filtra en frontend
 
   const initializeDashboard = async () => {
     try {
@@ -105,16 +74,15 @@ export default function Dashboard() {
     router.push('/');
   };
 
-  // Si hay filtro de programa adicional, filtrar aquí también (por si el backend no lo hace)
-  const equiposFiltradosPrograma = filtros.programaAdicionalSeleccionado && filtros.programaAdicionalSeleccionado.length > 0
-    ? equipos.filter(e => filtros.programaAdicionalSeleccionado.every((p: string) => e.programa_adicional_ids?.includes(Number(p))))
-    : equipos;
+
+  // Usar la función centralizada para filtrar equipos según todos los filtros
+  const equiposFiltrados = filtrarEquipos(equipos, filtros);
 
   const getStats = () => ({
-    total: equiposFiltradosPrograma.length,
-    active: equiposFiltradosPrograma.filter(e => e.estado === 'Activo').length,
-    maintenance: equiposFiltradosPrograma.filter(e => e.estado === 'Mantenimiento').length,
-    inactive: equiposFiltradosPrograma.filter(e => e.estado === 'Inactivo').length,
+    total: equiposFiltrados.length,
+    active: equiposFiltrados.filter(e => e.estado === 'Activo').length,
+    maintenance: equiposFiltrados.filter(e => e.estado === 'Mantenimiento').length,
+    inactive: equiposFiltrados.filter(e => e.estado === 'Inactivo').length,
   });
 
   if (error && !user) {
@@ -161,7 +129,7 @@ export default function Dashboard() {
           </div>
         )}
         <TablaEquipos 
-          equipos={equipos}
+          equipos={equiposFiltrados}
         />
       </main>
     </div>
