@@ -142,7 +142,7 @@ def create_inventario():
         conn.close()
 
 # Endpoint: Actualizar un item del inventario
-@inventario_bp.route('/inventario/<int:item_id>', methods=['PUT'])
+@inventario_bp.route('/<int:item_id>', methods=['PUT'])
 def update_inventario(item_id):
     """Actualiza un registro del inventario por su ID."""
     data = request.json
@@ -150,54 +150,26 @@ def update_inventario(item_id):
         'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
         'direccion_mac', 'nombre_pc', 'nombres_funcionario', 'equipamiento_id', 'tipo_equipo_id',
         'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id', 'office_id',
-        'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado'
+        'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado', 'fecha_eliminacion'
     ]
     valores = [data.get(campo) for campo in campos]
     set_clause = ', '.join([f"{campo} = %s" for campo in campos])
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute(f'''
-        UPDATE inventario SET {set_clause} WHERE id = %s
-    ''', valores + [item_id])
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'msg': 'Actualizado correctamente'})
-
-
-    # Actualizar un registro del inventario y registrar en historial
-    @inventario_bp.route('/inventario/<int:item_id>', methods=['PUT'])
-    def update_inventario(item_id):
-        # Actualiza un registro del inventario por su ID y lo registra en el historial
-        data = request.json
-        campos = [
-            'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
-            'direccion_mac', 'nombre_pc', 'nombres_funcionario', 'equipamiento_id', 'tipo_equipo_id',
-            'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id', 'office_id',
-            'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk'
-        ]
-        valores = [data.get(campo) for campo in campos]
-        set_clause = ', '.join([f"{campo} = %s" for campo in campos])
-        conn = get_db_connection()
-        cur = conn.cursor()
-        # Obtener datos anteriores
-        cur.execute('SELECT * FROM inventario WHERE id = %s', (item_id,))
-        row = cur.fetchone()
-        columns = [desc[0] for desc in cur.description]
-        datos_anteriores = dict(zip(columns, row)) if row else None
-        # Actualizar
+    try:
         cur.execute(f'''
             UPDATE inventario SET {set_clause} WHERE id = %s
         ''', valores + [item_id])
-        # Registrar en historial (acción: modificado)
-        cur.execute('''
-            INSERT INTO historial_inventario (inventario_id, usuario_id, accion, datos_anteriores, datos_nuevos)
-            VALUES (%s, %s, %s, %s, %s)
-        ''', (item_id, data.get('usuario_id'), 'modificado', json.dumps(datos_anteriores), json.dumps(data)))
         conn.commit()
+        return jsonify({'msg': 'Actualizado correctamente'})
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
         cur.close()
         conn.close()
-        return jsonify({'msg': 'Actualizado correctamente'})
+
+
 
 # Endpoint: Eliminar un item del inventario
 @inventario_bp.route('/inventario/<int:item_id>', methods=['DELETE'])

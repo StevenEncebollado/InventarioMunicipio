@@ -57,6 +57,7 @@ export interface Equipo {
   usuario_id?: number;
   estado: 'Activo' | 'Mantenimiento' | 'Inactivo';
   programa_adicional_ids?: number[];
+  fecha_eliminacion?: string;
 }
 
 export interface HistorialEquipo {

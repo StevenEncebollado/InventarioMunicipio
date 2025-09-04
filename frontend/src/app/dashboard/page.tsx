@@ -7,20 +7,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getEquipos, logout, getErrorMessage, APP_CONFIG } from '@/services/api';
 import { useLoading, useError } from '@/hooks';
-import { formatDate } from '@/utils';
 import type { Usuario, Equipo } from '@/types';
-
 
 import Navbar from '../Diseño/Diseño dashboard/Navbar';
 import PanelControl from '../Diseño/Diseño dashboard/PanelControl';
-import Filtros from './componentes/Filtros';
 import TablaEquipos from './componentes/TablaEquipos';
-import { useFiltros } from './hooks/useFiltros';
-import { filtrarEquipos } from '@/utils/filtrarEquipos';
 import { estiloGlobal } from '../Diseño/Estilos/EstiloGlobal';
 import { estiloBoton } from '../Diseño/Estilos/EstiloBoton';
-
-
 
 export default function Dashboard() {
   const [user, setUser] = useState<Usuario | null>(null);
@@ -29,15 +22,9 @@ export default function Dashboard() {
   const { error, setError, clearError } = useError();
   const router = useRouter();
 
-  // Hooks personalizados
-  const filtros = useFiltros();
-
   useEffect(() => {
     initializeDashboard();
   }, []);
-
-
-  // Ya no se filtra en el backend, solo se obtiene la lista y se filtra en frontend
 
   const initializeDashboard = async () => {
     try {
@@ -74,15 +61,11 @@ export default function Dashboard() {
     router.push('/');
   };
 
-
-  // Usar la función centralizada para filtrar equipos según todos los filtros
-  const equiposFiltrados = filtrarEquipos(equipos, filtros);
-
   const getStats = () => ({
-    total: equiposFiltrados.length,
-    active: equiposFiltrados.filter(e => e.estado === 'Activo').length,
-    maintenance: equiposFiltrados.filter(e => e.estado === 'Mantenimiento').length,
-    inactive: equiposFiltrados.filter(e => e.estado === 'Inactivo').length,
+    total: equipos.length,
+    active: equipos.filter(e => e.estado === 'Activo').length,
+    maintenance: equipos.filter(e => e.estado === 'Mantenimiento').length,
+    inactive: equipos.filter(e => e.estado === 'Inactivo').length,
   });
 
   if (error && !user) {
@@ -98,7 +81,6 @@ export default function Dashboard() {
 
   const stats = getStats();
 
-  // Handler para mostrar detalles de dispositivos según el tipo de card
   const handlePanelInfo = (type: 'total' | 'active' | 'maintenance' | 'inactive') => {
     router.push(`/dashboard/detalle_estados?tipo=${type}`);
   };
@@ -115,7 +97,6 @@ export default function Dashboard() {
           onInfoClick={handlePanelInfo}
           loading={isLoading}
         />
-        <Filtros {...filtros} />
         {error && (
           <div style={{...estiloGlobal.alert, ...estiloGlobal.alertError}}>
             {error}
@@ -129,7 +110,7 @@ export default function Dashboard() {
           </div>
         )}
         <TablaEquipos 
-          equipos={equiposFiltrados}
+          equipos={equipos}
         />
       </main>
     </div>

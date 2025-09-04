@@ -7,8 +7,9 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { Equipo, Usuario } from '@/types';
 import { useEffect, useState } from 'react';
-import { getEquipos, APP_CONFIG } from '@/services/api';
+import { getEquipos, updateEquipo, APP_CONFIG } from '@/services/api';
 import { filtrarEquipos } from '@/utils/filtrarEquipos';
+import { FaPlus, FaEdit, FaTrash, FaTimes, FaEye } from 'react-icons/fa';
 
 import Navbar from '../../Diseño/Diseño dashboard/Navbar';
 import PanelControl from '../../Diseño/Diseño dashboard/PanelControl';
@@ -50,6 +51,87 @@ export default function EquiposLista() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // Estados para modal de detalles
+  const [showDetalleModal, setShowDetalleModal] = useState(false);
+  const [equipoDetalle, setEquipoDetalle] = useState<Equipo | null>(null);
+
+  // Funciones para manejar acciones
+  const handleAgregar = () => {
+    router.push('/dashboard?tab=agregar');
+  };
+
+  const handleVerDetalles = (equipo: Equipo) => {
+    setEquipoDetalle(equipo);
+    setShowDetalleModal(true);
+  };
+
+  const handleEditar = (equipo: Equipo) => {
+    router.push(`/dashboard/editar/${equipo.id}`);
+  };
+
+  const handleEliminar = async (equipo: Equipo) => {
+    // Verificar si el equipo ya está inactivo
+    if (equipo.estado === 'Inactivo') {
+      alert('Este equipo ya está marcado como inactivo');
+      return;
+    }
+
+    // Verificar datos del equipo
+    const nombreEquipo = equipo.nombre_pc || equipo.codigo_inventario || `Equipo ID: ${equipo.id}`;
+    
+    if (window.confirm(`¿Estás seguro de que deseas marcar como inactivo el equipo "${nombreEquipo}"?\n\nEsta acción cambiará el estado del equipo a "Inactivo" y registrará la fecha de eliminación.`)) {
+      try {
+        const fechaEliminacion = new Date().toISOString();
+        
+        // Crear objeto con solo los campos necesarios para la actualización
+        const equipoActualizado = {
+          estado: 'Inactivo' as const,
+          fecha_eliminacion: fechaEliminacion,
+          // Incluir todos los campos requeridos del equipo
+          anydesk: equipo.anydesk,
+          caracteristicas_id: equipo.caracteristicas_id,
+          codigo_inventario: equipo.codigo_inventario,
+          dependencia_id: equipo.dependencia_id,
+          direccion_area_id: equipo.direccion_area_id,
+          direccion_ip: equipo.direccion_ip,
+          direccion_mac: equipo.direccion_mac,
+          disco_id: equipo.disco_id,
+          dispositivo_id: equipo.dispositivo_id,
+          equipamiento_id: equipo.equipamiento_id,
+          fecha_registro: equipo.fecha_registro,
+          marca_id: equipo.marca_id,
+          nombre_pc: equipo.nombre_pc,
+          nombres_funcionario: equipo.nombres_funcionario,
+          office_id: equipo.office_id,
+          ram_id: equipo.ram_id,
+          tipo_conexion_id: equipo.tipo_conexion_id,
+          tipo_equipo_id: equipo.tipo_equipo_id,
+          tipo_sistema_operativo_id: equipo.tipo_sistema_operativo_id,
+          usuario_id: equipo.usuario_id,
+          programa_adicional_ids: equipo.programa_adicional_ids
+        };
+
+        // Usar la función updateEquipo de la API
+        await updateEquipo(equipo.id, equipoActualizado);
+        
+        // Actualizar la lista de equipos en el estado local
+        const updatedEquipos = equipos.map(e => 
+          e.id === equipo.id 
+            ? { ...equipo, estado: 'Inactivo' as const, fecha_eliminacion: fechaEliminacion }
+            : e
+        );
+        setEquipos(updatedEquipos);
+        
+        // Mostrar mensaje de éxito
+        alert(`✅ Equipo "${nombreEquipo}" marcado como inactivo exitosamente`);
+        
+      } catch (error: any) {
+        console.error('Error al eliminar equipo:', error);
+        alert(`❌ Error al actualizar el equipo: ${error.message || 'Error de conexión con el servidor'}`);
+      }
+    }
+  };
+
   // Cargar usuario de localStorage
   useEffect(() => {
     const userData = localStorage.getItem(APP_CONFIG.session.storageKey);
@@ -75,10 +157,18 @@ export default function EquiposLista() {
     if (officeSeleccionado) filtrosBackend.office = officeSeleccionado;
     if (tipoConexionSeleccionada) filtrosBackend.tipo_conexion = tipoConexionSeleccionada;
 
-    getEquipos(filtrosBackend).then(data => {
-      setEquipos(data);
-      setLoading(false);
-    });
+    getEquipos(filtrosBackend)
+      .then(data => {
+        console.log('Equipos cargados:', data);
+        setEquipos(data || []);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error al cargar equipos:', error);
+        alert('❌ Error de conexión. Verifica que el servidor backend esté funcionando en http://localhost:5000');
+        setEquipos([]);
+        setLoading(false);
+      });
   }, [dependenciaSeleccionada, direccionSeleccionada, dispositivoSeleccionado, equipamientoSeleccionado, tipoEquipoSeleccionado, tipoSistemaOperativoSeleccionado, marcaSeleccionada, caracteristicaSeleccionada, ramSeleccionada, discoSeleccionado, officeSeleccionado, tipoConexionSeleccionada]);
 
 
@@ -140,6 +230,12 @@ export default function EquiposLista() {
   const endIndex = startIndex + itemsPerPage;
   const equiposPaginados = equiposFiltrados.slice(startIndex, endIndex);
 
+  // Debug: Log para verificar datos
+  console.log('Equipos totales:', equipos.length);
+  console.log('Equipos filtrados:', equiposFiltrados.length);
+  console.log('Equipos paginados:', equiposPaginados.length);
+  console.log('Datos de ejemplo:', equiposPaginados[0]);
+
   // Resetear página al cambiar filtros
   useEffect(() => {
     setCurrentPage(1);
@@ -199,10 +295,36 @@ export default function EquiposLista() {
         />
         <div style={{ maxWidth: 1200, margin: '48px auto', background: '#fff', borderRadius: 14, boxShadow: '0 2px 16px rgba(0,0,0,0.08)', padding: 32 }}>
           <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ margin: 0 }}>{TITULOS[tipo] || 'Equipos'}</h2>
-            <div style={{ color: '#64748b', fontSize: '14px', fontWeight: 500 }}>
-              {equiposFiltrados.length} equipos encontrados
+            <div>
+              <h2 style={{ margin: 0 }}>{TITULOS[tipo] || 'Equipos'}</h2>
+              <div style={{ color: '#64748b', fontSize: '14px', fontWeight: 500, marginTop: '4px' }}>
+                {equiposFiltrados.length} equipos encontrados
+              </div>
             </div>
+            
+            <button
+              onClick={handleAgregar}
+              style={{
+                background: '#2563eb',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '10px 16px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = '#1d4ed8'}
+              onMouseOut={(e) => e.currentTarget.style.background = '#2563eb'}
+            >
+              <FaPlus size={12} />
+              Agregar Equipo
+            </button>
           </div>
           
           {loading ? (
@@ -220,7 +342,28 @@ export default function EquiposLista() {
             }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>📦</div>
               <h3 style={{ margin: '0 0 8px 0', color: '#374151' }}>No hay equipos</h3>
-              <p style={{ margin: 0 }}>No se encontraron equipos que coincidan con los filtros aplicados.</p>
+              <p style={{ margin: 0 }}>
+                {equipos.length === 0 
+                  ? 'No se pudieron cargar equipos desde el servidor. Verifica la conexión.' 
+                  : 'No se encontraron equipos que coincidan con los filtros aplicados.'
+                }
+              </p>
+              {equipos.length === 0 && (
+                <button
+                  onClick={() => window.location.reload()}
+                  style={{
+                    marginTop: '16px',
+                    padding: '8px 16px',
+                    background: '#2563eb',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Recargar página
+                </button>
+              )}
             </div>
           ) : (
             <>
@@ -239,6 +382,7 @@ export default function EquiposLista() {
                       <th style={{ ...estiloTablas.equiposTableTh, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Nombre PC</th>
                       <th style={{ ...estiloTablas.equiposTableTh, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Dirección IP</th>
                       <th style={{ ...estiloTablas.equiposTableTh, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>AnyDesk</th>
+                      <th style={{ ...estiloTablas.equiposTableTh, textAlign: 'center', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -257,18 +401,36 @@ export default function EquiposLista() {
                           {equipo.codigo_inventario || 'Sin código'}
                         </td>
                         <td style={{ padding: '12px 16px' }}>
-                          <span style={{
-                            background: equipo.estado === 'Activo' ? '#dcfce7' : 
-                                      equipo.estado === 'Mantenimiento' ? '#fef3c7' : '#fecaca',
-                            color: equipo.estado === 'Activo' ? '#166534' : 
-                                   equipo.estado === 'Mantenimiento' ? '#92400e' : '#991b1b',
-                            padding: '4px 8px',
-                            borderRadius: '6px',
-                            fontSize: '12px',
-                            fontWeight: 600
-                          }}>
-                            {equipo.estado}
-                          </span>
+                          <div>
+                            <span style={{
+                              background: equipo.estado === 'Activo' ? '#dcfce7' : 
+                                        equipo.estado === 'Mantenimiento' ? '#fef3c7' : '#fecaca',
+                              color: equipo.estado === 'Activo' ? '#166534' : 
+                                     equipo.estado === 'Mantenimiento' ? '#92400e' : '#991b1b',
+                              padding: '4px 8px',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 600
+                            }}>
+                              {equipo.estado}
+                            </span>
+                            {equipo.estado === 'Inactivo' && equipo.fecha_eliminacion && (
+                              <div style={{ 
+                                fontSize: '10px', 
+                                color: '#6b7280', 
+                                marginTop: '2px',
+                                fontStyle: 'italic'
+                              }}>
+                                Eliminado: {new Date(equipo.fecha_eliminacion).toLocaleDateString('es-ES', {
+                                  year: 'numeric',
+                                  month: '2-digit',
+                                  day: '2-digit',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td style={{ padding: '12px 16px' }}>
                           {equipo.nombre_pc || 'N/A'}
@@ -278,6 +440,85 @@ export default function EquiposLista() {
                         </td>
                         <td style={{ padding: '12px 16px' }}>
                           {equipo.anydesk || 'N/A'}
+                        </td>
+                        <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                            <button
+                              onClick={() => handleVerDetalles(equipo)}
+                              style={{
+                                background: '#3b82f6',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '6px',
+                                padding: '6px 8px',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                transition: 'all 0.2s ease'
+                              }}
+                              onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'}
+                              onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
+                              title="Ver detalles del equipo"
+                            >
+                              <FaPlus size={10} />
+                            </button>
+                            
+                            <button
+                              onClick={() => handleEditar(equipo)}
+                              style={{
+                                background: '#f59e0b',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '6px',
+                                padding: '6px 8px',
+                                cursor: 'pointer',
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                transition: 'all 0.2s ease'
+                              }}
+                              onMouseOver={(e) => e.currentTarget.style.background = '#d97706'}
+                              onMouseOut={(e) => e.currentTarget.style.background = '#f59e0b'}
+                              title="Editar equipo"
+                            >
+                              <FaEdit size={10} />
+                            </button>
+                            
+                            <button
+                              onClick={() => handleEliminar(equipo)}
+                              disabled={equipo.estado === 'Inactivo'}
+                              style={{
+                                background: equipo.estado === 'Inactivo' ? '#9ca3af' : '#ef4444',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '6px',
+                                padding: '6px 8px',
+                                cursor: equipo.estado === 'Inactivo' ? 'not-allowed' : 'pointer',
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                transition: 'all 0.2s ease',
+                                opacity: equipo.estado === 'Inactivo' ? 0.6 : 1
+                              }}
+                              onMouseOver={(e) => {
+                                if (equipo.estado !== 'Inactivo') {
+                                  e.currentTarget.style.background = '#dc2626';
+                                }
+                              }}
+                              onMouseOut={(e) => {
+                                if (equipo.estado !== 'Inactivo') {
+                                  e.currentTarget.style.background = '#ef4444';
+                                }
+                              }}
+                              title={equipo.estado === 'Inactivo' ? 'Equipo ya inactivo' : 'Marcar como inactivo'}
+                            >
+                              <FaTrash size={10} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -355,6 +596,275 @@ export default function EquiposLista() {
             Volver al Dashboard
           </button>
         </div>
+
+        {/* Modal de detalles del equipo */}
+        {showDetalleModal && equipoDetalle && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              background: '#fff',
+              borderRadius: '12px',
+              padding: '24px',
+              minWidth: '600px',
+              maxWidth: '800px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+              position: 'relative'
+            }}>
+              {/* Header del modal */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '20px',
+                paddingBottom: '16px',
+                borderBottom: '1px solid #e5e7eb'
+              }}>
+                <h3 style={{ 
+                  margin: 0, 
+                  color: '#1f2937', 
+                  fontSize: '20px', 
+                  fontWeight: 700 
+                }}>
+                  <FaEye style={{ marginRight: '8px', color: '#3b82f6' }} />
+                  Detalles del Equipo
+                </h3>
+                <button
+                  onClick={() => setShowDetalleModal(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '18px',
+                    cursor: 'pointer',
+                    color: '#6b7280',
+                    padding: '4px'
+                  }}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              {/* Contenido del modal */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <h4 style={{ color: '#374151', marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+                    Información General
+                  </h4>
+                  <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#4b5563' }}>Funcionario:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937' }}>
+                        {equipoDetalle.nombres_funcionario || 'Sin asignar'}
+                      </span>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#4b5563' }}>Código de Inventario:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937' }}>
+                        {equipoDetalle.codigo_inventario || 'Sin código'}
+                      </span>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#4b5563' }}>Nombre PC:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937' }}>
+                        {equipoDetalle.nombre_pc || 'N/A'}
+                      </span>
+                    </div>
+                    <div>
+                      <strong style={{ color: '#4b5563' }}>Estado:</strong>
+                      <span style={{
+                        marginLeft: '8px',
+                        background: equipoDetalle.estado === 'Activo' ? '#dcfce7' : 
+                                  equipoDetalle.estado === 'Mantenimiento' ? '#fef3c7' : '#fecaca',
+                        color: equipoDetalle.estado === 'Activo' ? '#166534' : 
+                               equipoDetalle.estado === 'Mantenimiento' ? '#92400e' : '#991b1b',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: 600
+                      }}>
+                        {equipoDetalle.estado}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style={{ color: '#374151', marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+                    Conectividad
+                  </h4>
+                  <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#4b5563' }}>Dirección IP:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937', fontFamily: 'monospace' }}>
+                        {equipoDetalle.direccion_ip || 'N/A'}
+                      </span>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#4b5563' }}>Dirección MAC:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937', fontFamily: 'monospace' }}>
+                        {equipoDetalle.direccion_mac || 'N/A'}
+                      </span>
+                    </div>
+                    <div>
+                      <strong style={{ color: '#4b5563' }}>AnyDesk:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937' }}>
+                        {equipoDetalle.anydesk || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style={{ color: '#374151', marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+                    Identificadores de Sistema
+                  </h4>
+                  <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '8px' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#4b5563' }}>ID Usuario:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937' }}>
+                        {equipoDetalle.usuario_id || 'N/A'}
+                      </span>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#4b5563' }}>ID Dependencia:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937' }}>
+                        {equipoDetalle.dependencia_id || 'N/A'}
+                      </span>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#4b5563' }}>ID Tipo Equipo:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937' }}>
+                        {equipoDetalle.tipo_equipo_id || 'N/A'}
+                      </span>
+                    </div>
+                    <div>
+                      <strong style={{ color: '#4b5563' }}>ID Marca:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937' }}>
+                        {equipoDetalle.marca_id || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style={{ color: '#374151', marginBottom: '12px', fontSize: '16px', fontWeight: 600 }}>
+                    Especificaciones Técnicas
+                  </h4>
+                  <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '8px' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#4b5563' }}>ID RAM:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937' }}>
+                        {equipoDetalle.ram_id || 'N/A'}
+                      </span>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#4b5563' }}>ID Disco:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937' }}>
+                        {equipoDetalle.disco_id || 'N/A'}
+                      </span>
+                    </div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <strong style={{ color: '#4b5563' }}>ID Office:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937' }}>
+                        {equipoDetalle.office_id || 'N/A'}
+                      </span>
+                    </div>
+                    <div>
+                      <strong style={{ color: '#4b5563' }}>ID Sistema Operativo:</strong>
+                      <span style={{ marginLeft: '8px', color: '#1f2937' }}>
+                        {equipoDetalle.tipo_sistema_operativo_id || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {equipoDetalle.fecha_registro && (
+                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
+                  <div style={{ color: '#6b7280', fontSize: '14px' }}>
+                    <strong>Fecha de Registro:</strong> {new Date(equipoDetalle.fecha_registro).toLocaleDateString('es-ES', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </div>
+                  {equipoDetalle.fecha_eliminacion && (
+                    <div style={{ color: '#ef4444', fontSize: '14px', marginTop: '4px' }}>
+                      <strong>Fecha de Eliminación:</strong> {new Date(equipoDetalle.fecha_eliminacion).toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Footer del modal */}
+              <div style={{ 
+                marginTop: '24px', 
+                paddingTop: '16px', 
+                borderTop: '1px solid #e5e7eb',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '12px'
+              }}>
+                <button
+                  onClick={() => {
+                    setShowDetalleModal(false);
+                    handleEditar(equipoDetalle);
+                  }}
+                  style={{
+                    background: '#f59e0b',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <FaEdit size={12} />
+                  Editar
+                </button>
+                <button
+                  onClick={() => setShowDetalleModal(false)}
+                  style={{
+                    background: '#6b7280',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 600
+                  }}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

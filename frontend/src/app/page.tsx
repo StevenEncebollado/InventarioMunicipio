@@ -59,34 +59,33 @@ export default function LoginPage() {
     }
 
     startLoading();
+    
     try {
       const response: any = await login(username, password);
-      // Guardar fecha de cambio para avisos
-      if (response.fecha_cambio_password) {
-        setFechaCambioPassword(response.fecha_cambio_password);
-        // Calcular días restantes
-        const fechaCambio = new Date(response.fecha_cambio_password);
-        const hoy = new Date();
-        const diasPasados = Math.floor((hoy.getTime() - fechaCambio.getTime()) / (1000 * 60 * 60 * 24));
-        const diasRestantes = 90 - diasPasados;
-        if (diasRestantes <= 7 && diasRestantes > 3) setPasswordExpiryWarning('Tu contraseña expirará en menos de una semana.');
-        if (diasRestantes <= 3 && diasRestantes > 1) setPasswordExpiryWarning('Tu contraseña expirará en menos de 3 días.');
-        if (diasRestantes === 1) setPasswordExpiryWarning('Tu contraseña expirará mañana.');
-      }
-      if (response.require_password_change) {
+      
+      if (response.cambio_password_requerido) {
         setPasswordChangeRequired(true);
         setShowPasswordChangeModal(true);
-        setError('Debes cambiar tu contraseña antes de continuar.');
+        setCurrentUsername(username);
+        setFechaCambioPassword(response.fecha_cambio_password);
+        stopLoading();
         return;
       }
-      if (response.id) {
-        localStorage.setItem(APP_CONFIG.session.storageKey, JSON.stringify(response));
-        router.push('/dashboard');
-      } else {
-        setError('Credenciales inválidas');
+
+      if (response.fecha_cambio_password) {
+        const fechaCambio = new Date(response.fecha_cambio_password);
+        const ahora = new Date();
+        const diffInDays = Math.floor((ahora.getTime() - fechaCambio.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffInDays >= 88 && diffInDays < 90) {
+          setPasswordExpiryWarning(`Tu contraseña expirará en ${90 - diffInDays} día(s). Considera cambiarla pronto.`);
+        }
       }
+
+      localStorage.setItem(APP_CONFIG.session.storageKey, JSON.stringify(response));
+      router.push('/dashboard');
     } catch (err: any) {
-      if (err && err.status === 401 && err.message && err.message.includes('Tu usuario o contraseña son incorrectos')) {
+      if (err.message === 'Usuario o contraseña incorrectos') {
         setError('Tu usuario o contraseña son incorrectos');
       } else {
         setError(getErrorMessage(err));
