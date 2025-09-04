@@ -1,7 +1,7 @@
 
 
 import React, { useState } from 'react';
-import { FaServer, FaCheckCircle, FaTools, FaBan, FaInfoCircle, FaStar } from 'react-icons/fa';
+import { FaServer, FaCheckCircle, FaTools, FaBan, FaStar } from 'react-icons/fa';
 import { EstiloDashboardEspecifico } from '../Estilos/EstiloDashboardEspecifico';
 import { estiloGlobal } from '../Estilos/EstiloGlobal';
 
@@ -25,7 +25,7 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
       title: 'TOTAL DE EQUIPOS', 
       icon: FaServer, 
       style: { ...EstiloDashboardEspecifico.panelControl.cardBase, ...EstiloDashboardEspecifico.panelControl.total },
-      color: '#1e40af'
+      color: '#1d4ed8'
     },
     { 
       type: 'active' as const, 
@@ -33,7 +33,7 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
       title: 'EQUIPOS ACTIVOS', 
       icon: FaCheckCircle, 
       style: { ...EstiloDashboardEspecifico.panelControl.cardBase, ...EstiloDashboardEspecifico.panelControl.active },
-      color: '#16a34a'
+      color: '#059669'
     },
     { 
       type: 'maintenance' as const, 
@@ -41,7 +41,7 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
       title: 'EN MANTENIMIENTO', 
       icon: FaTools, 
       style: { ...EstiloDashboardEspecifico.panelControl.cardBase, ...EstiloDashboardEspecifico.panelControl.maintenance },
-      color: '#d97706'
+      color: '#ca8a04'
     },
     { 
       type: 'inactive' as const, 
@@ -49,7 +49,7 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
       title: 'EQUIPOS INACTIVOS', 
       icon: FaBan, 
       style: { ...EstiloDashboardEspecifico.panelControl.cardBase, ...EstiloDashboardEspecifico.panelControl.inactive },
-      color: '#dc2626'
+      color: '#b91c1c'
     },
   ];
 
@@ -74,7 +74,7 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
                 : 'translateY(0) rotateX(0deg) scale(1)',
               boxShadow: isHovered
                 ? `
-                  0 20px 40px rgba(0,0,0,0.12),
+                  0 20px 40px rgba(41, 29, 29, 0.12),
                   0 8px 24px rgba(0,0,0,0.08),
                   inset 0 1px 0 rgba(255,255,255,0.9),
                   0 0 0 1px rgba(255,255,255,0.6)
@@ -131,22 +131,6 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
                 }} />
               </>
             )}
-            
-            <button 
-              style={{
-                ...EstiloDashboardEspecifico.panelControl.iconButton,
-                transform: isHovered ? 'scale(1.15) rotate(10deg)' : 'scale(1) rotate(0deg)',
-                boxShadow: isHovered 
-                  ? '0 6px 20px rgba(0,0,0,0.15)' 
-                  : '0 4px 12px rgba(0,0,0,0.1)',
-              }} 
-              onClick={(e) => {
-                e.stopPropagation();
-                onInfoClick(stat.type);
-              }}
-            >
-              <FaInfoCircle size={18} />
-            </button>
             
             <div style={{
               ...EstiloDashboardEspecifico.panelControl.label,

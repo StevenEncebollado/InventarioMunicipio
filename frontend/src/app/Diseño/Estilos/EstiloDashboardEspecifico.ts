@@ -152,20 +152,20 @@ export const EstiloDashboardEspecifico = {
       lineHeight: 1.3,
     },
     total: {
-      background: 'linear-gradient(135deg, rgba(30, 64, 175, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)',
-      borderColor: 'rgba(30, 64, 175, 0.4)',
+      background: 'linear-gradient(135deg, rgba(29, 78, 216, 0.18) 0%, rgba(59, 130, 246, 0.18) 100%)',
+      borderColor: 'rgba(29, 78, 216, 0.45)',
     },
     active: {
-      background: 'linear-gradient(135deg, rgba(22, 163, 74, 0.15) 0%, rgba(34, 197, 94, 0.15) 100%)',
-      borderColor: 'rgba(22, 163, 74, 0.4)',
+      background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.18) 0%, rgba(34, 197, 94, 0.18) 100%)',
+      borderColor: 'rgba(5, 150, 105, 0.45)',
     },
     maintenance: {
-      background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%)',
-      borderColor: 'rgba(217, 119, 6, 0.4)',
+      background: 'linear-gradient(135deg, rgba(202, 138, 4, 0.18) 0%, rgba(245, 158, 11, 0.18) 100%)',
+      borderColor: 'rgba(202, 138, 4, 0.45)',
     },
     inactive: {
-      background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(239, 68, 68, 0.15) 100%)',
-      borderColor: 'rgba(220, 38, 38, 0.4)',
+      background: 'linear-gradient(135deg, rgba(185, 28, 28, 0.18) 0%, rgba(239, 68, 68, 0.18) 100%)',
+      borderColor: 'rgba(185, 28, 28, 0.45)',
     },
     hover: {
       transform: 'translateY(-8px) scale(1.02) rotateX(5deg)',
