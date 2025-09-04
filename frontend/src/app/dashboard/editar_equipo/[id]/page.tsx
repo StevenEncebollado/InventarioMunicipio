@@ -52,11 +52,22 @@ export default function EditarEquipoPage() {
       });
       
       if (response.ok) {
+        // Mostrar mensaje de éxito brevemente antes de redirigir
+        alert('Equipo actualizado correctamente');
         router.push('/dashboard'); // Regresar al dashboard
       } else {
-        throw new Error('Error al actualizar equipo');
+        // Intentar obtener el mensaje de error del backend
+        let errorMessage = 'Error al actualizar equipo';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch {
+          errorMessage = `Error del servidor: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
     } catch (err: any) {
+      console.error('Error al actualizar equipo:', err);
       editarEquipo.setEditError("Error al actualizar equipo: " + (err.message || 'Error desconocido'));
     } finally {
       editarEquipo.setEditLoading(false);
