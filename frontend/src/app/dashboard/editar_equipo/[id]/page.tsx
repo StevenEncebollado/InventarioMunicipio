@@ -207,7 +207,7 @@ export default function EditarEquipoPage() {
                 {/* Campos de texto */}
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Dirección IP *
+                    Dirección IP
                   </label>
                   <input 
                     value={editarEquipo.ip} 
@@ -219,7 +219,7 @@ export default function EditarEquipoPage() {
 
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Dirección MAC *
+                    Dirección MAC
                   </label>
                   <input 
                     value={editarEquipo.mac} 

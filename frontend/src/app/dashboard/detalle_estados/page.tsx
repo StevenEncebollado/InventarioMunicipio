@@ -192,12 +192,10 @@ export default function EquiposLista() {
 
     getEquipos(filtrosBackend)
       .then(data => {
-        console.log('Equipos cargados:', data);
         setEquipos(data || []);
         setLoading(false);
       })
       .catch(error => {
-        console.error('Error al cargar equipos:', error);
         Swal.fire({
           icon: 'error',
           title: 'Error de conexión',
@@ -267,12 +265,6 @@ export default function EquiposLista() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const equiposPaginados = equiposFiltrados.slice(startIndex, endIndex);
-
-  // Debug: Log para verificar datos
-  console.log('Equipos totales:', equipos.length);
-  console.log('Equipos filtrados:', equiposFiltrados.length);
-  console.log('Equipos paginados:', equiposPaginados.length);
-  console.log('Datos de ejemplo:', equiposPaginados[0]);
 
   // Resetear página al cambiar filtros
   useEffect(() => {
