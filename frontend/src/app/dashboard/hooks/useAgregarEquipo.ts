@@ -53,6 +53,11 @@ export function useAgregarEquipo(usuarioId?: number) {
   };
 
   const validarCampos = (): boolean => {
+    if (!usuarioId) {
+      setAddError("Usuario no autenticado. Por favor, inicie sesión nuevamente.");
+      return false;
+    }
+    
     if (!ip || !mac || !nombrePc || !funcionario || 
         !tipoEquipo || !marca || !ram || !disco || 
         !dependencia || !estado) {
@@ -62,28 +67,34 @@ export function useAgregarEquipo(usuarioId?: number) {
     return true;
   };
 
-  const getFormData = () => ({
-    usuario_id: usuarioId || 1, // Default value if not provided
-    dependencia_id: dependencia,
-    direccion_area_id: direccion || null,
-    direccion_ip: ip,
-    direccion_mac: mac,
-    nombre_pc: nombrePc,
-    nombres_funcionario: funcionario,
-    equipamiento_id: equipamiento || null,
-    tipo_equipo_id: tipoEquipo,
-    tipo_sistema_operativo_id: sistemaOperativo || null,
-    caracteristicas_id: caracteristica || null,
-    ram_id: ram,
-    disco_id: disco,
-    office_id: office || null,
-    marca_id: marca,
-    codigo_inventario: mac,
-    tipo_conexion_id: tipoConexion || null,
-    anydesk: anydesk || null,
-    estado: estado,
-    programa_adicional_ids: programaAdicional,
-  });
+  const getFormData = () => {
+    if (!usuarioId) {
+      throw new Error('Usuario no autenticado');
+    }
+    
+    return {
+      usuario_id: usuarioId,
+      dependencia_id: dependencia,
+      direccion_area_id: direccion || null,
+      direccion_ip: ip,
+      direccion_mac: mac,
+      nombre_pc: nombrePc,
+      nombres_funcionario: funcionario,
+      equipamiento_id: equipamiento || null,
+      tipo_equipo_id: tipoEquipo,
+      tipo_sistema_operativo_id: sistemaOperativo || null,
+      caracteristicas_id: caracteristica || null,
+      ram_id: ram,
+      disco_id: disco,
+      office_id: office || null,
+      marca_id: marca,
+      codigo_inventario: mac,
+      tipo_conexion_id: tipoConexion || null,
+      anydesk: anydesk || null,
+      estado: estado,
+      programa_adicional_ids: programaAdicional,
+    };
+  };
 
   return {
     // Campos de texto
