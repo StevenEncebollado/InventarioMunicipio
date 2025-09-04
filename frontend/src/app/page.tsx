@@ -16,7 +16,7 @@ export default function LoginPage() {
     if (/[A-Z]/.test(password)) score++;
     if (/[a-z]/.test(password)) score++;
     if (/\d/.test(password)) score++;
-    if (/[^A-Za-z0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9ñÑáéíóúÁÉÍÓÚüÜ]/.test(password)) score++;
     if (password.length >= 12) score++;
     if (score <= 2) return { level: 'Bajo', color: '#e74c3c', score };
     if (score === 3) return { level: 'Moderado', color: '#f1c40f', score };
@@ -168,43 +168,6 @@ export default function LoginPage() {
             )}
           </button>
           
-          {formData.password && (
-            <div
-              style={{
-                marginTop: '0.5rem',
-                padding: '0.5rem',
-                borderRadius: '8px',
-                backgroundColor: strength.color === '#ef4444' ? '#fef2f2' : 
-                                strength.color === '#f59e0b' ? '#fffbeb' : 
-                                strength.color === '#10b981' ? '#f0fdf4' : '#f8fafc',
-                border: `1px solid ${strength.color}20`,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <div style={{ fontSize: '0.875rem', color: strength.color, fontWeight: '600' }}>
-                  Seguridad: {strength.level}
-                </div>
-                <div
-                  style={{
-                    flex: 1,
-                    height: '4px',
-                    backgroundColor: '#e5e7eb',
-                    borderRadius: '2px',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${(strength.score / 5) * 100}%`,
-                      height: '100%',
-                      backgroundColor: strength.color,
-                      transition: 'width 0.3s ease',
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         <button
