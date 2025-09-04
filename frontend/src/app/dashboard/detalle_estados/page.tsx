@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { getEquipos, updateEquipo, APP_CONFIG } from '@/services/api';
 import { filtrarEquipos } from '@/utils/filtrarEquipos';
 import { FaPlus, FaEdit, FaTrash, FaTimes, FaEye } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 import Navbar from '../../Diseño/Diseño dashboard/Navbar';
 import PanelControl from '../../Diseño/Diseño dashboard/PanelControl';
@@ -72,14 +73,32 @@ export default function EquiposLista() {
   const handleEliminar = async (equipo: Equipo) => {
     // Verificar si el equipo ya está inactivo
     if (equipo.estado === 'Inactivo') {
-      alert('Este equipo ya está marcado como inactivo');
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Equipo ya eliminado',
+        text: 'Este equipo ya está eliminado',
+        confirmButtonColor: '#3085d6'
+      });
       return;
     }
 
     // Verificar datos del equipo
     const nombreEquipo = equipo.nombre_pc || equipo.codigo_inventario || `Equipo ID: ${equipo.id}`;
     
-    if (window.confirm(`¿Estás seguro de que deseas marcar como inactivo el equipo "${nombreEquipo}"?\n\nEsta acción cambiará el estado del equipo a "Inactivo" y registrará la fecha de eliminación.`)) {
+    // Mostrar confirmación con SweetAlert2
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas eliminar el dispositivo "${nombreEquipo}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    });
+
+    if (result.isConfirmed) {
       try {
         const fechaEliminacion = new Date().toISOString();
         
@@ -122,12 +141,26 @@ export default function EquiposLista() {
         );
         setEquipos(updatedEquipos);
         
-        // Mostrar mensaje de éxito
-        alert(`✅ Equipo "${nombreEquipo}" marcado como inactivo exitosamente`);
+        // Mostrar mensaje de éxito con SweetAlert2
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Eliminado!',
+          text: `El equipo "${nombreEquipo}" ha sido eliminado correctamente.`,
+          confirmButtonColor: '#28a745',
+          timer: 3000,
+          timerProgressBar: true
+        });
         
       } catch (error: any) {
         console.error('Error al eliminar equipo:', error);
-        alert(`❌ Error al actualizar el equipo: ${error.message || 'Error de conexión con el servidor'}`);
+        
+        // Mostrar mensaje de error con SweetAlert2
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error al eliminar',
+          text: `Error al actualizar el equipo: ${error.message || 'Error de conexión con el servidor'}`,
+          confirmButtonColor: '#dc3545'
+        });
       }
     }
   };
@@ -165,7 +198,12 @@ export default function EquiposLista() {
       })
       .catch(error => {
         console.error('Error al cargar equipos:', error);
-        alert('❌ Error de conexión. Verifica que el servidor backend esté funcionando en http://localhost:5000');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de conexión',
+          text: 'Verifica que el servidor backend esté funcionando en http://localhost:5000',
+          confirmButtonColor: '#dc3545'
+        });
         setEquipos([]);
         setLoading(false);
       });

@@ -65,10 +65,6 @@ export default function Dashboard() {
     active: equipos.filter(e => e.estado === 'Activo').length,
     maintenance: equipos.filter(e => e.estado === 'Mantenimiento').length,
     inactive: equipos.filter(e => e.estado === 'Inactivo').length,
-    total: equipos.length,
-    active: equipos.filter(e => e.estado === 'Activo').length,
-    maintenance: equipos.filter(e => e.estado === 'Mantenimiento').length,
-    inactive: equipos.filter(e => e.estado === 'Inactivo').length,
   });
 
   if (error && !user) {
@@ -113,7 +109,6 @@ export default function Dashboard() {
           </div>
         )}
         <TablaEquipos 
-          equipos={equipos}
           equipos={equipos}
         />
       </main>
