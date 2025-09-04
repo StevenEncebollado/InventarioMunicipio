@@ -1,6 +1,7 @@
-import { FaUser, FaDesktop, FaEye } from 'react-icons/fa';
+import { FaUser, FaDesktop, FaEye, FaEdit } from 'react-icons/fa';
 import type { Equipo } from '@/types';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Modal from '../../Diseño/Diseño dashboard/Modal';
 import EquipoDetalle from './EquipoDetalle';
 
@@ -13,10 +14,15 @@ export default function TablaEquipos({ equipos }: TablaEquiposProps) {
   const ultimosEquipos = Array.isArray(equipos) ? [...equipos].sort((a, b) => b.id - a.id).slice(0, 3) : [];
   const [showDetalle, setShowDetalle] = useState(false);
   const [equipoDetalle, setEquipoDetalle] = useState<Equipo | null>(null);
+  const router = useRouter();
 
   const handleVerClick = (equipo: Equipo) => {
     setEquipoDetalle(equipo);
     setShowDetalle(true);
+  };
+
+  const handleEditarClick = (equipoId: number) => {
+    router.push(`/dashboard/editar_equipo/${equipoId}`);
   };
 
   return (
@@ -96,33 +102,63 @@ export default function TablaEquipos({ equipos }: TablaEquiposProps) {
                     {equipo.direccion_ip || 'N/A'}
                   </td>
                   <td style={{ padding: '12px 16px' }}>
-                    <button 
-                      onClick={() => handleVerClick(equipo)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '6px 12px',
-                        background: '#2563eb',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#1d4ed8';
-                        e.currentTarget.style.transform = 'scale(1.05)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = '#2563eb';
-                        e.currentTarget.style.transform = 'scale(1)';
-                      }}
-                    >
-                      <FaEye style={{ fontSize: '12px' }} /> Ver
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button 
+                        onClick={() => handleVerClick(equipo)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '6px 12px',
+                          background: '#2563eb',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#1d4ed8';
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#2563eb';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                      >
+                        <FaEye style={{ fontSize: '12px' }} /> Ver
+                      </button>
+                      
+                      <button 
+                        onClick={() => handleEditarClick(equipo.id)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '6px 12px',
+                          background: '#059669',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#047857';
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#059669';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                      >
+                        <FaEdit style={{ fontSize: '12px' }} /> Editar
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -67,7 +67,7 @@ export default function EquiposLista() {
   };
 
   const handleEditar = (equipo: Equipo) => {
-    router.push(`/dashboard/editar/${equipo.id}`);
+    router.push(`/dashboard/editar_equipo/${equipo.id}`);
   };
 
   const handleEliminar = async (equipo: Equipo) => {
