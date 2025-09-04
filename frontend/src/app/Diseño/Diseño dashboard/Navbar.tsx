@@ -133,7 +133,6 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
             <span style={{ 
               fontWeight: 700, 
               fontSize: '1.2rem',
-              textShadow: '0 1px 2px rgba(0,0,0,0.3)',
             }}>
               Bienvenido, <strong style={{ 
                 background: 'linear-gradient(45deg, #fff, #e0f2fe)',
