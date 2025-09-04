@@ -14,78 +14,118 @@ interface PanelControlProps {
   loading?: boolean;
 }
 
-
 export default function PanelControl({ total, active, maintenance, inactive, onInfoClick, loading }: PanelControlProps) {
+  const stats = [
+    { 
+      type: 'total' as const, 
+      value: total, 
+      title: 'TOTAL DE EQUIPOS', 
+      icon: FaServer, 
+      style: { ...estiloPanelControl.cardBase, ...estiloPanelControl.cardTotal } 
+    },
+    { 
+      type: 'active' as const, 
+      value: active, 
+      title: 'EQUIPOS ACTIVOS', 
+      icon: FaCheckCircle, 
+      style: { ...estiloPanelControl.cardBase, ...estiloPanelControl.cardActive } 
+    },
+    { 
+      type: 'maintenance' as const, 
+      value: maintenance, 
+      title: 'EN MANTENIMIENTO', 
+      icon: FaTools, 
+      style: { ...estiloPanelControl.cardBase, ...estiloPanelControl.cardMaintenance } 
+    },
+    { 
+      type: 'inactive' as const, 
+      value: inactive, 
+      title: 'EQUIPOS INACTIVOS', 
+      icon: FaBan, 
+      style: { ...estiloPanelControl.cardBase, ...estiloPanelControl.cardInactive } 
+    },
+  ];
+
   return (
     <div style={estiloPanelControl.container}>
-      {/* Total */}
-      <div style={{ ...estiloPanelControl.cardBase, ...estiloPanelControl.cardTotal }}>
-        <div style={estiloPanelControl.cardTitle}>Total</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <FaServer style={{ fontSize: 32, color: '#2563eb' }} />
-          {loading ? (
-            <div style={{ ...estiloGlobal.spinner, width: 28, height: 28, color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="28" height="28" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#2563eb" strokeWidth="5" strokeDasharray="31.4 31.4" strokeLinecap="round"><animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite"/></circle></svg>
+      {stats.map((stat) => {
+        const IconComponent = stat.icon;
+        
+        return (
+          <div 
+            key={stat.type}
+            style={{
+              ...stat.style,
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+            }}
+            onClick={() => onInfoClick(stat.type)}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-8px)';
+              e.currentTarget.style.boxShadow = '0 8px 25px rgba(56,189,248,0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 12px rgba(56,189,248,0.08)';
+            }}
+          >
+            <button 
+              style={estiloPanelControl.iconButton} 
+              onClick={(e) => {
+                e.stopPropagation();
+                onInfoClick(stat.type);
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              <FaInfoCircle size={18} />
+            </button>
+            
+            <div style={estiloPanelControl.cardTitle}>
+              {stat.title}
             </div>
-          ) : (
-            <span style={{ ...estiloPanelControl.cardValue, color: '#2563eb' }}>{total}</span>
-          )}
-          <button title="Ver detalles" onClick={() => onInfoClick('total')} style={{ ...estiloPanelControl.iconButton, color: '#2563eb', position: 'static', marginLeft: 6 }}>
-            <FaInfoCircle style={{ fontSize: 20 }} />
-          </button>
-        </div>
-      </div>
-      {/* Activos */}
-      <div style={{ ...estiloPanelControl.cardBase, ...estiloPanelControl.cardActive }}>
-        <div style={estiloPanelControl.cardTitle}>Activos</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <FaCheckCircle style={{ fontSize: 32, color: '#22c55e' }} />
-          {loading ? (
-            <div style={{ ...estiloGlobal.spinner, width: 28, height: 28, color: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="28" height="28" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#22c55e" strokeWidth="5" strokeDasharray="31.4 31.4" strokeLinecap="round"><animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite"/></circle></svg>
+            
+            <div style={{
+              ...estiloPanelControl.cardValue,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              {loading ? (
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  border: '3px solid rgba(0,0,0,0.1)',
+                  borderTopColor: 'currentColor',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                }} />
+              ) : (
+                <>
+                  <IconComponent size={24} />
+                  {stat.value}
+                </>
+              )}
             </div>
-          ) : (
-            <span style={{ ...estiloPanelControl.cardValue, color: '#22c55e' }}>{active}</span>
-          )}
-          <button title="Ver detalles" onClick={() => onInfoClick('active')} style={{ ...estiloPanelControl.iconButton, color: '#22c55e', position: 'static', marginLeft: 6 }}>
-            <FaInfoCircle style={{ fontSize: 20 }} />
-          </button>
-        </div>
-      </div>
-      {/* Mantenimiento */}
-      <div style={{ ...estiloPanelControl.cardBase, ...estiloPanelControl.cardMaintenance }}>
-        <div style={estiloPanelControl.cardTitle}>Mantenimiento</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <FaTools style={{ fontSize: 32, color: '#facc15' }} />
-          {loading ? (
-            <div style={{ ...estiloGlobal.spinner, width: 28, height: 28, color: '#facc15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="28" height="28" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#facc15" strokeWidth="5" strokeDasharray="31.4 31.4" strokeLinecap="round"><animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite"/></circle></svg>
+            
+            <div style={{ fontSize: 13, fontWeight: 500, marginTop: 4, opacity: 0.8 }}>
+              equipos
             </div>
-          ) : (
-            <span style={{ ...estiloPanelControl.cardValue, color: '#facc15' }}>{maintenance}</span>
-          )}
-          <button title="Ver detalles" onClick={() => onInfoClick('maintenance')} style={{ ...estiloPanelControl.iconButton, color: '#facc15', position: 'static', marginLeft: 6 }}>
-            <FaInfoCircle style={{ fontSize: 20 }} />
-          </button>
-        </div>
-      </div>
-      {/* Inactivos */}
-      <div style={{ ...estiloPanelControl.cardBase, ...estiloPanelControl.cardInactive }}>
-        <div style={estiloPanelControl.cardTitle}>Inactivos</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <FaBan style={{ fontSize: 32, color: '#ef4444' }} />
-          {loading ? (
-            <div style={{ ...estiloGlobal.spinner, width: 28, height: 28, color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="28" height="28" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#ef4444" strokeWidth="5" strokeDasharray="31.4 31.4" strokeLinecap="round"><animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite"/></circle></svg>
-            </div>
-          ) : (
-            <span style={{ ...estiloPanelControl.cardValue, color: '#ef4444' }}>{inactive}</span>
-          )}
-          <button title="Ver detalles" onClick={() => onInfoClick('inactive')} style={{ ...estiloPanelControl.iconButton, color: '#ef4444', position: 'static', marginLeft: 6 }}>
-            <FaInfoCircle style={{ fontSize: 20 }} />
-          </button>
-        </div>
-      </div>
+          </div>
+        );
+      })}
+      
+      {/* Animaciones CSS */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
