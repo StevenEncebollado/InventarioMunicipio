@@ -66,7 +66,6 @@ export function useAgregarEquipo(usuarioId?: number) {
     usuario_id: usuarioId || 1, // Default value if not provided
     dependencia_id: dependencia,
     direccion_area_id: direccion || null,
-    dispositivo_id: tipoEquipo,
     direccion_ip: ip,
     direccion_mac: mac,
     nombre_pc: nombrePc,

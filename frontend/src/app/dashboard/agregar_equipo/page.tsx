@@ -2,8 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCatalogosContext } from '../context/CatalogosContext';
-import { selectStyle } from '../../Diseño/Estilos/EstiloCatalogos';
-import { estiloBoton } from '../../Diseño/Estilos/EstiloBoton';
+import { EstiloDashboardEspecifico } from '../../Diseño/Estilos/EstiloDashboardEspecifico';
+import { EstiloComponentesUI } from '../../Diseño/Estilos/EstiloComponentesUI';
 import Navbar from '../../Diseño/Diseño dashboard/Navbar';
 import { useAgregarEquipo } from '../hooks/useAgregarEquipo';
 import MultiSelectTags from '../componentes/MultiSelectTags';
@@ -43,7 +43,7 @@ export default function AgregarEquipoPage() {
     }
     
     try {
-      const response = await fetch('http://localhost:8081/inventario', {
+      const response = await fetch('http://localhost:5000/inventario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(agregarEquipo.getFormData())
@@ -146,7 +146,7 @@ export default function AgregarEquipoPage() {
                     value={agregarEquipo.ip} 
                     onChange={e => agregarEquipo.setIp(e.target.value)} 
                     placeholder="192.168.1.100"
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
 
@@ -158,7 +158,7 @@ export default function AgregarEquipoPage() {
                     value={agregarEquipo.mac} 
                     onChange={e => agregarEquipo.setMac(e.target.value)} 
                     placeholder="00:1B:63:84:45:E6"
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
 
@@ -170,7 +170,7 @@ export default function AgregarEquipoPage() {
                     value={agregarEquipo.nombrePc} 
                     onChange={e => agregarEquipo.setNombrePc(e.target.value)} 
                     placeholder="PC-OFICINA-01"
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
 
@@ -182,7 +182,7 @@ export default function AgregarEquipoPage() {
                     value={agregarEquipo.funcionario} 
                     onChange={e => agregarEquipo.setFuncionario(e.target.value)} 
                     placeholder="Juan Pérez"
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
 
@@ -194,7 +194,7 @@ export default function AgregarEquipoPage() {
                     value={agregarEquipo.anydesk} 
                     onChange={e => agregarEquipo.setAnydesk(e.target.value)} 
                     placeholder="123456789"
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
 
@@ -206,7 +206,7 @@ export default function AgregarEquipoPage() {
                   <select 
                     value={agregarEquipo.estado} 
                     onChange={e => agregarEquipo.setEstado(e.target.value)} 
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar estado</option>
                     <option value="Activo">Activo</option>
@@ -223,7 +223,7 @@ export default function AgregarEquipoPage() {
                   <select 
                     value={agregarEquipo.tipoEquipo} 
                     onChange={e => agregarEquipo.setTipoEquipo(e.target.value)} 
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar tipo</option>
                     {catalogos.tiposEquipo.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
@@ -237,7 +237,7 @@ export default function AgregarEquipoPage() {
                   <select 
                     value={agregarEquipo.marca} 
                     onChange={e => agregarEquipo.setMarca(e.target.value)} 
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar marca</option>
                     {catalogos.marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
@@ -251,7 +251,7 @@ export default function AgregarEquipoPage() {
                   <select 
                     value={agregarEquipo.ram} 
                     onChange={e => agregarEquipo.setRam(e.target.value)} 
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar RAM</option>
                     {catalogos.ram.map(r => <option key={r.id} value={r.id}>{r.capacidad}</option>)}
@@ -265,7 +265,7 @@ export default function AgregarEquipoPage() {
                   <select 
                     value={agregarEquipo.disco} 
                     onChange={e => agregarEquipo.setDisco(e.target.value)} 
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar disco</option>
                     {catalogos.disco.map(d => <option key={d.id} value={d.id}>{d.capacidad}</option>)}
@@ -279,7 +279,7 @@ export default function AgregarEquipoPage() {
                   <select 
                     value={agregarEquipo.office} 
                     onChange={e => agregarEquipo.setOffice(e.target.value)} 
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar Office</option>
                     {catalogos.office.map(o => <option key={o.id} value={o.id}>{o.version}</option>)}
@@ -293,7 +293,7 @@ export default function AgregarEquipoPage() {
                   <select 
                     value={agregarEquipo.tipoConexion} 
                     onChange={e => agregarEquipo.setTipoConexion(e.target.value)} 
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar conexión</option>
                     {catalogos.tipoConexion.map(tc => <option key={tc.id} value={tc.id}>{tc.nombre}</option>)}
@@ -307,7 +307,7 @@ export default function AgregarEquipoPage() {
                   <select 
                     value={agregarEquipo.dependencia} 
                     onChange={e => agregarEquipo.setDependencia(e.target.value)} 
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar dependencia</option>
                     {catalogos.dependencias.map(dep => <option key={dep.id} value={dep.id}>{dep.nombre}</option>)}
@@ -321,7 +321,7 @@ export default function AgregarEquipoPage() {
                   <select 
                     value={agregarEquipo.direccion} 
                     onChange={e => agregarEquipo.setDireccion(e.target.value)} 
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar dirección</option>
                     {catalogos.direcciones.map(dir => <option key={dir.id} value={dir.id}>{dir.nombre}</option>)}
@@ -335,7 +335,7 @@ export default function AgregarEquipoPage() {
                   <select 
                     value={agregarEquipo.equipamiento} 
                     onChange={e => agregarEquipo.setEquipamiento(e.target.value)} 
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar equipamiento</option>
                     {catalogos.equipamientos.map(eq => <option key={eq.id} value={eq.id}>{eq.nombre}</option>)}
@@ -349,7 +349,7 @@ export default function AgregarEquipoPage() {
                   <select 
                     value={agregarEquipo.caracteristica} 
                     onChange={e => agregarEquipo.setCaracteristica(e.target.value)} 
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar característica</option>
                     {catalogos.caracteristicas.map(c => <option key={c.id} value={c.id}>{c.descripcion}</option>)}
@@ -363,7 +363,7 @@ export default function AgregarEquipoPage() {
                   <select 
                     value={agregarEquipo.sistemaOperativo} 
                     onChange={e => agregarEquipo.setSistemaOperativo(e.target.value)} 
-                    style={{ ...selectStyle, width: '100%' }}
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar SO</option>
                     {catalogos.sistemasOperativos.map(so => <option key={so.id} value={so.id}>{so.nombre}</option>)}
@@ -414,8 +414,8 @@ export default function AgregarEquipoPage() {
                   type="submit" 
                   disabled={agregarEquipo.addLoading} 
                   style={{
-                    ...estiloBoton.btn,
-                    ...estiloBoton.btnPrimary,
+                    ...EstiloComponentesUI.botones.btn,
+                    ...EstiloComponentesUI.botones.btnPrimary,
                     fontSize: '16px',
                     fontWeight: 600,
                     padding: '12px 32px',

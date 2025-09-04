@@ -1,9 +1,8 @@
 
 import { useCatalogosContext } from '../context/CatalogosContext';
-import { selectStyle } from '../../Diseño/Estilos/EstiloCatalogos';
+import { EstiloDashboardEspecifico } from '../../Diseño/Estilos/EstiloDashboardEspecifico';
 import { FaBroom, FaSearch } from 'react-icons/fa';
-import { estiloTablas } from '../../Diseño/Estilos/EstiloTablas';
-import { estiloBoton } from '../../Diseño/Estilos/EstiloBoton';
+import { EstiloComponentesUI } from '../../Diseño/Estilos/EstiloComponentesUI';
 import MultiSelectTags from './MultiSelectTags';
 
 interface FiltrosProps {
@@ -92,14 +91,14 @@ export default function Filtros({
   }
 
   return (
-    <section style={{ ...estiloTablas.equiposSection, marginBottom: 32, padding: 0 }}>
-      <div style={{ ...estiloTablas.sectionHeader, borderBottom: '2px solid #2563eb', background: 'rgba(56,189,248,0.07)', borderTopLeftRadius: 12, borderTopRightRadius: 12, marginBottom: 0, padding: '1.2rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <section style={{ ...EstiloComponentesUI.tablas.tableContainer, marginBottom: 32, padding: 0 }}>
+      <div style={{ ...EstiloComponentesUI.tablas.tableHeader, borderBottom: '2px solid #2563eb', background: 'rgba(56,189,248,0.07)', borderTopLeftRadius: 12, borderTopRightRadius: 12, marginBottom: 0, padding: '1.2rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <FaSearch style={{ fontSize: 26, color: '#2563eb' }} />
           <span style={{ fontWeight: 800, fontSize: '1.3rem', color: '#2563eb' }}>Filtros de Inventario</span>
         </div>
         <button
-          style={{ ...estiloBoton.btn, ...estiloBoton.btnOutline, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, border: '1.5px solid #2563eb', color: '#2563eb', background: '#fff', boxShadow: '0 1px 4px rgba(56,189,248,0.07)' }}
+          style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnOutline, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, border: '1.5px solid #2563eb', color: '#2563eb', background: '#fff', boxShadow: '0 1px 4px rgba(56,189,248,0.07)' }}
           onClick={limpiarFiltros}
           type="button"
         >
@@ -110,28 +109,28 @@ export default function Filtros({
         {/* Fila 1 */}
         <div>
           <label style={{ fontWeight: 600 }}>Dependencia</label>
-          <select style={selectStyle} value={dependenciaSeleccionada} onChange={e => setDependenciaSeleccionada(e.target.value)}>
+          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={dependenciaSeleccionada} onChange={e => setDependenciaSeleccionada(e.target.value)}>
             <option value="">Todas</option>
             {catalogos.dependencias.map(dep => (<option key={dep.id} value={dep.id}>{dep.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Dirección/Área</label>
-          <select style={selectStyle} value={direccionSeleccionada} onChange={e => setDireccionSeleccionada(e.target.value)}>
+          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={direccionSeleccionada} onChange={e => setDireccionSeleccionada(e.target.value)}>
             <option value="">Todas</option>
             {catalogos.direcciones.map(dir => (<option key={dir.id} value={dir.id}>{dir.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Dispositivo</label>
-          <select style={selectStyle} value={dispositivoSeleccionado} onChange={e => setDispositivoSeleccionado(e.target.value)}>
+          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={dispositivoSeleccionado} onChange={e => setDispositivoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
             {catalogos.dispositivos.map(d => (<option key={d.id} value={d.id}>{d.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Equipamiento</label>
-          <select style={selectStyle} value={equipamientoSeleccionado} onChange={e => setEquipamientoSeleccionado(e.target.value)}>
+          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={equipamientoSeleccionado} onChange={e => setEquipamientoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
             {catalogos.equipamientos.map(eq => (<option key={eq.id} value={eq.id}>{eq.nombre}</option>))}
           </select>
@@ -139,28 +138,28 @@ export default function Filtros({
         {/* Fila 2 */}
         <div>
           <label style={{ fontWeight: 600 }}>Tipo de Equipo</label>
-          <select style={selectStyle} value={tipoEquipoSeleccionado} onChange={e => setTipoEquipoSeleccionado(e.target.value)}>
+          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={tipoEquipoSeleccionado} onChange={e => setTipoEquipoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
             {catalogos.tiposEquipo.map(te => (<option key={te.id} value={te.id}>{te.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Tipo de Sistema Operativo</label>
-          <select style={selectStyle} value={tipoSistemaOperativoSeleccionado} onChange={e => setTipoSistemaOperativoSeleccionado(e.target.value)}>
+          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={tipoSistemaOperativoSeleccionado} onChange={e => setTipoSistemaOperativoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
             {catalogos.sistemasOperativos.map(so => (<option key={so.id} value={so.id}>{so.nombre}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Características</label>
-          <select style={selectStyle} value={caracteristicaSeleccionada} onChange={e => setCaracteristicaSeleccionada(e.target.value)}>
+          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={caracteristicaSeleccionada} onChange={e => setCaracteristicaSeleccionada(e.target.value)}>
             <option value="">Todas</option>
             {catalogos.caracteristicas.map(c => (<option key={c.id} value={c.id}>{c.descripcion}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Marca</label>
-          <select style={selectStyle} value={marcaSeleccionada} onChange={e => setMarcaSeleccionada(e.target.value)}>
+          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={marcaSeleccionada} onChange={e => setMarcaSeleccionada(e.target.value)}>
             <option value="">Todas</option>
             {catalogos.marcas.map(m => (<option key={m.id} value={m.id}>{m.nombre}</option>))}
           </select>
@@ -168,28 +167,28 @@ export default function Filtros({
         {/* Fila 3 */}
         <div>
           <label style={{ fontWeight: 600 }}>RAM</label>
-          <select style={selectStyle} value={ramSeleccionada} onChange={e => setRamSeleccionada(e.target.value)}>
+          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={ramSeleccionada} onChange={e => setRamSeleccionada(e.target.value)}>
             <option value="">Todas</option>
             {catalogos.ram.map(r => (<option key={r.id} value={r.id}>{r.capacidad}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Disco</label>
-          <select style={selectStyle} value={discoSeleccionado} onChange={e => setDiscoSeleccionado(e.target.value)}>
+          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={discoSeleccionado} onChange={e => setDiscoSeleccionado(e.target.value)}>
             <option value="">Todos</option>
             {catalogos.disco.map(d => (<option key={d.id} value={d.id}>{d.capacidad}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Office</label>
-          <select style={selectStyle} value={officeSeleccionado} onChange={e => setOfficeSeleccionado(e.target.value)}>
+          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={officeSeleccionado} onChange={e => setOfficeSeleccionado(e.target.value)}>
             <option value="">Todos</option>
             {catalogos.office.map(o => (<option key={o.id} value={o.id}>{o.version}</option>))}
           </select>
         </div>
         <div>
           <label style={{ fontWeight: 600 }}>Tipo de Conexión</label>
-          <select style={selectStyle} value={tipoConexionSeleccionada} onChange={e => setTipoConexionSeleccionada(e.target.value)}>
+          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={tipoConexionSeleccionada} onChange={e => setTipoConexionSeleccionada(e.target.value)}>
             <option value="">Todas</option>
             {catalogos.tipoConexion.map(tc => (<option key={tc.id} value={tc.id}>{tc.nombre}</option>))}
           </select>

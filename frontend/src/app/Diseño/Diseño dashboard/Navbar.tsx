@@ -3,7 +3,7 @@
 import { FaCity, FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
 import type { Usuario } from '@/types';
 import { useRouter } from 'next/navigation';
-import { navbarStyles } from '../Estilos/Navbar.estilo';
+import { EstiloDashboardEspecifico } from '../Estilos/EstiloDashboardEspecifico';
 
 interface NavbarProps {
   user: Usuario | null;
@@ -36,7 +36,7 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
   };
   
   return (
-    <nav style={navbarStyles.navbar}>
+    <nav style={EstiloDashboardEspecifico.navbar.navbar}>
       {/* Efecto de ondas de fondo */}
       <div style={{
         position: 'absolute',
@@ -51,7 +51,7 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
         zIndex: 0,
       }} />
       
-      <div style={{ ...navbarStyles.navBrand, position: 'relative', zIndex: 1 }}>
+      <div style={{ ...EstiloDashboardEspecifico.navbar.navBrand, position: 'relative', zIndex: 1 }}>
         <FaCity style={{ 
           fontSize: '2.4rem', 
           color: '#fff', 
@@ -121,7 +121,7 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
         </button>
       </div>
       
-      <div style={{ ...navbarStyles.navUser, position: 'relative', zIndex: 1 }}>
+      <div style={{ ...EstiloDashboardEspecifico.navbar.navUser, position: 'relative', zIndex: 1 }}>
         {user && (
           <>
             <FaUserCircle style={{ 
@@ -145,9 +145,9 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
             <button
               onClick={onLogout}
               type="button"
-              style={navbarStyles.logoutBtn}
-              onMouseOver={e => Object.assign(e.currentTarget.style, navbarStyles.logoutBtnHover)}
-              onMouseOut={e => Object.assign(e.currentTarget.style, navbarStyles.logoutBtn)}
+              style={EstiloDashboardEspecifico.navbar.logoutButton}
+              onMouseOver={e => Object.assign(e.currentTarget.style, EstiloDashboardEspecifico.navbar.logoutButtonHover)}
+              onMouseOut={e => Object.assign(e.currentTarget.style, EstiloDashboardEspecifico.navbar.logoutButton)}
             >
               <FaSignOutAlt style={{ fontSize: '1.2rem', marginRight: 4 }} />
               Cerrar Sesión

@@ -16,7 +16,7 @@ import Navbar from '../../Diseño/Diseño dashboard/Navbar';
 import PanelControl from '../../Diseño/Diseño dashboard/PanelControl';
 import Filtros from '../componentes/Filtros';
 import { estiloGlobal } from '../../Diseño/Estilos/EstiloGlobal';
-import { estiloTablas } from '../../Diseño/Estilos/EstiloTablas';
+import { EstiloComponentesUI } from '../../Diseño/Estilos/EstiloComponentesUI';
 
 const TITULOS: Record<string, string> = {
   total: 'Todos los Equipos',
@@ -414,13 +414,13 @@ export default function EquiposLista() {
                 }}>
                   <thead>
                     <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                      <th style={{ ...estiloTablas.equiposTableTh, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Funcionario</th>
-                      <th style={{ ...estiloTablas.equiposTableTh, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Código</th>
-                      <th style={{ ...estiloTablas.equiposTableTh, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Estado</th>
-                      <th style={{ ...estiloTablas.equiposTableTh, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Nombre PC</th>
-                      <th style={{ ...estiloTablas.equiposTableTh, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Dirección IP</th>
-                      <th style={{ ...estiloTablas.equiposTableTh, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>AnyDesk</th>
-                      <th style={{ ...estiloTablas.equiposTableTh, textAlign: 'center', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Acciones</th>
+                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Funcionario</th>
+                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Código</th>
+                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Estado</th>
+                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Nombre PC</th>
+                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Dirección IP</th>
+                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>AnyDesk</th>
+                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'center', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>

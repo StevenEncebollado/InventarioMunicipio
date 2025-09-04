@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { estiloFormulario } from './Diseño/Estilos/EstiloFormulario';
-import { estiloBoton } from './Diseño/Estilos/EstiloBoton';
+import { EstiloComponentesUI } from './Diseño/Estilos/EstiloComponentesUI';
 import { estiloGlobal } from './Diseño/Estilos/EstiloGlobal';
 import { useRouter } from 'next/navigation';
 import { login, getErrorMessage, APP_CONFIG } from '@/services/api';
@@ -48,6 +47,22 @@ export default function LoginPage() {
   const { error, setError, clearError } = useError();
   const router = useRouter();
   const [currentUsername, setCurrentUsername] = useState('');
+
+  // Agregar variables que faltan
+  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [modoRegistro, setModoRegistro] = useState(false);
+
+  // Función para manejar cambios en inputs
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'username') setUsername(value);
+    if (name === 'password') setPassword(value);
+  };
+
+  // Obtener strength para la contraseña actual
+  const strength = getPasswordStrength(formData.password);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -98,97 +113,132 @@ export default function LoginPage() {
   const userId = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(APP_CONFIG.session.storageKey) || '{}').id : null;
 
   return (
-  <div style={estiloFormulario.formContainer}>
-      <div style={estiloFormulario.logoSection}>
-        <h1 style={estiloFormulario.logoH1}>Inventario Municipio</h1>
-        <p style={estiloFormulario.logoP}>Sistema de Gestión de Equipos</p>
+    <>
+      <div style={EstiloComponentesUI.formularios.formContainer}>
+      <div style={EstiloComponentesUI.formularios.logoSection}>
+        <h1 style={EstiloComponentesUI.formularios.logoH1}>Inventario Municipio</h1>
+        <p style={EstiloComponentesUI.formularios.logoSubtitle}>Sistema de Gestión de Equipos</p>
       </div>
-      <form onSubmit={handleSubmit} style={estiloFormulario.loginForm}>
-        <div style={estiloFormulario.formGroup}>
-          <label htmlFor="username" style={estiloFormulario.formLabel}>Usuario:</label>
+      <form onSubmit={handleSubmit} style={{ display: 'block' }}>
+        <div style={EstiloComponentesUI.formularios.formGroup}>
+          <label htmlFor="username" style={EstiloComponentesUI.formularios.label}>Usuario:</label>
           <input
-            id="username"
             type="text"
-            placeholder="Ingrese su usuario"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            disabled={isLoading}
-            autoComplete="off"
+            id="username"
+            name="username"
+            value={formData.username}
+            onChange={handleInputChange}
+            placeholder="Ingrese su nombre de usuario"
             required
-            style={estiloFormulario.formInput}
+            autoComplete="username"
+            style={EstiloComponentesUI.formularios.input}
           />
         </div>
-        <div style={{ ...estiloFormulario.formGroup, position: 'relative' }}>
-          <label htmlFor="password" style={estiloFormulario.formLabel}>Contraseña:</label>
+        <div style={{ ...EstiloComponentesUI.formularios.formGroup, position: 'relative' }}>
+          <label htmlFor="password" style={EstiloComponentesUI.formularios.label}>Contraseña:</label>
           <input
+            type={mostrarContrasena ? 'text' : 'password'}
             id="password"
-            type={showPassword ? 'text' : 'password'}
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
             placeholder="Ingrese su contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
-            autoComplete="current-password"
             required
-            style={{ ...estiloFormulario.formInput, paddingRight: '2.5rem' }}
+            autoComplete="current-password"
+            style={{ ...EstiloComponentesUI.formularios.input, paddingRight: '2.5rem' }}
           />
           <button
             type="button"
-            aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-            onClick={() => setShowPassword((v) => !v)}
+            onClick={() => setMostrarContrasena(!mostrarContrasena)}
             style={{
               position: 'absolute',
-              right: '0.5rem',
+              right: '0.75rem',
               top: '2.2rem',
               background: 'none',
               border: 'none',
-              padding: 0,
+              color: '#6b7280',
               cursor: 'pointer',
-              height: '2rem',
-              width: '2rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
             }}
           >
-            {showPassword ? (
-              // Ojo abierto
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-            ) : (
-              // Ojo cerrado
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.442-4.362M6.634 6.634A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.96 9.96 0 01-4.284 5.255M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" /></svg>
-            )}
+            {mostrarContrasena ? '🙈' : '👁️'}
           </button>
+          
+          {formData.password && (
+            <div
+              style={{
+                marginTop: '0.5rem',
+                padding: '0.5rem',
+                borderRadius: '8px',
+                backgroundColor: strength.color === '#ef4444' ? '#fef2f2' : 
+                                strength.color === '#f59e0b' ? '#fffbeb' : 
+                                strength.color === '#10b981' ? '#f0fdf4' : '#f8fafc',
+                border: `1px solid ${strength.color}20`,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ fontSize: '0.875rem', color: strength.color, fontWeight: '600' }}>
+                  Seguridad: {strength.level}
+                </div>
+                <div
+                  style={{
+                    flex: 1,
+                    height: '4px',
+                    backgroundColor: '#e5e7eb',
+                    borderRadius: '2px',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${(strength.score / 5) * 100}%`,
+                      height: '100%',
+                      backgroundColor: strength.color,
+                      transition: 'width 0.3s ease',
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
+
         <button
           type="submit"
-          style={{ ...estiloBoton.btn, ...estiloBoton.btnPrimary }}
           disabled={isLoading}
+          style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnPrimary }}
         >
           {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
         </button>
+        
         <button
           type="button"
-          style={{ ...estiloBoton.btn, ...estiloBoton.btnSecondary, marginTop: '1rem', width: '100%' }}
-          onClick={() => {
-            setShowRegister(true);
-            setRegisterError('');
-            setRegisterUsername('');
-            setRegisterPassword('');
-          }}
+          onClick={() => setModoRegistro(true)}
+          style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnSecondary, marginTop: '1rem', width: '100%' }}
         >
-          Registrarse
+          Registrar Usuario
         </button>
       </form>
       {error && (
-        <div style={estiloGlobal.errorMessage} role="alert">
+        <div style={{
+          marginTop: '1rem',
+          padding: '1rem',
+          backgroundColor: '#fee2e2',
+          border: '1px solid #fecaca',
+          borderRadius: '8px',
+          color: '#b91c1c',
+          fontSize: '0.875rem',
+        }}>
           {error}
         </div>
       )}
-      {passwordExpiryWarning && !passwordChangeRequired && (
-        <div style={{ color: '#e67e22', margin: '1rem 0', textAlign: 'center' }}>
-          {passwordExpiryWarning}
-        </div>
-      )}
+    </div>
+
+    {/* Mensaje de advertencia de expiración de contraseña */}
+    {passwordExpiryWarning && !passwordChangeRequired && (
+      <div style={{ color: '#e67e22', margin: '1rem 0', textAlign: 'center' }}>
+        {passwordExpiryWarning}
+      </div>
+    )}
       {/* Modal de cambio de contraseña obligatorio */}
       {showPasswordChangeModal && (
         <div style={{
@@ -257,8 +307,8 @@ export default function LoginPage() {
                 }
               }}
             >
-              <div style={estiloFormulario.formGroup}>
-                <label htmlFor="current-username" style={estiloFormulario.formLabel}>Usuario actual:</label>
+              <div style={EstiloComponentesUI.formularios.formGroup}>
+                <label htmlFor="current-username" style={EstiloComponentesUI.formularios.label}>Usuario actual:</label>
                 <input
                   id="current-username"
                   type="text"
@@ -266,7 +316,7 @@ export default function LoginPage() {
                   onChange={e => setCurrentUsername(e.target.value)}
                   autoComplete="username"  
                   required
-                  style={estiloFormulario.formInput}
+                  style={EstiloComponentesUI.formularios.input}
                 />
               </div>
               <div style={{ marginBottom: '0.5rem', fontSize: '0.95rem', color: '#555' }}>
@@ -289,8 +339,8 @@ export default function LoginPage() {
                   </li>
                 </ul>
               </div>
-              <div style={{ ...estiloFormulario.formGroup, position: 'relative' }}>
-                <label htmlFor="new-password" style={estiloFormulario.formLabel}>Nueva contraseña:</label>
+              <div style={{ ...EstiloComponentesUI.formularios.formGroup, position: 'relative' }}>
+                <label htmlFor="new-password" style={EstiloComponentesUI.formularios.label}>Nueva contraseña:</label>
                 <input
                   id="new-password"
                   type={showNewPassword ? 'text' : 'password'}
@@ -298,7 +348,7 @@ export default function LoginPage() {
                   onChange={e => setNewPassword(e.target.value)}
                   autoComplete="new-password"
                   required
-                  style={{ ...estiloFormulario.formInput, paddingRight: '2.5rem' }}
+                  style={{ ...EstiloComponentesUI.formularios.input, paddingRight: '2.5rem' }}
                 />
                 <button
                   type="button"
@@ -344,8 +394,8 @@ export default function LoginPage() {
                   })()}
                 </div>
               </div>
-              <div style={{ ...estiloFormulario.formGroup, position: 'relative' }}>
-                <label htmlFor="confirm-new-password" style={estiloFormulario.formLabel}>Confirmar nueva contraseña:</label>
+              <div style={{ ...EstiloComponentesUI.formularios.formGroup, position: 'relative' }}>
+                <label htmlFor="confirm-new-password" style={EstiloComponentesUI.formularios.label}>Confirmar nueva contraseña:</label>
                 <input
                   id="confirm-new-password"
                   type={showConfirmNewPassword ? 'text' : 'password'}
@@ -353,7 +403,7 @@ export default function LoginPage() {
                   onChange={e => setConfirmNewPassword(e.target.value)}
                   autoComplete="new-password"
                   required
-                  style={{ ...estiloFormulario.formInput, paddingRight: '2.5rem' }}
+                  style={{ ...EstiloComponentesUI.formularios.input, paddingRight: '2.5rem' }}
                 />
                 <button
                   type="button"
@@ -385,7 +435,7 @@ export default function LoginPage() {
               </div>
               <button
                 type="submit"
-                style={{ ...estiloBoton.btn, ...estiloBoton.btnPrimary, width: '100%', marginTop: '1rem' }}
+                style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnPrimary, width: '100%', marginTop: '1rem' }}
               >
                 Cambiar contraseña
               </button>
@@ -460,8 +510,8 @@ export default function LoginPage() {
                 }
               }}
             >
-              <div style={estiloFormulario.formGroup}>
-                <label htmlFor="register-username" style={estiloFormulario.formLabel}>Usuario:</label>
+              <div style={EstiloComponentesUI.formularios.formGroup}>
+                <label htmlFor="register-username" style={EstiloComponentesUI.formularios.label}>Usuario:</label>
                 <input
                   id="register-username"
                   type="text"
@@ -470,7 +520,7 @@ export default function LoginPage() {
                   autoComplete="username"
                   required
                   disabled={registerLoading}
-                  style={estiloFormulario.formInput}
+                  style={EstiloComponentesUI.formularios.input}
                 />
               </div>
               <div style={{ marginBottom: '0.5rem', fontSize: '0.95rem', color: '#555' }}>
@@ -493,8 +543,8 @@ export default function LoginPage() {
                   </li>
                 </ul>
               </div>
-              <div style={{ ...estiloFormulario.formGroup, position: 'relative' }}>
-                <label htmlFor="register-password" style={estiloFormulario.formLabel}>Contraseña:</label>
+              <div style={{ ...EstiloComponentesUI.formularios.formGroup, position: 'relative' }}>
+                <label htmlFor="register-password" style={EstiloComponentesUI.formularios.label}>Contraseña:</label>
                 <input
                   id="register-password"
                   type={showRegisterPassword ? 'text' : 'password'}
@@ -503,7 +553,7 @@ export default function LoginPage() {
                   autoComplete="new-password"
                   required
                   disabled={registerLoading}
-                  style={{ ...estiloFormulario.formInput, paddingRight: '2.5rem' }}
+                  style={{ ...EstiloComponentesUI.formularios.input, paddingRight: '2.5rem' }}
                 />
                 <button
                   type="button"
@@ -563,8 +613,8 @@ export default function LoginPage() {
                   )}
                 </div>
               </div>
-              <div style={{ ...estiloFormulario.formGroup, position: 'relative' }}>
-                <label htmlFor="register-confirm-password" style={estiloFormulario.formLabel}>Confirmar contraseña:</label>
+              <div style={{ ...EstiloComponentesUI.formularios.formGroup, position: 'relative' }}>
+                <label htmlFor="register-confirm-password" style={EstiloComponentesUI.formularios.label}>Confirmar contraseña:</label>
                 <input
                   id="register-confirm-password"
                   type={showRegisterConfirmPassword ? 'text' : 'password'}
@@ -573,7 +623,7 @@ export default function LoginPage() {
                   autoComplete="new-password"
                   required
                   disabled={registerLoading}
-                  style={{ ...estiloFormulario.formInput, paddingRight: '2.5rem' }}
+                  style={{ ...EstiloComponentesUI.formularios.input, paddingRight: '2.5rem' }}
                 />
                 <button
                   type="button"
@@ -605,14 +655,14 @@ export default function LoginPage() {
               </div>
               <button
                 type="submit"
-                style={{ ...estiloBoton.btn, ...estiloBoton.btnPrimary, width: '100%', marginTop: '1rem' }}
+                style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnPrimary, width: '100%', marginTop: '1rem' }}
                 disabled={registerLoading}
               >
                 {registerLoading ? 'Registrando...' : 'Registrar'}
               </button>
               <button
                 type="button"
-                style={{ ...estiloBoton.btn, ...estiloBoton.btnSecondary, width: '100%', marginTop: '0.5rem' }}
+                style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnSecondary, width: '100%', marginTop: '0.5rem' }}
                 onClick={() => setShowRegister(false)}
                 disabled={registerLoading}
               >
@@ -627,6 +677,6 @@ export default function LoginPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { FaServer, FaCheckCircle, FaTools, FaBan, FaInfoCircle, FaStar } from 'react-icons/fa';
-import { estiloPanelControl } from '../Estilos/EstiloPanelControl';
+import { EstiloDashboardEspecifico } from '../Estilos/EstiloDashboardEspecifico';
 import { estiloGlobal } from '../Estilos/EstiloGlobal';
 
 interface PanelControlProps {
@@ -24,33 +24,37 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
       value: total, 
       title: 'TOTAL DE EQUIPOS', 
       icon: FaServer, 
-      style: { ...estiloPanelControl.cardBase, ...estiloPanelControl.cardTotal } 
+      style: { ...EstiloDashboardEspecifico.panelControl.cardBase, ...EstiloDashboardEspecifico.panelControl.total },
+      color: '#1e40af'
     },
     { 
       type: 'active' as const, 
       value: active, 
       title: 'EQUIPOS ACTIVOS', 
       icon: FaCheckCircle, 
-      style: { ...estiloPanelControl.cardBase, ...estiloPanelControl.cardActive } 
+      style: { ...EstiloDashboardEspecifico.panelControl.cardBase, ...EstiloDashboardEspecifico.panelControl.active },
+      color: '#16a34a'
     },
     { 
       type: 'maintenance' as const, 
       value: maintenance, 
       title: 'EN MANTENIMIENTO', 
       icon: FaTools, 
-      style: { ...estiloPanelControl.cardBase, ...estiloPanelControl.cardMaintenance } 
+      style: { ...EstiloDashboardEspecifico.panelControl.cardBase, ...EstiloDashboardEspecifico.panelControl.maintenance },
+      color: '#d97706'
     },
     { 
       type: 'inactive' as const, 
       value: inactive, 
       title: 'EQUIPOS INACTIVOS', 
       icon: FaBan, 
-      style: { ...estiloPanelControl.cardBase, ...estiloPanelControl.cardInactive } 
+      style: { ...EstiloDashboardEspecifico.panelControl.cardBase, ...EstiloDashboardEspecifico.panelControl.inactive },
+      color: '#dc2626'
     },
   ];
 
   return (
-    <div style={estiloPanelControl.container}>
+    <div style={EstiloDashboardEspecifico.panelControl.container}>
       {stats.map((stat) => {
         const IconComponent = stat.icon;
         const isHovered = hoveredCard === stat.type;
@@ -98,7 +102,7 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
                   left: '20%',
                   width: '4px',
                   height: '4px',
-                  background: stat.style.color,
+                  background: stat.color,
                   borderRadius: '50%',
                   animation: 'float1 2s ease-in-out infinite',
                   opacity: 0.6,
@@ -109,7 +113,7 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
                   right: '15%',
                   width: '3px',
                   height: '3px',
-                  background: stat.style.color,
+                  background: stat.color,
                   borderRadius: '50%',
                   animation: 'float2 2.5s ease-in-out infinite',
                   opacity: 0.4,
@@ -120,7 +124,7 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
                   left: '80%',
                   width: '2px',
                   height: '2px',
-                  background: stat.style.color,
+                  background: stat.color,
                   borderRadius: '50%',
                   animation: 'float3 1.8s ease-in-out infinite',
                   opacity: 0.5,
@@ -130,7 +134,7 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
             
             <button 
               style={{
-                ...estiloPanelControl.iconButton,
+                ...EstiloDashboardEspecifico.panelControl.iconButton,
                 transform: isHovered ? 'scale(1.15) rotate(10deg)' : 'scale(1) rotate(0deg)',
                 boxShadow: isHovered 
                   ? '0 6px 20px rgba(0,0,0,0.15)' 
@@ -145,14 +149,14 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
             </button>
             
             <div style={{
-              ...estiloPanelControl.cardTitle,
+              ...EstiloDashboardEspecifico.panelControl.label,
               transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
             }}>
               {stat.title}
             </div>
             
             <div style={{
-              ...estiloPanelControl.cardValue,
+              ...EstiloDashboardEspecifico.panelControl.number,
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
@@ -179,7 +183,7 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
                   />
                   <span style={{
                     background: isHovered 
-                      ? `linear-gradient(45deg, ${stat.style.color}, ${stat.style.color}CC)` 
+                      ? `linear-gradient(45deg, ${stat.color}, ${stat.color}CC)` 
                       : 'none',
                     WebkitBackgroundClip: isHovered ? 'text' : 'unset',
                     WebkitTextFillColor: isHovered ? 'transparent' : 'inherit',
