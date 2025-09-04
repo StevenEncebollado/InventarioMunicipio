@@ -114,41 +114,40 @@ export default function LoginPage() {
 
   return (
     <>
-      <div style={EstiloComponentesUI.formularios.formContainer}>
-      <div style={EstiloComponentesUI.formularios.logoSection}>
-        <h1 style={EstiloComponentesUI.formularios.logoH1}>Inventario Municipio</h1>
-        <p style={EstiloComponentesUI.formularios.logoSubtitle}>Sistema de Gestión de Equipos</p>
-      </div>
-      <form onSubmit={handleSubmit} style={{ display: 'block' }}>
-        <div style={EstiloComponentesUI.formularios.formGroup}>
-          <label htmlFor="username" style={EstiloComponentesUI.formularios.label}>Usuario:</label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={formData.username}
-            onChange={handleInputChange}
-            placeholder="Ingrese su nombre de usuario"
-            required
-            autoComplete="username"
-            style={EstiloComponentesUI.formularios.input}
-          />
-        </div>
-        <div style={{ ...EstiloComponentesUI.formularios.formGroup, position: 'relative' }}>
-          <label htmlFor="password" style={EstiloComponentesUI.formularios.label}>Contraseña:</label>
-          <input
-            type={mostrarContrasena ? 'text' : 'password'}
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            placeholder="Ingrese su contraseña"
-            required
-            autoComplete="current-password"
-            style={{ ...EstiloComponentesUI.formularios.input, paddingRight: '2.5rem' }}
-          />
-          <button
-            type="button"
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%)' }}>
+        <div style={{ background: '#fff', borderRadius: '18px', boxShadow: '0 8px 32px rgba(60,60,120,0.15)', padding: '2.5rem 2rem', minWidth: 340, maxWidth: 400, width: '100%', textAlign: 'center' }}>
+          <h1 style={{ fontWeight: 800, fontSize: '2.1rem', color: '#2563eb', marginBottom: 0 }}>Inventario Municipio</h1>
+          <p style={{ color: '#374151', fontSize: '1.1rem', marginBottom: '2rem' }}>Sistema de Gestión de Equipos</p>
+          <form onSubmit={handleSubmit} style={{ width: '100%', margin: '0 auto', textAlign: 'left' }}>
+            <div style={{ marginBottom: '1.2rem' }}>
+              <label htmlFor="username" style={{ fontWeight: 600, color: '#374151', marginBottom: 6, display: 'block' }}>Usuario:</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                placeholder="Ingrese su nombre de usuario"
+                required
+                autoComplete="username"
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '1rem', outline: 'none', marginTop: 2, boxSizing: 'border-box' }}
+              />
+            </div>
+            <div style={{ marginBottom: '1.2rem', position: 'relative' }}>
+              <label htmlFor="password" style={{ fontWeight: 600, color: '#374151', marginBottom: 6, display: 'block' }}>Contraseña:</label>
+              <input
+                type={mostrarContrasena ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Ingrese su contraseña"
+                required
+                autoComplete="current-password"
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '1rem', outline: 'none', marginTop: 2, boxSizing: 'border-box', paddingRight: '2.5rem' }}
+              />
+              <button
+                type="button"
             onClick={() => setMostrarContrasena(!mostrarContrasena)}
             style={{
               position: 'absolute',
@@ -160,7 +159,7 @@ export default function LoginPage() {
               cursor: 'pointer',
             }}
           >
-            {mostrarContrasena ? '🙈' : '👁️'}
+            {mostrarContrasena ? '�' : '�'}
           </button>
           
           {formData.password && (
@@ -205,33 +204,34 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={isLoading}
-          style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnPrimary }}
+          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: '#2563eb', color: '#fff', fontWeight: 700, fontSize: '1.1rem', border: 'none', boxShadow: '0 2px 8px #2563eb22', marginBottom: '0.5rem', cursor: isLoading ? 'not-allowed' : 'pointer', transition: 'background 0.2s' }}
         >
           {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
         </button>
         
         <button
           type="button"
-          onClick={() => setModoRegistro(true)}
-          style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnSecondary, marginTop: '1rem', width: '100%' }}
+          onClick={() => setShowRegister(true)}
+          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'linear-gradient(90deg, #64748b 0%, #475569 100%)', color: '#fff', fontWeight: 700, fontSize: '1.1rem', border: 'none', marginTop: '0.5rem', cursor: 'pointer', transition: 'background 0.2s' }}
         >
           Registrar Usuario
         </button>
       </form>
-      {error && (
-        <div style={{
-          marginTop: '1rem',
-          padding: '1rem',
-          backgroundColor: '#fee2e2',
-          border: '1px solid #fecaca',
-          borderRadius: '8px',
-          color: '#b91c1c',
-          fontSize: '0.875rem',
-        }}>
-          {error}
+          {error && (
+            <div style={{
+              marginTop: '1rem',
+              padding: '1rem',
+              backgroundColor: '#fee2e2',
+              border: '1px solid #fecaca',
+              borderRadius: '8px',
+              color: '#b91c1c',
+              fontSize: '0.95rem',
+            }}>
+              {error}
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </div>
 
     {/* Mensaje de advertencia de expiración de contraseña */}
     {passwordExpiryWarning && !passwordChangeRequired && (
