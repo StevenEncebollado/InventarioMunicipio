@@ -1,15 +1,27 @@
-// Estilos modulares para el Navbar
+// Estilos modulares para el Navbar - DISEÑO MEJORADO
 export const navbarStyles = {
   navbar: {
-    background: 'linear-gradient(90deg, #2563eb 0%, #38bdf8 100%)',
+    background: `
+      linear-gradient(135deg, rgba(37, 99, 235, 0.95) 0%, rgba(56, 189, 248, 0.95) 100%),
+      linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%)
+    `,
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    border: '1px solid rgba(255,255,255,0.2)',
     color: '#fff',
-    padding: '1.2rem 2.5rem',
+    padding: '1.4rem 2.8rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    boxShadow: '0 4px 16px rgba(30,41,59,0.10)',
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
+    boxShadow: `
+      0 8px 32px rgba(37, 99, 235, 0.3),
+      0 4px 16px rgba(0,0,0,0.1),
+      inset 0 1px 0 rgba(255,255,255,0.3)
+    `,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    position: 'relative' as const,
+    overflow: 'hidden',
   },
   navBrand: {
     display: 'flex',
@@ -40,22 +52,27 @@ export const navbarStyles = {
   },
   logoutBtn: {
     fontSize: '0.875rem',
-    padding: '0.5rem 1rem',
-    backgroundColor: '#64748b',
-    borderColor: '#64748b',
+    padding: '0.6rem 1.4rem',
+    background: 'rgba(255,255,255,0.15)',
+    backdropFilter: 'blur(10px)',
+    WebkitBackdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255,255,255,0.3)',
     color: '#fff',
-    borderRadius: 12,
-    border: 'none',
-    fontWeight: 500,
+    borderRadius: 16,
+    fontWeight: 600,
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    gap: 6,
-    marginLeft: 18,
-    transition: 'all 0.2s ease',
+    gap: 8,
+    marginLeft: 20,
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
   },
   logoutBtnHover: {
-    backgroundColor: '#545b62',
-    borderColor: '#545b62',
+    background: 'rgba(255,255,255,0.25)',
+    borderColor: 'rgba(255,255,255,0.5)',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
   },
 };

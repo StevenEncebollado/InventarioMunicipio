@@ -1,7 +1,7 @@
 
 
-import React from 'react';
-import { FaServer, FaCheckCircle, FaTools, FaBan, FaInfoCircle } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaServer, FaCheckCircle, FaTools, FaBan, FaInfoCircle, FaStar } from 'react-icons/fa';
 import { estiloPanelControl } from '../Estilos/EstiloPanelControl';
 import { estiloGlobal } from '../Estilos/EstiloGlobal';
 
@@ -15,6 +15,9 @@ interface PanelControlProps {
 }
 
 export default function PanelControl({ total, active, maintenance, inactive, onInfoClick, loading }: PanelControlProps) {
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [clickedCard, setClickedCard] = useState<string | null>(null);
+
   const stats = [
     { 
       type: 'total' as const, 
@@ -50,6 +53,8 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
     <div style={estiloPanelControl.container}>
       {stats.map((stat) => {
         const IconComponent = stat.icon;
+        const isHovered = hoveredCard === stat.type;
+        const isClicked = clickedCard === stat.type;
         
         return (
           <div 
@@ -57,35 +62,92 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
             style={{
               ...stat.style,
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
+              transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: isHovered 
+                ? 'translateY(-12px) rotateX(5deg) scale(1.02)' 
+                : isClicked 
+                ? 'translateY(-8px) scale(0.98)' 
+                : 'translateY(0) rotateX(0deg) scale(1)',
+              boxShadow: isHovered
+                ? `
+                  0 20px 40px rgba(0,0,0,0.12),
+                  0 8px 24px rgba(0,0,0,0.08),
+                  inset 0 1px 0 rgba(255,255,255,0.9),
+                  0 0 0 1px rgba(255,255,255,0.6)
+                `
+                : `
+                  0 8px 32px rgba(0,0,0,0.08),
+                  0 4px 16px rgba(0,0,0,0.04),
+                  inset 0 1px 0 rgba(255,255,255,0.9)
+                `,
             }}
-            onClick={() => onInfoClick(stat.type)}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)';
-              e.currentTarget.style.boxShadow = '0 8px 25px rgba(56,189,248,0.15)';
+            onClick={(e) => {
+              setClickedCard(stat.type);
+              setTimeout(() => setClickedCard(null), 150);
+              onInfoClick(stat.type);
             }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 2px 12px rgba(56,189,248,0.08)';
-            }}
+            onMouseEnter={() => setHoveredCard(stat.type)}
+            onMouseLeave={() => setHoveredCard(null)}
           >
+            {/* Efecto de partículas en hover */}
+            {isHovered && (
+              <>
+                <div style={{
+                  position: 'absolute',
+                  top: '10%',
+                  left: '20%',
+                  width: '4px',
+                  height: '4px',
+                  background: stat.style.color,
+                  borderRadius: '50%',
+                  animation: 'float1 2s ease-in-out infinite',
+                  opacity: 0.6,
+                }} />
+                <div style={{
+                  position: 'absolute',
+                  top: '80%',
+                  right: '15%',
+                  width: '3px',
+                  height: '3px',
+                  background: stat.style.color,
+                  borderRadius: '50%',
+                  animation: 'float2 2.5s ease-in-out infinite',
+                  opacity: 0.4,
+                }} />
+                <div style={{
+                  position: 'absolute',
+                  top: '60%',
+                  left: '80%',
+                  width: '2px',
+                  height: '2px',
+                  background: stat.style.color,
+                  borderRadius: '50%',
+                  animation: 'float3 1.8s ease-in-out infinite',
+                  opacity: 0.5,
+                }} />
+              </>
+            )}
+            
             <button 
-              style={estiloPanelControl.iconButton} 
+              style={{
+                ...estiloPanelControl.iconButton,
+                transform: isHovered ? 'scale(1.15) rotate(10deg)' : 'scale(1) rotate(0deg)',
+                boxShadow: isHovered 
+                  ? '0 6px 20px rgba(0,0,0,0.15)' 
+                  : '0 4px 12px rgba(0,0,0,0.1)',
+              }} 
               onClick={(e) => {
                 e.stopPropagation();
                 onInfoClick(stat.type);
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
               <FaInfoCircle size={18} />
             </button>
             
-            <div style={estiloPanelControl.cardTitle}>
+            <div style={{
+              ...estiloPanelControl.cardTitle,
+              transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+            }}>
               {stat.title}
             </div>
             
@@ -93,37 +155,109 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
               ...estiloPanelControl.cardValue,
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '12px',
+              transform: isHovered ? 'scale(1.05)' : 'scale(1)',
             }}>
               {loading ? (
                 <div style={{
-                  width: '24px',
-                  height: '24px',
-                  border: '3px solid rgba(0,0,0,0.1)',
+                  width: '32px',
+                  height: '32px',
+                  border: '4px solid rgba(0,0,0,0.1)',
                   borderTopColor: 'currentColor',
                   borderRadius: '50%',
                   animation: 'spin 1s linear infinite',
                 }} />
               ) : (
                 <>
-                  <IconComponent size={24} />
-                  {stat.value}
+                  <IconComponent 
+                    size={28} 
+                    style={{
+                      transform: isHovered ? 'rotate(360deg) scale(1.1)' : 'rotate(0deg) scale(1)',
+                      transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                      filter: isHovered ? 'drop-shadow(0 2px 8px rgba(0,0,0,0.2))' : 'none',
+                    }}
+                  />
+                  <span style={{
+                    background: isHovered 
+                      ? `linear-gradient(45deg, ${stat.style.color}, ${stat.style.color}CC)` 
+                      : 'none',
+                    WebkitBackgroundClip: isHovered ? 'text' : 'unset',
+                    WebkitTextFillColor: isHovered ? 'transparent' : 'inherit',
+                    backgroundClip: isHovered ? 'text' : 'unset',
+                  }}>
+                    {stat.value}
+                  </span>
                 </>
               )}
             </div>
             
-            <div style={{ fontSize: 13, fontWeight: 500, marginTop: 4, opacity: 0.8 }}>
+            <div style={{ 
+              fontSize: 14, 
+              fontWeight: 600, 
+              marginTop: 6, 
+              opacity: isHovered ? 0.9 : 0.7,
+              transform: isHovered ? 'translateY(-1px)' : 'translateY(0)',
+              transition: 'all 0.3s ease',
+            }}>
               equipos
             </div>
+
+            {/* Efecto de brillo en hover */}
+            {isHovered && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: '-100%',
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+                animation: 'shine 1.5s ease-in-out infinite',
+                borderRadius: 'inherit',
+              }} />
+            )}
           </div>
         );
       })}
       
-      {/* Animaciones CSS */}
+      {/* Animaciones CSS mejoradas */}
       <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes float1 {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-10px) rotate(180deg); }
+        }
+        
+        @keyframes float2 {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-15px) rotate(-180deg); }
+        }
+        
+        @keyframes float3 {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-8px) rotate(90deg); }
+        }
+        
+        @keyframes shine {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.8; }
+        }
+        
+        @keyframes glow {
+          0%, 100% { 
+            box-shadow: 0 0 5px currentColor, 0 0 10px currentColor, 0 0 15px currentColor;
+          }
+          50% { 
+            box-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+          }
         }
       `}</style>
     </div>
