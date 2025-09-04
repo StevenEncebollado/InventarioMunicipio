@@ -1,9 +1,11 @@
 
 import { useCatalogosContext } from '../context/CatalogosContext';
 import { EstiloDashboardEspecifico } from '../../Diseño/Estilos/EstiloDashboardEspecifico';
-import { FaBroom, FaSearch } from 'react-icons/fa';
+import { FaBroom, FaSearch, FaPlus, FaTimes } from 'react-icons/fa';
 import { EstiloComponentesUI } from '../../Diseño/Estilos/EstiloComponentesUI';
 import MultiSelectTags from './MultiSelectTags';
+import FiltroItem from './FiltroItem';
+import { useState } from 'react';
 
 interface FiltrosProps {
   dependenciaSeleccionada: string;
@@ -32,8 +34,8 @@ interface FiltrosProps {
   setTipoConexionSeleccionada: (value: string) => void;
   programaAdicionalSeleccionado: string[];
   setProgramaAdicionalSeleccionado: (value: string[]) => void;
-  onLimpiarFiltros?: () => void;
 }
+
 
 export default function Filtros({
   dependenciaSeleccionada, setDependenciaSeleccionada,
@@ -50,7 +52,30 @@ export default function Filtros({
   tipoConexionSeleccionada, setTipoConexionSeleccionada,
   programaAdicionalSeleccionado, setProgramaAdicionalSeleccionado
 }: FiltrosProps) {
-  // Función para limpiar todos los filtros
+  const { catalogos, isLoading, error } = useCatalogosContext();
+
+  // Lista de tipos de filtro disponibles
+  const filtroOptions = [
+    { key: 'dependencia', label: 'Dependencia' },
+    { key: 'direccion', label: 'Dirección/Área' },
+    { key: 'dispositivo', label: 'Dispositivo' },
+    { key: 'equipamiento', label: 'Equipamiento' },
+    { key: 'tipoEquipo', label: 'Tipo de Equipo' },
+    { key: 'tipoSistemaOperativo', label: 'Tipo de Sistema Operativo' },
+    { key: 'caracteristica', label: 'Características' },
+    { key: 'marca', label: 'Marca' },
+    { key: 'ram', label: 'RAM' },
+    { key: 'disco', label: 'Disco' },
+    { key: 'office', label: 'Office' },
+    { key: 'tipoConexion', label: 'Tipo de Conexión' },
+    { key: 'programaAdicional', label: 'Programa Adicional' },
+  ];
+
+  // Estado para los filtros seleccionados
+  const [filtrosActivos, setFiltrosActivos] = useState<string[]>([]);
+  const [showMenu, setShowMenu] = useState(false);
+
+  // Limpiar todos los filtros
   const limpiarFiltros = () => {
     setDependenciaSeleccionada('');
     setDireccionSeleccionada('');
@@ -65,8 +90,37 @@ export default function Filtros({
     setOfficeSeleccionado('');
     setTipoConexionSeleccionada('');
     setProgramaAdicionalSeleccionado([]);
+    setFiltrosActivos([]);
   };
-  const { catalogos, isLoading, error } = useCatalogosContext();
+
+  // Agregar filtro
+  const agregarFiltro = (key: string) => {
+    if (!filtrosActivos.includes(key)) {
+      setFiltrosActivos([...filtrosActivos, key]);
+    }
+    setShowMenu(false);
+  };
+
+  // Quitar filtro
+  const quitarFiltro = (key: string) => {
+    setFiltrosActivos(filtrosActivos.filter(f => f !== key));
+    // Limpiar el valor del filtro quitado
+    switch (key) {
+      case 'dependencia': setDependenciaSeleccionada(''); break;
+      case 'direccion': setDireccionSeleccionada(''); break;
+      case 'dispositivo': setDispositivoSeleccionado(''); break;
+      case 'equipamiento': setEquipamientoSeleccionado(''); break;
+      case 'tipoEquipo': setTipoEquipoSeleccionado(''); break;
+      case 'tipoSistemaOperativo': setTipoSistemaOperativoSeleccionado(''); break;
+      case 'marca': setMarcaSeleccionada(''); break;
+      case 'caracteristica': setCaracteristicaSeleccionada(''); break;
+      case 'ram': setRamSeleccionada(''); break;
+      case 'disco': setDiscoSeleccionado(''); break;
+      case 'office': setOfficeSeleccionado(''); break;
+      case 'tipoConexion': setTipoConexionSeleccionada(''); break;
+      case 'programaAdicional': setProgramaAdicionalSeleccionado([]); break;
+    }
+  };
 
   if (isLoading) {
     return (
@@ -91,126 +145,306 @@ export default function Filtros({
   }
 
   return (
-    <section style={{ ...EstiloComponentesUI.tablas.tableContainer, marginBottom: 32, padding: 0 }}>
-      <div style={{ ...EstiloComponentesUI.tablas.tableHeader, borderBottom: '2px solid #2563eb', background: 'rgba(56,189,248,0.07)', borderTopLeftRadius: 12, borderTopRightRadius: 12, marginBottom: 0, padding: '1.2rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <section style={{ ...EstiloComponentesUI.tablas.tableContainer, marginBottom: 32, padding: 0, position: 'relative' }}>
+      <div style={{ ...EstiloComponentesUI.tablas.tableHeader, borderBottom: '2px solid #2563eb', background: 'rgba(56,189,248,0.07)', borderTopLeftRadius: 12, borderTopRightRadius: 12, marginBottom: 0, padding: '1.2rem 2rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <FaSearch style={{ fontSize: 26, color: '#2563eb' }} />
           <span style={{ fontWeight: 800, fontSize: '1.3rem', color: '#2563eb' }}>Filtros de Inventario</span>
         </div>
-        <button
-          style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnOutline, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, border: '1.5px solid #2563eb', color: '#2563eb', background: '#fff', boxShadow: '0 1px 4px rgba(56,189,248,0.07)' }}
-          onClick={limpiarFiltros}
-          type="button"
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button
+            style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnOutline, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, border: '1.5px solid #2563eb', color: '#2563eb', background: '#fff', boxShadow: '0 1px 4px rgba(56,189,248,0.07)', minWidth: 120 }}
+            onClick={() => setShowMenu(!showMenu)}
+            type="button"
+          >
+            <FaPlus style={{ fontSize: 18, color: '#2563eb' }} /> Agregar filtro
+          </button>
+          <button
+            style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnOutline, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600, border: '1.5px solid #2563eb', color: '#2563eb', background: '#fff', boxShadow: '0 1px 4px rgba(56,189,248,0.07)', minWidth: 120 }}
+            onClick={limpiarFiltros}
+            type="button"
+          >
+            <FaBroom style={{ fontSize: 18, color: '#2563eb' }} /> Limpiar filtros
+          </button>
+        </div>
+      </div>
+      {/* Menú de agregar filtro */}
+      {showMenu && (
+        <div style={{ 
+          position: 'fixed', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)',
+          zIndex: 1000, 
+          background: '#fff', 
+          border: '1px solid #e5e7eb', 
+          borderRadius: 12, 
+          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)', 
+          padding: '20px', 
+          minWidth: 300, 
+          maxWidth: '90vw',
+          maxHeight: '80vh',
+          overflowY: 'auto'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            marginBottom: 16, 
+            paddingBottom: 12, 
+            borderBottom: '1px solid #e5e7eb' 
+          }}>
+            <h3 style={{ 
+              fontWeight: 700, 
+              margin: 0, 
+              color: '#1f2937', 
+              fontSize: '18px' 
+            }}>
+              Agregar Filtro
+            </h3>
+            <button
+              onClick={() => setShowMenu(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '20px',
+                cursor: 'pointer',
+                color: '#6b7280',
+                padding: '4px'
+              }}
+            >
+              <FaTimes />
+            </button>
+          </div>
+          <div style={{ display: 'grid', gap: 8 }}>
+            {filtroOptions.filter(opt => !filtrosActivos.includes(opt.key)).map(opt => (
+              <button
+                key={opt.key}
+                style={{ 
+                  width: '100%', 
+                  textAlign: 'left', 
+                  padding: '12px 16px', 
+                  border: '1px solid #e5e7eb', 
+                  background: '#fff', 
+                  color: '#374151', 
+                  fontWeight: 500, 
+                  borderRadius: 8, 
+                  cursor: 'pointer', 
+                  transition: 'all 0.2s ease',
+                  fontSize: '14px'
+                }}
+                onClick={() => agregarFiltro(opt.key)}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = '#f3f4f6';
+                  e.currentTarget.style.borderColor = '#2563eb';
+                  e.currentTarget.style.color = '#2563eb';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = '#fff';
+                  e.currentTarget.style.borderColor = '#e5e7eb';
+                  e.currentTarget.style.color = '#374151';
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Overlay para cerrar el menú */}
+      {showMenu && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0, 0, 0, 0.3)',
+            zIndex: 999
+          }}
+          onClick={() => setShowMenu(false)}
+        />
+      )}
+      {/* Renderizar filtros activos */}
+      {filtrosActivos.length > 0 && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 20,
+            padding: '24px 16px',
+            alignItems: 'start',
+            width: '100%',
+          }}
         >
-          <FaBroom style={{ fontSize: 18, color: '#2563eb' }} /> Limpiar filtros
-        </button>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, padding: '2rem', alignItems: 'start' }}>
-        {/* Fila 1 */}
-        <div>
-          <label style={{ fontWeight: 600 }}>Dependencia</label>
-          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={dependenciaSeleccionada} onChange={e => setDependenciaSeleccionada(e.target.value)}>
-            <option value="">Todas</option>
-            {catalogos.dependencias.map(dep => (<option key={dep.id} value={dep.id}>{dep.nombre}</option>))}
-          </select>
+          {filtrosActivos.map(key => {
+            switch (key) {
+              case 'dependencia':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="Dependencia"
+                    value={dependenciaSeleccionada}
+                    onChange={(value) => setDependenciaSeleccionada(value as string)}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.dependencias}
+                    placeholder="Todas"
+                  />
+                );
+              case 'direccion':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="Dirección/Área"
+                    value={direccionSeleccionada}
+                    onChange={(value) => setDireccionSeleccionada(value as string)}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.direcciones}
+                    placeholder="Todas"
+                  />
+                );
+              case 'dispositivo':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="Dispositivo"
+                    value={dispositivoSeleccionado}
+                    onChange={(value) => setDispositivoSeleccionado(value as string)}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.dispositivos}
+                    placeholder="Todos"
+                  />
+                );
+              case 'equipamiento':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="Equipamiento"
+                    value={equipamientoSeleccionado}
+                    onChange={(value) => setEquipamientoSeleccionado(value as string)}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.equipamientos}
+                    placeholder="Todos"
+                  />
+                );
+              case 'tipoEquipo':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="Tipo de Equipo"
+                    value={tipoEquipoSeleccionado}
+                    onChange={(value) => setTipoEquipoSeleccionado(value as string)}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.tiposEquipo}
+                    placeholder="Todos"
+                  />
+                );
+              case 'tipoSistemaOperativo':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="Tipo de Sistema Operativo"
+                    value={tipoSistemaOperativoSeleccionado}
+                    onChange={(value) => setTipoSistemaOperativoSeleccionado(value as string)}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.sistemasOperativos}
+                    placeholder="Todos"
+                  />
+                );
+              case 'caracteristica':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="Características"
+                    value={caracteristicaSeleccionada}
+                    onChange={(value) => setCaracteristicaSeleccionada(value as string)}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.caracteristicas}
+                    placeholder="Todas"
+                  />
+                );
+              case 'marca':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="Marca"
+                    value={marcaSeleccionada}
+                    onChange={(value) => setMarcaSeleccionada(value as string)}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.marcas}
+                    placeholder="Todas"
+                  />
+                );
+              case 'ram':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="RAM"
+                    value={ramSeleccionada}
+                    onChange={(value) => setRamSeleccionada(value as string)}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.ram}
+                    placeholder="Todas"
+                  />
+                );
+              case 'disco':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="Disco"
+                    value={discoSeleccionado}
+                    onChange={(value) => setDiscoSeleccionado(value as string)}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.disco}
+                    placeholder="Todos"
+                  />
+                );
+              case 'office':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="Office"
+                    value={officeSeleccionado}
+                    onChange={(value) => setOfficeSeleccionado(value as string)}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.office}
+                    placeholder="Todos"
+                  />
+                );
+              case 'tipoConexion':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="Tipo de Conexión"
+                    value={tipoConexionSeleccionada}
+                    onChange={(value) => setTipoConexionSeleccionada(value as string)}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.tipoConexion}
+                    placeholder="Todas"
+                  />
+                );
+              case 'programaAdicional':
+                return (
+                  <FiltroItem
+                    key={key}
+                    label="Programa Adicional"
+                    value={programaAdicionalSeleccionado}
+                    onChange={(value) => setProgramaAdicionalSeleccionado(value as string[])}
+                    onRemove={() => quitarFiltro(key)}
+                    options={catalogos.programaAdicional}
+                    type="multiselect"
+                    placeholder="Buscar y seleccionar programas..."
+                    searchPlaceholder="Buscar programas..."
+                  />
+                );
+              default:
+                return null;
+            }
+          })}
         </div>
-        <div>
-          <label style={{ fontWeight: 600 }}>Dirección/Área</label>
-          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={direccionSeleccionada} onChange={e => setDireccionSeleccionada(e.target.value)}>
-            <option value="">Todas</option>
-            {catalogos.direcciones.map(dir => (<option key={dir.id} value={dir.id}>{dir.nombre}</option>))}
-          </select>
-        </div>
-        <div>
-          <label style={{ fontWeight: 600 }}>Dispositivo</label>
-          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={dispositivoSeleccionado} onChange={e => setDispositivoSeleccionado(e.target.value)}>
-            <option value="">Todos</option>
-            {catalogos.dispositivos.map(d => (<option key={d.id} value={d.id}>{d.nombre}</option>))}
-          </select>
-        </div>
-        <div>
-          <label style={{ fontWeight: 600 }}>Equipamiento</label>
-          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={equipamientoSeleccionado} onChange={e => setEquipamientoSeleccionado(e.target.value)}>
-            <option value="">Todos</option>
-            {catalogos.equipamientos.map(eq => (<option key={eq.id} value={eq.id}>{eq.nombre}</option>))}
-          </select>
-        </div>
-        {/* Fila 2 */}
-        <div>
-          <label style={{ fontWeight: 600 }}>Tipo de Equipo</label>
-          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={tipoEquipoSeleccionado} onChange={e => setTipoEquipoSeleccionado(e.target.value)}>
-            <option value="">Todos</option>
-            {catalogos.tiposEquipo.map(te => (<option key={te.id} value={te.id}>{te.nombre}</option>))}
-          </select>
-        </div>
-        <div>
-          <label style={{ fontWeight: 600 }}>Tipo de Sistema Operativo</label>
-          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={tipoSistemaOperativoSeleccionado} onChange={e => setTipoSistemaOperativoSeleccionado(e.target.value)}>
-            <option value="">Todos</option>
-            {catalogos.sistemasOperativos.map(so => (<option key={so.id} value={so.id}>{so.nombre}</option>))}
-          </select>
-        </div>
-        <div>
-          <label style={{ fontWeight: 600 }}>Características</label>
-          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={caracteristicaSeleccionada} onChange={e => setCaracteristicaSeleccionada(e.target.value)}>
-            <option value="">Todas</option>
-            {catalogos.caracteristicas.map(c => (<option key={c.id} value={c.id}>{c.descripcion}</option>))}
-          </select>
-        </div>
-        <div>
-          <label style={{ fontWeight: 600 }}>Marca</label>
-          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={marcaSeleccionada} onChange={e => setMarcaSeleccionada(e.target.value)}>
-            <option value="">Todas</option>
-            {catalogos.marcas.map(m => (<option key={m.id} value={m.id}>{m.nombre}</option>))}
-          </select>
-        </div>
-        {/* Fila 3 */}
-        <div>
-          <label style={{ fontWeight: 600 }}>RAM</label>
-          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={ramSeleccionada} onChange={e => setRamSeleccionada(e.target.value)}>
-            <option value="">Todas</option>
-            {catalogos.ram.map(r => (<option key={r.id} value={r.id}>{r.capacidad}</option>))}
-          </select>
-        </div>
-        <div>
-          <label style={{ fontWeight: 600 }}>Disco</label>
-          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={discoSeleccionado} onChange={e => setDiscoSeleccionado(e.target.value)}>
-            <option value="">Todos</option>
-            {catalogos.disco.map(d => (<option key={d.id} value={d.id}>{d.capacidad}</option>))}
-          </select>
-        </div>
-        <div>
-          <label style={{ fontWeight: 600 }}>Office</label>
-          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={officeSeleccionado} onChange={e => setOfficeSeleccionado(e.target.value)}>
-            <option value="">Todos</option>
-            {catalogos.office.map(o => (<option key={o.id} value={o.id}>{o.version}</option>))}
-          </select>
-        </div>
-        <div>
-          <label style={{ fontWeight: 600 }}>Tipo de Conexión</label>
-          <select style={EstiloDashboardEspecifico.catalogos.selectStyle} value={tipoConexionSeleccionada} onChange={e => setTipoConexionSeleccionada(e.target.value)}>
-            <option value="">Todas</option>
-            {catalogos.tipoConexion.map(tc => (<option key={tc.id} value={tc.id}>{tc.nombre}</option>))}
-          </select>
-        </div>
-        {/* Fila 4: Programa Adicional ocupa las 4 columnas */}
-        <div style={{ gridColumn: '1 / span 4', marginTop: 8 }}>
-          <label style={{ fontWeight: 600, display: 'block', marginBottom: '8px', color: '#374151' }}>
-            Programa Adicional
-          </label>
-          <MultiSelectTags
-            options={catalogos.programaAdicional.map(pa => ({
-              value: pa.id,
-              label: pa.nombre
-            }))}
-            value={programaAdicionalSeleccionado.map(p => Number(p))}
-            onChange={(selectedIds) => setProgramaAdicionalSeleccionado(selectedIds.map(id => String(id)))}
-            placeholder="Buscar y seleccionar programas..."
-            searchPlaceholder="Buscar programas..."
-            maxHeight={200}
-          />
-        </div>
-      </div>
+      )}
     </section>
   );
 }
