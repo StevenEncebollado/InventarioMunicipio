@@ -1,7 +1,6 @@
 // Es la página central donde los usuarios gestionan y visualizan el inventario
 // de equipos, con todas las funcionalidades principales del dashboard
 
-
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -66,6 +65,10 @@ export default function Dashboard() {
     active: equipos.filter(e => e.estado === 'Activo').length,
     maintenance: equipos.filter(e => e.estado === 'Mantenimiento').length,
     inactive: equipos.filter(e => e.estado === 'Inactivo').length,
+    total: equipos.length,
+    active: equipos.filter(e => e.estado === 'Activo').length,
+    maintenance: equipos.filter(e => e.estado === 'Mantenimiento').length,
+    inactive: equipos.filter(e => e.estado === 'Inactivo').length,
   });
 
   if (error && !user) {
@@ -110,6 +113,7 @@ export default function Dashboard() {
           </div>
         )}
         <TablaEquipos 
+          equipos={equipos}
           equipos={equipos}
         />
       </main>
