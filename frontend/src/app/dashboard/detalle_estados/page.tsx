@@ -323,15 +323,14 @@ export default function EquiposLista() {
           onInfoClick={handlePanelInfo}
           loading={loading}
         />
-        <div style={{ maxWidth: 1200, margin: '48px auto', background: '#fff', borderRadius: 14, boxShadow: '0 2px 16px rgba(0,0,0,0.08)', padding: 32 }}>
-          <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h2 style={{ margin: 0 }}>{TITULOS[tipo] || 'Equipos'}</h2>
+  <div style={{ maxWidth: '100%', width: '100%', margin: '32px auto', background: '#fff', borderRadius: 14, boxShadow: '0 2px 16px rgba(0,0,0,0.08)', padding: '16px 8px' }}>
+          <div style={{ marginBottom: 24, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
+            <div style={{ minWidth: 180 }}>
+              <h2 style={{ margin: 0, fontSize: '1.2rem', wordBreak: 'break-word' }}>{TITULOS[tipo] || 'Equipos'}</h2>
               <div style={{ color: '#64748b', fontSize: '14px', fontWeight: 500, marginTop: '4px' }}>
                 {equiposFiltrados.length} equipos encontrados
               </div>
             </div>
-            
             <button
               onClick={handleAgregar}
               style={{
@@ -347,10 +346,11 @@ export default function EquiposLista() {
                 alignItems: 'center',
                 gap: '8px',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                minWidth: 140,
+                width: '100%',
+                maxWidth: 220,
               }}
-              onMouseOver={(e) => e.currentTarget.style.background = '#1d4ed8'}
-              onMouseOut={(e) => e.currentTarget.style.background = '#2563eb'}
             >
               <FaPlus size={12} />
               Agregar Equipo
@@ -620,7 +620,9 @@ export default function EquiposLista() {
               padding: '10px 22px', 
               fontWeight: 600, 
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              width: '100%',
+              maxWidth: 220,
             }}
           >
             Volver al Dashboard
@@ -695,35 +697,35 @@ export default function EquiposLista() {
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#4b5563' }}>Funcionario:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937' }}>
-                        {equipoDetalle.nombres_funcionario || 'Sin asignar'}
+                        {equipoDetalle?.nombres_funcionario || 'Sin asignar'}
                       </span>
                     </div>
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#4b5563' }}>Código de Inventario:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937' }}>
-                        {equipoDetalle.codigo_inventario || 'Sin código'}
+                        {equipoDetalle?.codigo_inventario || 'Sin código'}
                       </span>
                     </div>
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#4b5563' }}>Nombre PC:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937' }}>
-                        {equipoDetalle.nombre_pc || 'N/A'}
+                        {equipoDetalle?.nombre_pc || 'N/A'}
                       </span>
                     </div>
                     <div>
                       <strong style={{ color: '#4b5563' }}>Estado:</strong>
                       <span style={{
                         marginLeft: '8px',
-                        background: equipoDetalle.estado === 'Activo' ? '#dcfce7' : 
-                                  equipoDetalle.estado === 'Mantenimiento' ? '#fef3c7' : '#fecaca',
-                        color: equipoDetalle.estado === 'Activo' ? '#166534' : 
-                               equipoDetalle.estado === 'Mantenimiento' ? '#92400e' : '#991b1b',
+                        background: equipoDetalle?.estado === 'Activo' ? '#dcfce7' : 
+                                  equipoDetalle?.estado === 'Mantenimiento' ? '#fef3c7' : '#fecaca',
+                        color: equipoDetalle?.estado === 'Activo' ? '#166534' : 
+                               equipoDetalle?.estado === 'Mantenimiento' ? '#92400e' : '#991b1b',
                         padding: '2px 8px',
                         borderRadius: '4px',
                         fontSize: '12px',
                         fontWeight: 600
                       }}>
-                        {equipoDetalle.estado}
+                        {equipoDetalle?.estado}
                       </span>
                     </div>
                   </div>
@@ -737,19 +739,19 @@ export default function EquiposLista() {
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#4b5563' }}>Dirección IP:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937', fontFamily: 'monospace' }}>
-                        {equipoDetalle.direccion_ip || 'N/A'}
+                        {equipoDetalle?.direccion_ip || 'N/A'}
                       </span>
                     </div>
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#4b5563' }}>Dirección MAC:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937', fontFamily: 'monospace' }}>
-                        {equipoDetalle.direccion_mac || 'N/A'}
+                        {equipoDetalle?.direccion_mac || 'N/A'}
                       </span>
                     </div>
                     <div>
                       <strong style={{ color: '#4b5563' }}>AnyDesk:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937' }}>
-                        {equipoDetalle.anydesk || 'N/A'}
+                        {equipoDetalle?.anydesk || 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -763,25 +765,25 @@ export default function EquiposLista() {
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#4b5563' }}>ID Usuario:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937' }}>
-                        {equipoDetalle.usuario_id || 'N/A'}
+                        {equipoDetalle?.usuario_id || 'N/A'}
                       </span>
                     </div>
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#4b5563' }}>ID Dependencia:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937' }}>
-                        {equipoDetalle.dependencia_id || 'N/A'}
+                        {equipoDetalle?.dependencia_id || 'N/A'}
                       </span>
                     </div>
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#4b5563' }}>ID Tipo Equipo:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937' }}>
-                        {equipoDetalle.tipo_equipo_id || 'N/A'}
+                        {equipoDetalle?.tipo_equipo_id || 'N/A'}
                       </span>
                     </div>
                     <div>
                       <strong style={{ color: '#4b5563' }}>ID Marca:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937' }}>
-                        {equipoDetalle.marca_id || 'N/A'}
+                        {equipoDetalle?.marca_id || 'N/A'}
                       </span>
                     </div>
                   </div>
@@ -795,32 +797,32 @@ export default function EquiposLista() {
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#4b5563' }}>ID RAM:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937' }}>
-                        {equipoDetalle.ram_id || 'N/A'}
+                        {equipoDetalle?.ram_id || 'N/A'}
                       </span>
                     </div>
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#4b5563' }}>ID Disco:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937' }}>
-                        {equipoDetalle.disco_id || 'N/A'}
+                        {equipoDetalle?.disco_id || 'N/A'}
                       </span>
                     </div>
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#4b5563' }}>ID Office:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937' }}>
-                        {equipoDetalle.office_id || 'N/A'}
+                        {equipoDetalle?.office_id || 'N/A'}
                       </span>
                     </div>
                     <div>
                       <strong style={{ color: '#4b5563' }}>ID Sistema Operativo:</strong>
                       <span style={{ marginLeft: '8px', color: '#1f2937' }}>
-                        {equipoDetalle.tipo_sistema_operativo_id || 'N/A'}
+                        {equipoDetalle?.tipo_sistema_operativo_id || 'N/A'}
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {equipoDetalle.fecha_registro && (
+              {equipoDetalle?.fecha_registro && (
                 <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
                   <div style={{ color: '#6b7280', fontSize: '14px' }}>
                     <strong>Fecha de Registro:</strong> {new Date(equipoDetalle.fecha_registro).toLocaleDateString('es-ES', {
@@ -831,7 +833,7 @@ export default function EquiposLista() {
                       minute: '2-digit'
                     })}
                   </div>
-                  {equipoDetalle.fecha_eliminacion && (
+                  {equipoDetalle?.fecha_eliminacion && (
                     <div style={{ color: '#ef4444', fontSize: '14px', marginTop: '4px' }}>
                       <strong>Fecha de Eliminación:</strong> {new Date(equipoDetalle.fecha_eliminacion).toLocaleDateString('es-ES', {
                         year: 'numeric',
@@ -857,7 +859,9 @@ export default function EquiposLista() {
                 <button
                   onClick={() => {
                     setShowDetalleModal(false);
-                    handleEditar(equipoDetalle);
+                    if (equipoDetalle) {
+                      handleEditar(equipoDetalle);
+                    }
                   }}
                   style={{
                     background: '#f59e0b',
