@@ -91,14 +91,15 @@ export default function Dashboard() {
     
     // Mostrar confirmación con SweetAlert2
     const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: `¿Deseas marcar como inactivo el equipo "${nombreEquipo}"?`,
+      title: '¿Estás seguro de eliminar el equipo? ',
+      text: `Esta acción eliminará el equipo "${nombreEquipo}" del inventario.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc3545',
       cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, marcar como inactivo',
-      cancelButtonText: 'Cancelar'
+      confirmButtonText: 'Eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
     });
 
     if (result.isConfirmed) {

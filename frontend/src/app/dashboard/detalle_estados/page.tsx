@@ -88,13 +88,13 @@ export default function EquiposLista() {
     
     // Mostrar confirmación con SweetAlert2
     const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: `¿Deseas eliminar el dispositivo "${nombreEquipo}"?`,
+      title: '¿Estás seguro de eliminar el equipo? ',
+      text: `Esta acción eliminará el equipo "${nombreEquipo}" del inventario.`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Eliminar',
       cancelButtonText: 'Cancelar',
       reverseButtons: true
     });
@@ -336,6 +336,7 @@ export default function EquiposLista() {
           mostrarSoloRecientes={false}
           mostrarColumnaAnyDesk={true}
           mostrarBotonEliminar={true}
+          mostrarBotonAgregar={true}
           onEliminar={handleEliminar}
           maxWidth="100%"
           margin="32px auto"
