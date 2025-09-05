@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { Equipo } from '@/types';
+import Swal from 'sweetalert2';
 
 export function useEditarEquipo(equipoId: string, usuarioId?: number) {
   // Campos de texto
@@ -114,11 +115,16 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
     setEstado("");
   };
 
-  const validarCampos = (): boolean => {
+  const validarCampos = async (): Promise<boolean> => {
     setEditError(""); // Limpiar errores previos
     
     if (!usuarioId) {
-      setEditError("Usuario no autenticado. Por favor, inicie sesión nuevamente.");
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Usuario no autenticado',
+        text: 'Por favor, inicie sesión nuevamente.',
+        confirmButtonColor: '#f59e0b'
+      });
       return false;
     }
     
@@ -138,7 +144,12 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
     
     if (camposFaltantes.length > 0) {
       const nombresCampos = camposFaltantes.map(campo => campo.nombre).join(", ");
-      setEditError(`Los siguientes campos son obligatorios: ${nombresCampos}`);
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Campos requeridos',
+        text: `Los siguientes campos son obligatorios: ${nombresCampos}`,
+        confirmButtonColor: '#f59e0b'
+      });
       return false;
     }
     

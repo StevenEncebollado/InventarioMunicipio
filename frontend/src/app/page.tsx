@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { login, getErrorMessage, APP_CONFIG } from '@/services/api';
 import { useLoading, useError } from '@/hooks';
 import type { LoginResponse } from '@/types';
+import Swal from 'sweetalert2';
 
 export default function LoginPage() {
   // Función para evaluar la seguridad de la contraseña
@@ -237,19 +238,39 @@ export default function LoginPage() {
                 setChangePasswordError('');
                 const strength = getPasswordStrength(newPassword);
                 if (!currentUsername.trim() || !newPassword.trim() || !confirmNewPassword.trim()) {
-                  setChangePasswordError('Todos los campos son requeridos');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Todos los campos son requeridos para cambiar la contraseña.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 if (newPassword !== confirmNewPassword) {
-                  setChangePasswordError('Las contraseñas no coinciden');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Contraseñas no coinciden',
+                    text: 'Las contraseñas ingresadas no son iguales. Por favor, verifícalas.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 if (strength.level === 'Bajo' || strength.level === 'Moderado') {
-                  setChangePasswordError('La contraseña es demasiado débil. Por favor, aumenta la seguridad.');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Contraseña débil',
+                    text: 'La contraseña es demasiado débil. Por favor, aumenta la seguridad siguiendo las indicaciones.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 if (newPassword === password) {
-                  setChangePasswordError('La nueva contraseña no puede ser igual a la anterior.');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Contraseña idéntica',
+                    text: 'La nueva contraseña no puede ser igual a la anterior.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 try {
@@ -263,16 +284,38 @@ export default function LoginPage() {
                     setShowPasswordChangeModal(false);
                     setPasswordChangeRequired(false);
                     setError('');
-                    alert('Contraseña cambiada correctamente. Inicia sesión nuevamente.');
+                    
+                    // Mostrar mensaje de éxito con SweetAlert2
+                    await Swal.fire({
+                      icon: 'success',
+                      title: '¡Contraseña cambiada!',
+                      text: 'Contraseña cambiada correctamente. Inicia sesión nuevamente.',
+                      confirmButtonColor: '#28a745',
+                      timer: 3000,
+                      timerProgressBar: true
+                    });
+                    
                     setPassword('');
                     setNewPassword('');
                     setConfirmNewPassword('');
                     setCurrentUsername('');
                   } else {
-                    setChangePasswordError(data.error || 'Error al cambiar la contraseña');
+                    // Mostrar error con SweetAlert2
+                    await Swal.fire({
+                      icon: 'error',
+                      title: 'Error al cambiar contraseña',
+                      text: data.error || 'Error al cambiar la contraseña. Verifica los datos ingresados.',
+                      confirmButtonColor: '#dc3545'
+                    });
                   }
                 } catch (err) {
-                  setChangePasswordError('Error de red o servidor');
+                  // Mostrar error de red con SweetAlert2
+                  await Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'No se pudo conectar con el servidor. Verifica tu conexión e intenta nuevamente.',
+                    confirmButtonColor: '#dc3545'
+                  });
                 }
               }}
             >
@@ -446,15 +489,30 @@ export default function LoginPage() {
                 setRegisterError('');
                 const strength = getPasswordStrength(registerPassword);
                 if (!registerUsername.trim() || !registerPassword.trim() || !registerConfirmPassword.trim()) {
-                  setRegisterError('Todos los campos son requeridos');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Todos los campos son requeridos para completar el registro.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 if (registerPassword !== registerConfirmPassword) {
-                  setRegisterError('Las contraseñas no coinciden');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Contraseñas no coinciden',
+                    text: 'Las contraseñas ingresadas no son iguales. Por favor, verifícalas.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 if (strength.level === 'Bajo' || strength.level === 'Moderado') {
-                  setRegisterError('La contraseña es demasiado débil. Por favor, aumenta la seguridad.');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Contraseña débil',
+                    text: 'La contraseña es demasiado débil. Por favor, aumenta la seguridad siguiendo las indicaciones.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 setRegisterLoading(true);
@@ -484,14 +542,37 @@ export default function LoginPage() {
                       ...data // Incluir cualquier otro dato que devuelva el backend
                     };
                     
+                    // Mostrar mensaje de éxito con SweetAlert2
+                    await Swal.fire({
+                      icon: 'success',
+                      title: '¡Registro exitoso!',
+                      text: `Bienvenido ${registerUsername}. Usuario creado correctamente.`,
+                      confirmButtonColor: '#28a745',
+                      timer: 3000,
+                      timerProgressBar: true,
+                      showConfirmButton: true
+                    });
+                    
                     // Guardar datos de sesión y redirigir al dashboard
                     localStorage.setItem(APP_CONFIG.session.storageKey, JSON.stringify(userData));
                     router.push('/dashboard');
                   } else {
-                    setRegisterError(data.message || 'Error al registrar usuario');
+                    // Mostrar error con SweetAlert2
+                    await Swal.fire({
+                      icon: 'error',
+                      title: 'Error en el registro',
+                      text: data.message || 'Error al registrar usuario. Por favor, intenta nuevamente.',
+                      confirmButtonColor: '#dc3545'
+                    });
                   }
                 } catch (err) {
-                  setRegisterError('Error de red o servidor');
+                  // Mostrar error de red con SweetAlert2
+                  await Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'No se pudo conectar con el servidor. Verifica tu conexión e intenta nuevamente.',
+                    confirmButtonColor: '#dc3545'
+                  });
                 } finally {
                   setRegisterLoading(false);
                 }

@@ -1,6 +1,7 @@
   //Este hook gestiona el estado y la lógica de un formulario para agregar un equipo.
 
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 
 export function useAgregarEquipo(usuarioId?: number) {
   // Campos de texto
@@ -52,16 +53,26 @@ export function useAgregarEquipo(usuarioId?: number) {
   setEstado("");
   };
 
-  const validarCampos = (): boolean => {
+  const validarCampos = async (): Promise<boolean> => {
     if (!usuarioId) {
-      setAddError("Usuario no autenticado. Por favor, inicie sesión nuevamente.");
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Usuario no autenticado',
+        text: 'Por favor, inicie sesión nuevamente.',
+        confirmButtonColor: '#f59e0b'
+      });
       return false;
     }
     
     if (!ip || !mac || !nombrePc || !funcionario || 
         !tipoEquipo || !marca || !ram || !disco || 
         !dependencia || !estado) {
-      setAddError("Los campos marcados con * son obligatorios");
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Campos requeridos',
+        text: 'Los campos marcados con * son obligatorios. Por favor, completa todos los campos.',
+        confirmButtonColor: '#f59e0b'
+      });
       return false;
     }
     return true;

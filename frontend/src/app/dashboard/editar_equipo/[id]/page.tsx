@@ -39,7 +39,7 @@ export default function EditarEquipoPage() {
     e.preventDefault();
     editarEquipo.setEditError("");
     
-    if (!editarEquipo.validarCampos()) {
+    if (!(await editarEquipo.validarCampos())) {
       return;
     }
     

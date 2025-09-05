@@ -9,6 +9,7 @@ import { useAgregarEquipo } from '../hooks/useAgregarEquipo';
 import MultiSelectTags from '../componentes/MultiSelectTags';
 import { APP_CONFIG } from '@/services/api';
 import type { Usuario } from '@/types';
+import Swal from 'sweetalert2';
 
 export default function AgregarEquipoPage() {
   const router = useRouter();
@@ -37,26 +38,69 @@ export default function AgregarEquipoPage() {
     agregarEquipo.setAddError("");
     agregarEquipo.setAddLoading(true);
     
-    if (!agregarEquipo.validarCampos()) {
+    if (!(await agregarEquipo.validarCampos())) {
       agregarEquipo.setAddLoading(false);
       return;
     }
     
     try {
+      const formData = agregarEquipo.getFormData();
+      console.log('Enviando datos al servidor:', formData);
+      
       const response = await fetch('http://localhost:5000/inventario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(agregarEquipo.getFormData())
+        body: JSON.stringify(formData)
       });
       
       if (response.ok) {
+        const data = await response.json();
+        
+        // Mostrar mensaje de éxito con SweetAlert2
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Equipo creado exitosamente!',
+          text: `El equipo ha sido agregado correctamente al inventario.`,
+          confirmButtonColor: '#28a745',
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: true
+        });
+        
         agregarEquipo.limpiarCampos();
         router.push('/dashboard'); // Regresar al dashboard
       } else {
-        throw new Error('Error al crear equipo');
+        let errorMessage = 'No se pudo crear el equipo. Verifica los datos ingresados.';
+        let errorData: any = {};
+        
+        try {
+          errorData = await response.json();
+          console.error('Error del servidor:', errorData);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch (parseError) {
+          console.error('Error al parsear respuesta del servidor:', parseError);
+          errorMessage = `Error del servidor (${response.status}): ${response.statusText}`;
+        }
+        
+        // Mostrar error con SweetAlert2 con más detalles
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error al crear equipo',
+          text: errorMessage,
+          confirmButtonColor: '#dc3545',
+          footer: `Código de error: ${response.status}`
+        });
       }
     } catch (err: any) {
-      agregarEquipo.setAddError("Error al crear equipo: " + (err.message || 'Error desconocido'));
+      console.error('Error de conexión:', err);
+      
+      // Mostrar error de conexión con SweetAlert2
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error de conexión',
+        text: 'No se pudo conectar con el servidor. Verifica tu conexión e intenta nuevamente.',
+        confirmButtonColor: '#dc3545'
+      });
     } finally {
       agregarEquipo.setAddLoading(false);
     }

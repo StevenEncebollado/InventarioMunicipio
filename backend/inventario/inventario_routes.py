@@ -101,22 +101,66 @@ def get_inventario_by_id(item_id):
 def create_inventario():
     """Crea un nuevo registro en el inventario y lo registra en el historial."""
     import json
-    data = request.json
-    campos = [
-        'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
-        'direccion_mac', 'nombre_pc', 'nombres_funcionario', 'equipamiento_id', 'tipo_equipo_id',
-        'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id', 'office_id',
-        'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado'
-    ]
-    valores = [data.get(campo) for campo in campos]
-    programas = data.get('programa_adicional_ids', [])  # Recibe los programas seleccionados
-    conn = get_db_connection()
-    cur = conn.cursor()
     try:
+        data = request.json
+        print(f"Datos recibidos: {data}")  # Log para debugging
+        
+        # Validar que se recibieron datos
+        if not data:
+            return jsonify({'error': 'No se recibieron datos'}), 400
+            
+        campos = [
+            'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
+            'direccion_mac', 'nombre_pc', 'nombres_funcionario', 'equipamiento_id', 'tipo_equipo_id',
+            'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id', 'office_id',
+            'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado'
+        ]
+        
+        # Validar campos obligatorios
+        campos_obligatorios = ['usuario_id', 'dependencia_id', 'direccion_ip', 'direccion_mac', 
+                              'nombre_pc', 'nombres_funcionario', 'tipo_equipo_id', 'ram_id', 
+                              'disco_id', 'marca_id', 'codigo_inventario', 'estado']
+        
+        campos_faltantes = []
+        for campo in campos_obligatorios:
+            if not data.get(campo):
+                campos_faltantes.append(campo)
+        
+        if campos_faltantes:
+            return jsonify({'error': f'Campos obligatorios faltantes: {", ".join(campos_faltantes)}'}), 400
+        
+        valores = [data.get(campo) for campo in campos]
+        programas = data.get('programa_adicional_ids', [])  # Recibe los programas seleccionados
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
         # Validar unicidad de codigo_inventario
         cur.execute('SELECT id FROM inventario WHERE codigo_inventario = %s', (data.get('codigo_inventario'),))
         if cur.fetchone():
-            return jsonify({'error': 'El código de inventario ya existe'}), 400
+            return jsonify({'error': 'El código de inventario ya existe. Por favor, use un código diferente.'}), 400
+        
+        # Validar unicidad de direccion_ip
+        direccion_ip = data.get('direccion_ip')
+        if direccion_ip:
+            cur.execute('SELECT id FROM inventario WHERE direccion_ip = %s', (direccion_ip,))
+            if cur.fetchone():
+                return jsonify({'error': f'La dirección IP {direccion_ip} ya está en uso. Por favor, use una IP diferente.'}), 400
+        
+        # Validar unicidad de direccion_mac
+        direccion_mac = data.get('direccion_mac')
+        if direccion_mac:
+            cur.execute('SELECT id FROM inventario WHERE direccion_mac = %s', (direccion_mac,))
+            if cur.fetchone():
+                return jsonify({'error': f'La dirección MAC {direccion_mac} ya está en uso. Por favor, use una MAC diferente.'}), 400
+        
+        # Validar unicidad de nombre_pc
+        nombre_pc = data.get('nombre_pc')
+        if nombre_pc:
+            cur.execute('SELECT id FROM inventario WHERE nombre_pc = %s', (nombre_pc,))
+            if cur.fetchone():
+                return jsonify({'error': f'El nombre de PC "{nombre_pc}" ya está en uso. Por favor, use un nombre diferente.'}), 400
+            
         # Insertar si no existe duplicado
         cur.execute(f'''
             INSERT INTO inventario ({', '.join(campos)})
@@ -124,22 +168,41 @@ def create_inventario():
             RETURNING id
         ''', valores)
         new_id = cur.fetchone()[0]
+        
         # Asociar programas adicionales
         for programa_id in programas:
-            cur.execute('INSERT INTO inventario_programa (inventario_id, programa_id) VALUES (%s, %s)', (new_id, programa_id))
+            if programa_id:  # Solo insertar si el programa_id no está vacío
+                cur.execute('INSERT INTO inventario_programa (inventario_id, programa_id) VALUES (%s, %s)', (new_id, programa_id))
+        
         # Registrar en historial (acción: agregado)
         cur.execute('''
             INSERT INTO historial_inventario (inventario_id, usuario_id, accion, datos_nuevos)
             VALUES (%s, %s, %s, %s)
         ''', (new_id, data.get('usuario_id'), 'agregado', json.dumps(data)))
+        
         conn.commit()
-        return jsonify({'id': new_id}), 201
+        return jsonify({'id': new_id, 'message': 'Equipo creado exitosamente'}), 201
+        
     except Exception as e:
-        conn.rollback()
-        return jsonify({'error': str(e)}), 400
+        print(f"Error al crear inventario: {str(e)}")  # Log para debugging
+        if 'conn' in locals():
+            conn.rollback()
+            
+        # Manejar errores específicos de base de datos
+        error_msg = str(e)
+        if 'duplicate key' in error_msg.lower():
+            return jsonify({'error': 'Ya existe un registro con esos datos. Verifique que no haya duplicados.'}), 400
+        elif 'foreign key' in error_msg.lower():
+            return jsonify({'error': 'Uno o más valores seleccionados no son válidos. Verifique los catálogos.'}), 400
+        elif 'not null' in error_msg.lower():
+            return jsonify({'error': 'Falta información requerida. Complete todos los campos obligatorios.'}), 400
+        else:
+            return jsonify({'error': f'Error interno del servidor: {str(e)}'}), 500
     finally:
-        cur.close()
-        conn.close()
+        if 'cur' in locals():
+            cur.close()
+        if 'conn' in locals():
+            conn.close()
 
 # Endpoint: Actualizar un item del inventario
 @inventario_bp.route('/<int:item_id>', methods=['PUT'])
