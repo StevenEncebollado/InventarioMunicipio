@@ -324,7 +324,6 @@ export default function EditarEquipoPage() {
                     <option value="">Seleccionar estado</option>
                     <option value="Activo">Activo</option>
                     <option value="Mantenimiento">Mantenimiento</option>
-                    <option value="Inactivo">Inactivo</option>
                   </select>
                 </div>
 
