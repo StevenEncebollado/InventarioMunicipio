@@ -1,10 +1,13 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
+import { EstiloComponentesUI } from './Diseño/Estilos/EstiloComponentesUI';
+import { estiloGlobal } from './Diseño/Estilos/EstiloGlobal';
 import { useRouter } from 'next/navigation';
 import { login, getErrorMessage, APP_CONFIG } from '@/services/api';
 import { useLoading, useError } from '@/hooks';
 import type { LoginResponse } from '@/types';
+import Swal from 'sweetalert2';
 
 export default function LoginPage() {
   // Función para evaluar la seguridad de la contraseña
@@ -14,7 +17,7 @@ export default function LoginPage() {
     if (/[A-Z]/.test(password)) score++;
     if (/[a-z]/.test(password)) score++;
     if (/\d/.test(password)) score++;
-    if (/[^A-Za-z0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9ñÑáéíóúÁÉÍÓÚüÜ]/.test(password)) score++;
     if (password.length >= 12) score++;
     if (score <= 2) return { level: 'Bajo', color: '#e74c3c', score };
     if (score === 3) return { level: 'Moderado', color: '#f1c40f', score };
@@ -46,6 +49,22 @@ export default function LoginPage() {
   const router = useRouter();
   const [currentUsername, setCurrentUsername] = useState('');
 
+  // Agregar variables que faltan
+  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [modoRegistro, setModoRegistro] = useState(false);
+
+  // Función para manejar cambios en inputs
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'username') setUsername(value);
+    if (name === 'password') setPassword(value);
+  };
+
+  // Obtener strength para la contraseña actual
+  const strength = getPasswordStrength(formData.password);
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearError();
@@ -56,34 +75,33 @@ export default function LoginPage() {
     }
 
     startLoading();
+    
     try {
       const response: any = await login(username, password);
-      // Guardar fecha de cambio para avisos
-      if (response.fecha_cambio_password) {
-        setFechaCambioPassword(response.fecha_cambio_password);
-        // Calcular días restantes
-        const fechaCambio = new Date(response.fecha_cambio_password);
-        const hoy = new Date();
-        const diasPasados = Math.floor((hoy.getTime() - fechaCambio.getTime()) / (1000 * 60 * 60 * 24));
-        const diasRestantes = 90 - diasPasados;
-        if (diasRestantes <= 7 && diasRestantes > 3) setPasswordExpiryWarning('Tu contraseña expirará en menos de una semana.');
-        if (diasRestantes <= 3 && diasRestantes > 1) setPasswordExpiryWarning('Tu contraseña expirará en menos de 3 días.');
-        if (diasRestantes === 1) setPasswordExpiryWarning('Tu contraseña expirará mañana.');
-      }
-      if (response.require_password_change) {
+      
+      if (response.cambio_password_requerido) {
         setPasswordChangeRequired(true);
         setShowPasswordChangeModal(true);
-        setError('Debes cambiar tu contraseña antes de continuar.');
+        setCurrentUsername(username);
+        setFechaCambioPassword(response.fecha_cambio_password);
+        stopLoading();
         return;
       }
-      if (response.id) {
-        localStorage.setItem(APP_CONFIG.session.storageKey, JSON.stringify(response));
-        router.push('/dashboard');
-      } else {
-        setError('Credenciales inválidas');
+
+      if (response.fecha_cambio_password) {
+        const fechaCambio = new Date(response.fecha_cambio_password);
+        const ahora = new Date();
+        const diffInDays = Math.floor((ahora.getTime() - fechaCambio.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffInDays >= 88 && diffInDays < 90) {
+          setPasswordExpiryWarning(`Tu contraseña expirará en ${90 - diffInDays} día(s). Considera cambiarla pronto.`);
+        }
       }
+
+      localStorage.setItem(APP_CONFIG.session.storageKey, JSON.stringify(response));
+      router.push('/dashboard');
     } catch (err: any) {
-      if (err && err.status === 401 && err.message && err.message.includes('Tu usuario o contraseña son incorrectos')) {
+      if (err.message === 'Usuario o contraseña incorrectos') {
         setError('Tu usuario o contraseña son incorrectos');
       } else {
         setError(getErrorMessage(err));
@@ -96,104 +114,104 @@ export default function LoginPage() {
   const userId = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem(APP_CONFIG.session.storageKey) || '{}').id : null;
 
   return (
-  <div className="form-container">
-      <div className="logo-section">
-        <h1>Inventario Municipio</h1>
-        <p>Sistema de Gestión de Equipos</p>
-      </div>
-      
-  <form onSubmit={handleSubmit} className="login-form">
-        <div className="form-group">
-          <label htmlFor="username">Usuario:</label>
-          <input
-            id="username"
-            type="text"
-            placeholder="Ingrese su usuario"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            disabled={isLoading}
-            autoComplete="off"
-            required
-          />
-        </div>
-        
-        <div className="form-group" style={{ position: 'relative' }}>
-          <label htmlFor="password">Contraseña:</label>
-          <input
-            id="password"
-            type={showPassword ? 'text' : 'password'}
-            placeholder="Ingrese su contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
-            autoComplete="current-password"
-            required
-            style={{ paddingRight: '2.5rem' }}
-          />
-          <button
-            type="button"
-            aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-            onClick={() => setShowPassword((v) => !v)}
+    <>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%)' }}>
+        <div style={{ background: '#fff', borderRadius: '18px', boxShadow: '0 8px 32px rgba(60,60,120,0.15)', padding: '2.5rem 2rem', minWidth: 340, maxWidth: 400, width: '100%', textAlign: 'center' }}>
+          <h1 style={{ fontWeight: 800, fontSize: '2.1rem', color: '#2563eb', marginBottom: 0 }}>Inventario Municipio</h1>
+          <p style={{ color: '#374151', fontSize: '1.1rem', marginBottom: '2rem' }}>Sistema de Gestión de Equipos</p>
+          <form onSubmit={handleSubmit} style={{ width: '100%', margin: '0 auto', textAlign: 'left' }}>
+            <div style={{ marginBottom: '1.2rem' }}>
+              <label htmlFor="username" style={{ fontWeight: 600, color: '#374151', marginBottom: 6, display: 'block' }}>Usuario:</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                placeholder="Ingrese su nombre de usuario"
+                required
+                autoComplete="username"
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '1rem', outline: 'none', marginTop: 2, boxSizing: 'border-box' }}
+              />
+            </div>
+            <div style={{ marginBottom: '1.2rem', position: 'relative' }}>
+              <label htmlFor="password" style={{ fontWeight: 600, color: '#374151', marginBottom: 6, display: 'block' }}>Contraseña:</label>
+              <input
+                type={mostrarContrasena ? 'text' : 'password'}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Ingrese su contraseña"
+                required
+                autoComplete="current-password"
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '1rem', outline: 'none', marginTop: 2, boxSizing: 'border-box', paddingRight: '2.5rem' }}
+              />
+              <button
+                type="button"
+            onClick={() => setMostrarContrasena(!mostrarContrasena)}
             style={{
               position: 'absolute',
-              right: '0.5rem',
+              right: '0.75rem',
               top: '2.2rem',
               background: 'none',
               border: 'none',
-              padding: 0,
+              color: '#6b7280',
               cursor: 'pointer',
-              height: '2rem',
-              width: '2rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
             }}
           >
-            {showPassword ? (
+            {mostrarContrasena ? (
               // Ojo abierto
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
             ) : (
               // Ojo cerrado
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.442-4.362M6.634 6.634A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.96 9.96 0 01-4.284 5.255M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.956 9.956 0 012.442-4.362M6.634 6.634A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.96 9.96 0 01-4.284 5.255M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" /></svg>
             )}
           </button>
+          
         </div>
-        
-        <button 
-          type="submit" 
-          className="btn btn-primary"
+
+        <button
+          type="submit"
           disabled={isLoading}
+          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: '#2563eb', color: '#fff', fontWeight: 700, fontSize: '1.1rem', border: 'none', boxShadow: '0 2px 8px #2563eb22', marginBottom: '0.5rem', cursor: isLoading ? 'not-allowed' : 'pointer', transition: 'background 0.2s' }}
         >
           {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
         </button>
+        
         <button
           type="button"
-          className="btn btn-secondary"
-          style={{ marginTop: '1rem', width: '100%' }}
-          onClick={() => {
-            setShowRegister(true);
-            setRegisterError('');
-            setRegisterUsername('');
-            setRegisterPassword('');
-          }}
+          onClick={() => setShowRegister(true)}
+          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: 'linear-gradient(90deg, #64748b 0%, #475569 100%)', color: '#fff', fontWeight: 700, fontSize: '1.1rem', border: 'none', marginTop: '0.5rem', cursor: 'pointer', transition: 'background 0.2s' }}
         >
-          Registrarse
+          Registrar Usuario
         </button>
       </form>
-      
-      {error && (
-        <div className="error-message" role="alert">
-          {error}
+          {error && (
+            <div style={{
+              marginTop: '1rem',
+              padding: '1rem',
+              backgroundColor: '#fee2e2',
+              border: '1px solid #fecaca',
+              borderRadius: '8px',
+              color: '#b91c1c',
+              fontSize: '0.95rem',
+            }}>
+              {error}
+            </div>
+          )}
         </div>
-      )}
-      {passwordExpiryWarning && !passwordChangeRequired && (
-        <div className="warning-message" style={{ color: '#e67e22', margin: '1rem 0', textAlign: 'center' }}>
-          {passwordExpiryWarning}
-        </div>
-      )}
+      </div>
+
+    {/* Mensaje de advertencia de expiración de contraseña */}
+    {passwordExpiryWarning && !passwordChangeRequired && (
+      <div style={{ color: '#e67e22', margin: '1rem 0', textAlign: 'center' }}>
+        {passwordExpiryWarning}
+      </div>
+    )}
       {/* Modal de cambio de contraseña obligatorio */}
       {showPasswordChangeModal && (
-        <div className="modal-overlay" style={{
+        <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
@@ -205,7 +223,7 @@ export default function LoginPage() {
           justifyContent: 'center',
           zIndex: 1000
         }}>
-          <div className="modal-content" style={{
+          <div style={{
             background: '#fff',
             padding: '2rem',
             borderRadius: '8px',
@@ -220,19 +238,39 @@ export default function LoginPage() {
                 setChangePasswordError('');
                 const strength = getPasswordStrength(newPassword);
                 if (!currentUsername.trim() || !newPassword.trim() || !confirmNewPassword.trim()) {
-                  setChangePasswordError('Todos los campos son requeridos');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Todos los campos son requeridos para cambiar la contraseña.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 if (newPassword !== confirmNewPassword) {
-                  setChangePasswordError('Las contraseñas no coinciden');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Contraseñas no coinciden',
+                    text: 'Las contraseñas ingresadas no son iguales. Por favor, verifícalas.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 if (strength.level === 'Bajo' || strength.level === 'Moderado') {
-                  setChangePasswordError('La contraseña es demasiado débil. Por favor, aumenta la seguridad.');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Contraseña débil',
+                    text: 'La contraseña es demasiado débil. Por favor, aumenta la seguridad siguiendo las indicaciones.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 if (newPassword === password) {
-                  setChangePasswordError('La nueva contraseña no puede ser igual a la anterior.');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Contraseña idéntica',
+                    text: 'La nueva contraseña no puede ser igual a la anterior.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 try {
@@ -246,21 +284,51 @@ export default function LoginPage() {
                     setShowPasswordChangeModal(false);
                     setPasswordChangeRequired(false);
                     setError('');
-                    alert('Contraseña cambiada correctamente. Inicia sesión nuevamente.');
+                    
+                    // Mostrar mensaje de éxito con SweetAlert2
+                    await Swal.fire({
+                      icon: 'success',
+                      title: '¡Contraseña cambiada!',
+                      text: 'Contraseña cambiada correctamente. Inicia sesión nuevamente.',
+                      confirmButtonColor: '#28a745',
+                      timer: 3000,
+                      timerProgressBar: true
+                    });
+                    
                     setPassword('');
                     setNewPassword('');
                     setConfirmNewPassword('');
                     setCurrentUsername('');
                   } else {
-                    setChangePasswordError(data.error || 'Error al cambiar la contraseña');
+                    // Obtener mensaje de error de manera segura
+                    let errorMessage = 'Error al cambiar la contraseña. Verifica los datos ingresados.';
+                    if (data && typeof data === 'object' && 'error' in data) {
+                      errorMessage = data.error || errorMessage;
+                    } else if (data && typeof data === 'object' && 'message' in data) {
+                      errorMessage = data.message || errorMessage;
+                    }
+                    
+                    // Mostrar error con SweetAlert2
+                    await Swal.fire({
+                      icon: 'error',
+                      title: 'Error al cambiar contraseña',
+                      text: errorMessage,
+                      confirmButtonColor: '#dc3545'
+                    });
                   }
                 } catch (err) {
-                  setChangePasswordError('Error de red o servidor');
+                  // Mostrar error de red con SweetAlert2
+                  await Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'No se pudo conectar con el servidor. Verifica tu conexión e intenta nuevamente.',
+                    confirmButtonColor: '#dc3545'
+                  });
                 }
               }}
             >
-              <div className="form-group">
-                <label htmlFor="current-username">Usuario actual:</label>
+              <div style={EstiloComponentesUI.formularios.formGroup}>
+                <label htmlFor="current-username" style={EstiloComponentesUI.formularios.label}>Usuario actual:</label>
                 <input
                   id="current-username"
                   type="text"
@@ -268,6 +336,7 @@ export default function LoginPage() {
                   onChange={e => setCurrentUsername(e.target.value)}
                   autoComplete="username"  
                   required
+                  style={EstiloComponentesUI.formularios.input}
                 />
               </div>
               <div style={{ marginBottom: '0.5rem', fontSize: '0.95rem', color: '#555' }}>
@@ -290,8 +359,8 @@ export default function LoginPage() {
                   </li>
                 </ul>
               </div>
-              <div className="form-group" style={{ position: 'relative' }}>
-                <label htmlFor="new-password">Nueva contraseña:</label>
+              <div style={{ ...EstiloComponentesUI.formularios.formGroup, position: 'relative' }}>
+                <label htmlFor="new-password" style={EstiloComponentesUI.formularios.label}>Nueva contraseña:</label>
                 <input
                   id="new-password"
                   type={showNewPassword ? 'text' : 'password'}
@@ -299,7 +368,7 @@ export default function LoginPage() {
                   onChange={e => setNewPassword(e.target.value)}
                   autoComplete="new-password"
                   required
-                  style={{ paddingRight: '2.5rem' }}
+                  style={{ ...EstiloComponentesUI.formularios.input, paddingRight: '2.5rem' }}
                 />
                 <button
                   type="button"
@@ -345,8 +414,8 @@ export default function LoginPage() {
                   })()}
                 </div>
               </div>
-              <div className="form-group" style={{ position: 'relative' }}>
-                <label htmlFor="confirm-new-password">Confirmar nueva contraseña:</label>
+              <div style={{ ...EstiloComponentesUI.formularios.formGroup, position: 'relative' }}>
+                <label htmlFor="confirm-new-password" style={EstiloComponentesUI.formularios.label}>Confirmar nueva contraseña:</label>
                 <input
                   id="confirm-new-password"
                   type={showConfirmNewPassword ? 'text' : 'password'}
@@ -354,7 +423,7 @@ export default function LoginPage() {
                   onChange={e => setConfirmNewPassword(e.target.value)}
                   autoComplete="new-password"
                   required
-                  style={{ paddingRight: '2.5rem' }}
+                  style={{ ...EstiloComponentesUI.formularios.input, paddingRight: '2.5rem' }}
                 />
                 <button
                   type="button"
@@ -386,13 +455,12 @@ export default function LoginPage() {
               </div>
               <button
                 type="submit"
-                className="btn btn-primary"
-                style={{ width: '100%', marginTop: '1rem' }}
+                style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnPrimary, width: '100%', marginTop: '1rem' }}
               >
                 Cambiar contraseña
               </button>
               {changePasswordError && (
-                <div className="error-message" role="alert" style={{ marginTop: '1rem' }}>
+                <div style={{ ...estiloGlobal.errorMessage, marginTop: '1rem' }} role="alert">
                   {changePasswordError}
                 </div>
               )}
@@ -402,7 +470,7 @@ export default function LoginPage() {
       )}
       {/* Modal de registro */}
       {showRegister && (
-        <div className="modal-overlay" style={{
+        <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
@@ -414,7 +482,7 @@ export default function LoginPage() {
           justifyContent: 'center',
           zIndex: 1000
         }}>
-          <div className="modal-content" style={{
+          <div style={{
             background: '#fff',
             padding: '2rem',
             borderRadius: '8px',
@@ -429,41 +497,103 @@ export default function LoginPage() {
                 setRegisterError('');
                 const strength = getPasswordStrength(registerPassword);
                 if (!registerUsername.trim() || !registerPassword.trim() || !registerConfirmPassword.trim()) {
-                  setRegisterError('Todos los campos son requeridos');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Todos los campos son requeridos para completar el registro.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 if (registerPassword !== registerConfirmPassword) {
-                  setRegisterError('Las contraseñas no coinciden');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Contraseñas no coinciden',
+                    text: 'Las contraseñas ingresadas no son iguales. Por favor, verifícalas.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 if (strength.level === 'Bajo' || strength.level === 'Moderado') {
-                  setRegisterError('La contraseña es demasiado débil. Por favor, aumenta la seguridad.');
+                  await Swal.fire({
+                    icon: 'warning',
+                    title: 'Contraseña débil',
+                    text: 'La contraseña es demasiado débil. Por favor, aumenta la seguridad siguiendo las indicaciones.',
+                    confirmButtonColor: '#f59e0b'
+                  });
                   return;
                 }
                 setRegisterLoading(true);
                 try {
                   // Llamar al endpoint de registro del backend
-                  const res = await fetch('http://localhost:8081/usuarios/register', {
+                  const res = await fetch('http://localhost:5000/usuarios/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: registerUsername, password: registerPassword })
                   });
                   const data = await res.json();
                   if (res.ok) {
+                    // Limpiar campos
+                    setRegisterUsername('');
+                    setRegisterPassword('');
+                    setRegisterConfirmPassword('');
                     setShowRegister(false);
-                    alert('Usuario registrado exitosamente');
+                    
+                    // Construir datos de sesión con la estructura correcta
+                    const userData = {
+                      id: data.id || Date.now(), // Usar el ID del backend o un ID temporal
+                      username: registerUsername, // Usar el username que ingresó el usuario
+                      email: data.email || '',
+                      rol: data.rol || 'usuario',
+                      activo: true,
+                      fecha_creacion: data.fecha_creacion || new Date().toISOString(),
+                      ...data // Incluir cualquier otro dato que devuelva el backend
+                    };
+                    
+                    // Mostrar mensaje de éxito con SweetAlert2
+                    await Swal.fire({
+                      icon: 'success',
+                      title: '¡Registro exitoso!',
+                      text: `Bienvenido ${registerUsername}. Usuario creado correctamente.`,
+                      confirmButtonColor: '#28a745',
+                      timer: 3000,
+                      timerProgressBar: true,
+                      showConfirmButton: true
+                    });
+                    
+                    // Guardar datos de sesión y redirigir al dashboard
+                    localStorage.setItem(APP_CONFIG.session.storageKey, JSON.stringify(userData));
+                    router.push('/dashboard');
                   } else {
-                    setRegisterError(data.message || 'Error al registrar usuario');
+                    // Obtener mensaje de error de manera segura
+                    let errorMessage = 'Error al registrar usuario. Por favor, intenta nuevamente.';
+                    if (data && typeof data === 'object' && 'message' in data) {
+                      errorMessage = data.message || errorMessage;
+                    }
+                    
+                    // Mostrar error con SweetAlert2
+                    await Swal.fire({
+                      icon: 'error',
+                      title: 'Error en el registro',
+                      text: errorMessage,
+                      confirmButtonColor: '#dc3545'
+                    });
                   }
                 } catch (err) {
-                  setRegisterError('Error de red o servidor');
+                  // Mostrar error de red con SweetAlert2
+                  await Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: 'No se pudo conectar con el servidor. Verifica tu conexión e intenta nuevamente.',
+                    confirmButtonColor: '#dc3545'
+                  });
                 } finally {
                   setRegisterLoading(false);
                 }
               }}
             >
-              <div className="form-group">
-                <label htmlFor="register-username">Usuario:</label>
+              <div style={EstiloComponentesUI.formularios.formGroup}>
+                <label htmlFor="register-username" style={EstiloComponentesUI.formularios.label}>Usuario:</label>
                 <input
                   id="register-username"
                   type="text"
@@ -472,6 +602,7 @@ export default function LoginPage() {
                   autoComplete="username"
                   required
                   disabled={registerLoading}
+                  style={EstiloComponentesUI.formularios.input}
                 />
               </div>
               <div style={{ marginBottom: '0.5rem', fontSize: '0.95rem', color: '#555' }}>
@@ -494,8 +625,8 @@ export default function LoginPage() {
                   </li>
                 </ul>
               </div>
-              <div className="form-group" style={{ position: 'relative' }}>
-                <label htmlFor="register-password">Contraseña:</label>
+              <div style={{ ...EstiloComponentesUI.formularios.formGroup, position: 'relative' }}>
+                <label htmlFor="register-password" style={EstiloComponentesUI.formularios.label}>Contraseña:</label>
                 <input
                   id="register-password"
                   type={showRegisterPassword ? 'text' : 'password'}
@@ -504,7 +635,7 @@ export default function LoginPage() {
                   autoComplete="new-password"
                   required
                   disabled={registerLoading}
-                  style={{ paddingRight: '2.5rem' }}
+                  style={{ ...EstiloComponentesUI.formularios.input, paddingRight: '2.5rem' }}
                 />
                 <button
                   type="button"
@@ -564,8 +695,8 @@ export default function LoginPage() {
                   )}
                 </div>
               </div>
-              <div className="form-group" style={{ position: 'relative' }}>
-                <label htmlFor="register-confirm-password">Confirmar contraseña:</label>
+              <div style={{ ...EstiloComponentesUI.formularios.formGroup, position: 'relative' }}>
+                <label htmlFor="register-confirm-password" style={EstiloComponentesUI.formularios.label}>Confirmar contraseña:</label>
                 <input
                   id="register-confirm-password"
                   type={showRegisterConfirmPassword ? 'text' : 'password'}
@@ -574,7 +705,7 @@ export default function LoginPage() {
                   autoComplete="new-password"
                   required
                   disabled={registerLoading}
-                  style={{ paddingRight: '2.5rem' }}
+                  style={{ ...EstiloComponentesUI.formularios.input, paddingRight: '2.5rem' }}
                 />
                 <button
                   type="button"
@@ -606,23 +737,21 @@ export default function LoginPage() {
               </div>
               <button
                 type="submit"
-                className="btn btn-primary"
+                style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnPrimary, width: '100%', marginTop: '1rem' }}
                 disabled={registerLoading}
-                style={{ width: '100%', marginTop: '1rem' }}
               >
                 {registerLoading ? 'Registrando...' : 'Registrar'}
               </button>
               <button
                 type="button"
-                className="btn btn-secondary"
-                style={{ width: '100%', marginTop: '0.5rem' }}
+                style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnSecondary, width: '100%', marginTop: '0.5rem' }}
                 onClick={() => setShowRegister(false)}
                 disabled={registerLoading}
               >
                 Cancelar
               </button>
               {registerError && (
-                <div className="error-message" role="alert" style={{ marginTop: '1rem' }}>
+                <div style={{ ...estiloGlobal.errorMessage, marginTop: '1rem' }} role="alert">
                   {registerError}
                 </div>
               )}
@@ -630,6 +759,6 @@ export default function LoginPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

@@ -5,6 +5,7 @@ __pycache__/
 *.pyd
 *.egg-info/
 .env
+*.log
 
 # ===== NODE.JS/NEXT.JS =====
 node_modules/

@@ -9,7 +9,7 @@ import type {
 
 // Configuración
 const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081', // Usar el proxy Python
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000', // Usar el puerto correcto del backend Flask
   TIMEOUT: 10000,
   RETRY_ATTEMPTS: 3,
 } as const;
@@ -167,6 +167,10 @@ export const getTipoConexion = (): Promise<Array<{ id: number; nombre: string }>
   api.get<Array<{ id: number; nombre: string }>>('/catalogos/tipo_conexion');
 export const getProgramaAdicional = (): Promise<Array<{ id: number; nombre: string }>> =>
   api.get<Array<{ id: number; nombre: string }>>('/catalogos/programas_adicionales');
+
+// Catálogos unificados
+export const getCatalogosUnificados = (): Promise<any> =>
+  api.get<any>('/api/catalogos_unificados');
 
 // Utilidades
 export const isApiError = (error: unknown): error is ApiError => error instanceof ApiError;

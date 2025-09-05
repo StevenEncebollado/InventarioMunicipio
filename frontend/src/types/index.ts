@@ -35,24 +35,29 @@ export interface SistemaOperativo {
 
 export interface Equipo {
   id: number;
-  numero_serie: string;
-  codigo_interno?: string;
-  marca: string;
-  modelo?: string;
-  tipo_equipo: string;
-  sistema_operativo?: string;
-  procesador?: string;
-  ram_gb?: number;
-  almacenamiento_gb?: number;
-  estado: 'Activo' | 'Inactivo' | 'Mantenimiento' | 'Dado de baja';
-  ubicacion?: string;
-  dependencia: string;
-  usuario_asignado?: string;
-  fecha_adquisicion?: string;
-  fecha_ultimo_mantenimiento?: string;
-  observaciones?: string;
-  precio_adquisicion?: number;
-  garantia_hasta?: string;
+  anydesk?: string;
+  caracteristicas_id?: number;
+  codigo_inventario?: string;
+  dependencia_id?: number;
+  direccion_area_id?: number;
+  direccion_ip?: string;
+  direccion_mac?: string;
+  disco_id?: number | null;
+  dispositivo_id?: number | null;
+  equipamiento_id?: number;
+  fecha_registro?: string;
+  marca_id?: number;
+  nombre_pc?: string;
+  nombres_funcionario?: string;
+  office_id?: number;
+  ram_id?: number;
+  tipo_conexion_id?: number;
+  tipo_equipo_id?: number;
+  tipo_sistema_operativo_id?: number;
+  usuario_id?: number;
+  estado: 'Activo' | 'Mantenimiento' | 'Inactivo';
+  programa_adicional_ids?: number[];
+  fecha_eliminacion?: string;
 }
 
 export interface HistorialEquipo {
@@ -91,12 +96,19 @@ export interface LoginResponse {
 
 // Tipos para filtros y búsquedas
 export interface FiltrosEquipo {
-  tipo_equipo?: string;
-  marca?: string;
-  estado?: Equipo['estado'];
-  dependencia?: string;
-  fecha_desde?: string;
-  fecha_hasta?: string;
+  dependencia_id?: string;
+  direccion_area_id?: string;
+  dispositivo_id?: string;
+  equipamiento_id?: string;
+  tipo_equipo_id?: string;
+  tipo_sistema_operativo_id?: string;
+  marca_id?: string;
+  caracteristicas_id?: string;
+  ram_id?: string;
+  disco_id?: string;
+  office_id?: string;
+  tipo_conexion_id?: string;
+  programa_adicional?: string;
 }
 
 export interface OpcionesPaginacion {
@@ -108,7 +120,7 @@ export interface OpcionesPaginacion {
 // Tipos para reportes
 export interface ReporteEquipos {
   total_equipos: number;
-  por_estado: Record<Equipo['estado'], number>;
+  // por_estado eliminado, ya no existe 'estado' en Equipo
   por_tipo: Record<string, number>;
   por_dependencia: Record<string, number>;
   valor_total?: number;
@@ -119,4 +131,21 @@ export interface ConfiguracionApp {
   api_url: string;
   items_por_pagina: number;
   auto_logout_minutos: number;
+}
+
+// Tipo extendido del equipo con nombres de catálogos
+export interface EquipoExtendido extends Equipo {
+  dependencia_nombre?: string;
+  direccion_area_nombre?: string;
+  dispositivo_nombre?: string;
+  equipamiento_nombre?: string;
+  tipo_equipo_nombre?: string;
+  tipo_sistema_operativo_nombre?: string;
+  marca_nombre?: string;
+  caracteristicas_descripcion?: string;
+  ram_capacidad?: string;
+  disco_capacidad?: string;
+  office_version?: string;
+  tipo_conexion_nombre?: string;
+  programas_adicionales_nombres?: string[];
 }

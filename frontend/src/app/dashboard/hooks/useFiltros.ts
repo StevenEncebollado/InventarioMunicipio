@@ -1,18 +1,20 @@
+// Gestiona el estado de los filtros aplicados en la búsqueda/listado de equipos.
+
 import { useState } from 'react';
 
 export interface Filtros {
-  dependencia?: string;
-  direccion?: string;
-  dispositivo?: string;
-  equipamiento?: string;
-  tipo_equipo?: string;
-  tipo_sistema_operativo?: string;
-  marca?: string;
-  caracteristica?: string;
-  ram?: string;
-  disco?: string;
-  office?: string;
-  tipo_conexion?: string;
+  dependencia_id?: string;
+  direccion_area_id?: string;
+  dispositivo_id?: string;
+  equipamiento_id?: string;
+  tipo_equipo_id?: string;
+  tipo_sistema_operativo_id?: string;
+  marca_id?: string;
+  caracteristicas_id?: string;
+  ram_id?: string;
+  disco_id?: string;
+  office_id?: string;
+  tipo_conexion_id?: string;
   programa_adicional?: string;
 }
 
@@ -32,18 +34,18 @@ export function useFiltros() {
   const [programaAdicionalSeleccionado, setProgramaAdicionalSeleccionado] = useState<string[]>([]);
 
   const getFiltros = (): Filtros => ({
-    dependencia: dependenciaSeleccionada || undefined,
-    direccion: direccionSeleccionada || undefined,
-    dispositivo: dispositivoSeleccionado || undefined,
-    equipamiento: equipamientoSeleccionado || undefined,
-    tipo_equipo: tipoEquipoSeleccionado || undefined,
-    tipo_sistema_operativo: tipoSistemaOperativoSeleccionado || undefined,
-    marca: marcaSeleccionada || undefined,
-    caracteristica: caracteristicaSeleccionada || undefined,
-    ram: ramSeleccionada || undefined,
-    disco: discoSeleccionado || undefined,
-    office: officeSeleccionado || undefined,
-    tipo_conexion: tipoConexionSeleccionada || undefined,
+    dependencia_id: dependenciaSeleccionada || undefined,
+    direccion_area_id: direccionSeleccionada || undefined,
+    dispositivo_id: dispositivoSeleccionado || undefined,
+    equipamiento_id: equipamientoSeleccionado || undefined,
+    tipo_equipo_id: tipoEquipoSeleccionado || undefined,
+    tipo_sistema_operativo_id: tipoSistemaOperativoSeleccionado || undefined,
+    marca_id: marcaSeleccionada || undefined,
+    caracteristicas_id: caracteristicaSeleccionada || undefined,
+    ram_id: ramSeleccionada || undefined,
+    disco_id: discoSeleccionado || undefined,
+    office_id: officeSeleccionado || undefined,
+    tipo_conexion_id: tipoConexionSeleccionada || undefined,
     programa_adicional: programaAdicionalSeleccionado.length > 0 ? programaAdicionalSeleccionado.join(',') : undefined
   });
 

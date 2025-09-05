@@ -1,6 +1,9 @@
-import { useState } from 'react';
+  //Este hook gestiona el estado y la lógica de un formulario para agregar un equipo.
 
-export function useAgregarEquipo() {
+import { useState } from 'react';
+import Swal from 'sweetalert2';
+
+export function useAgregarEquipo(usuarioId?: number) {
   // Campos de texto
   const [ip, setIp] = useState("");
   const [mac, setMac] = useState("");
@@ -15,13 +18,16 @@ export function useAgregarEquipo() {
   const [disco, setDisco] = useState("");
   const [office, setOffice] = useState("");
   const [tipoConexion, setTipoConexion] = useState("");
-  const [programaAdicional, setProgramaAdicional] = useState<string[]>([]);
+  const [programaAdicional, setProgramaAdicional] = useState<number[]>([]);
   const [dependencia, setDependencia] = useState("");
   const [direccion, setDireccion] = useState("");
   const [equipamiento, setEquipamiento] = useState("");
   const [caracteristica, setCaracteristica] = useState("");
   const [sistemaOperativo, setSistemaOperativo] = useState("");
   
+  // Estado del equipo
+  const [estado, setEstado] = useState("");
+
   // Estados de validación
   const [addLoading, setAddLoading] = useState(false);
   const [addError, setAddError] = useState("");
@@ -43,41 +49,63 @@ export function useAgregarEquipo() {
     setDireccion("");
     setEquipamiento("");
     setCaracteristica("");
-    setSistemaOperativo("");
+  setSistemaOperativo("");
+  setEstado("");
   };
 
-  const validarCampos = (): boolean => {
-    if (!ip || !mac || !nombrePc || !funcionario || !anydesk || 
-        !tipoEquipo || !marca || !ram || !disco || !office || 
-        !tipoConexion || !dependencia || !direccion || !equipamiento || 
-        !caracteristica || !sistemaOperativo) {
-      setAddError("Todos los campos son obligatorios");
+  const validarCampos = async (): Promise<boolean> => {
+    if (!usuarioId) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Usuario no autenticado',
+        text: 'Por favor, inicie sesión nuevamente.',
+        confirmButtonColor: '#f59e0b'
+      });
+      return false;
+    }
+    
+    if (!ip || !mac || !nombrePc || !funcionario || 
+        !tipoEquipo || !marca || !ram || !disco || 
+        !dependencia || !estado) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Campos requeridos',
+        text: 'Los campos marcados con * son obligatorios. Por favor, completa todos los campos.',
+        confirmButtonColor: '#f59e0b'
+      });
       return false;
     }
     return true;
   };
 
-  const getFormData = () => ({
-    usuario_id: 4, // O el id real del usuario logueado
-    dependencia_id: dependencia,
-    direccion_area_id: direccion,
-    dispositivo_id: tipoEquipo,
-    direccion_ip: ip,
-    direccion_mac: mac,
-    nombre_pc: nombrePc,
-    nombres_funcionario: funcionario,
-    equipamiento_id: equipamiento,
-    tipo_equipo_id: tipoEquipo,
-    tipo_sistema_operativo_id: sistemaOperativo,
-    caracteristicas_id: caracteristica,
-    ram_id: ram,
-    disco_id: disco,
-    office_id: office,
-    marca_id: marca,
-    codigo_inventario: mac,
-    tipo_conexion_id: tipoConexion,
-    anydesk: anydesk
-  });
+  const getFormData = () => {
+    if (!usuarioId) {
+      throw new Error('Usuario no autenticado');
+    }
+    
+    return {
+      usuario_id: usuarioId,
+      dependencia_id: dependencia,
+      direccion_area_id: direccion || null,
+      direccion_ip: ip,
+      direccion_mac: mac,
+      nombre_pc: nombrePc,
+      nombres_funcionario: funcionario,
+      equipamiento_id: equipamiento || null,
+      tipo_equipo_id: tipoEquipo,
+      tipo_sistema_operativo_id: sistemaOperativo || null,
+      caracteristicas_id: caracteristica || null,
+      ram_id: ram,
+      disco_id: disco,
+      office_id: office || null,
+      marca_id: marca,
+      codigo_inventario: mac,
+      tipo_conexion_id: tipoConexion || null,
+      anydesk: anydesk || null,
+      estado: estado,
+      programa_adicional_ids: programaAdicional,
+    };
+  };
 
   return {
     // Campos de texto
@@ -101,9 +129,11 @@ export function useAgregarEquipo() {
     caracteristica, setCaracteristica,
     sistemaOperativo, setSistemaOperativo,
     
-    // Estados de validación
-    addLoading, setAddLoading,
-    addError, setAddError,
+  // Estado del equipo
+  estado, setEstado,
+  // Estados de validación
+  addLoading, setAddLoading,
+  addError, setAddError,
     
     // Funciones utilitarias
     limpiarCampos,
