@@ -32,8 +32,10 @@ export default function TablaEquipos({
   containerStyle = {}
 }: TablaEquiposProps) {
   // Decidir qué equipos mostrar basado en la prop
+  // Si mostrarSoloRecientes=true: muestra los 4 equipos más recientes ordenados por ID descendente
+  // Si mostrarSoloRecientes=false: muestra todos los equipos
   const equiposAMostrar = mostrarSoloRecientes 
-    ? (Array.isArray(equipos) ? [...equipos].sort((a, b) => b.id - a.id).slice(0, 3) : [])
+    ? (Array.isArray(equipos) ? [...equipos].sort((a, b) => b.id - a.id).slice(0, 4) : [])
     : (Array.isArray(equipos) ? equipos : []);
     
   const [showDetalle, setShowDetalle] = useState(false);

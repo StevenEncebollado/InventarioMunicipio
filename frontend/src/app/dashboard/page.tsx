@@ -4,10 +4,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getEquipos, logout, getErrorMessage, APP_CONFIG } from '@/services/api';
+import { getEquipos, logout, getErrorMessage, APP_CONFIG, updateEquipo } from '@/services/api';
 import { useLoading, useError } from '@/hooks';
 import type { Usuario, Equipo } from '@/types';
 import { FaDesktop } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 
 import Navbar from '../Diseño/Diseño dashboard/Navbar';
 import PanelControl from '../Diseño/Diseño dashboard/PanelControl';
@@ -86,6 +87,65 @@ export default function Dashboard() {
     router.push(`/dashboard/detalle_estados?tipo=${type}`);
   };
 
+  const handleEliminar = async (equipo: Equipo) => {
+    const nombreEquipo = equipo.nombre_pc || equipo.codigo_inventario || `Equipo ID: ${equipo.id}`;
+    
+    // Mostrar confirmación con SweetAlert2
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas marcar como inactivo el equipo "${nombreEquipo}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, marcar como inactivo',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const fechaEliminacion = new Date().toISOString();
+        
+        // Actualizar el equipo en el backend
+        await updateEquipo(equipo.id, {
+          ...equipo,
+          estado: 'Inactivo' as const,
+          fecha_eliminacion: fechaEliminacion,
+          codigo_inventario: equipo.codigo_inventario,
+        });
+        
+        // Actualizar la lista de equipos en el estado local
+        const updatedEquipos = equipos.map(e => 
+          e.id === equipo.id 
+            ? { ...equipo, estado: 'Inactivo' as const, fecha_eliminacion: fechaEliminacion }
+            : e
+        );
+        setEquipos(updatedEquipos);
+        
+        // Mostrar mensaje de éxito
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Eliminado!',
+          text: `El equipo "${nombreEquipo}" ha sido marcado como inactivo.`,
+          confirmButtonColor: '#28a745',
+          timer: 3000,
+          timerProgressBar: true
+        });
+        
+      } catch (error: any) {
+        console.error('Error al eliminar equipo:', error);
+        
+        // Mostrar mensaje de error
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error al eliminar',
+          text: `Error al actualizar el equipo: ${error.message || 'Error de conexión con el servidor'}`,
+          confirmButtonColor: '#dc3545'
+        });
+      }
+    }
+  };
+
   return (
     <div style={estiloGlobal.dashboard}>
       <Navbar user={user} onLogout={handleLogout} />
@@ -145,6 +205,15 @@ export default function Dashboard() {
             equipos={equipos}
             titulo="Equipos Recientes"
             icono={<FaDesktop style={{ color: '#3b82f6', fontSize: '1.5rem' }} />}
+            mostrarSoloRecientes={true}
+            mostrarColumnaAnyDesk={true}
+            mostrarBotonEliminar={true}
+            onEliminar={handleEliminar}
+            maxWidth="100%"
+            margin="32px auto"
+            containerStyle={{
+              padding: '24px'
+            }}
           />
         </div>
         
