@@ -54,12 +54,14 @@ export default function TablaEquipos({
   return (
     <section style={{ 
       maxWidth: maxWidth, 
+      width: mostrarSoloRecientes ? '100%' : 'auto',
       margin: margin, 
       background: '#fff', 
       borderRadius: 16, 
       boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
       padding: 32,
       border: '1px solid #f1f5f9',
+      overflow: mostrarSoloRecientes ? 'visible' : 'auto',
       ...containerStyle
     }}>
       <div style={{ 
@@ -103,17 +105,21 @@ export default function TablaEquipos({
 
       {equiposAMostrar.length > 0 ? (
         <div style={{ 
-          overflowX: 'auto',
+          overflowX: mostrarSoloRecientes ? 'visible' : 'auto',
+          overflowY: 'visible',
           borderRadius: '12px',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          border: '1px solid #e5e7eb'
+          border: '1px solid #e5e7eb',
+          width: mostrarSoloRecientes ? '100%' : 'auto',
+          maxWidth: mostrarSoloRecientes ? '100%' : 'none'
         }}>
           <table style={{ 
-            width: '100%', 
+            width: mostrarSoloRecientes ? '100%' : '100%', 
             borderCollapse: 'collapse',
             fontSize: '14px',
-            tableLayout: 'fixed',
-            minWidth: mostrarColumnaAnyDesk ? '1000px' : '800px',
+            tableLayout: mostrarSoloRecientes ? 'auto' : 'fixed',
+            minWidth: mostrarSoloRecientes ? 'auto' : (mostrarColumnaAnyDesk ? '1000px' : '800px'),
+            maxWidth: mostrarSoloRecientes ? '100%' : 'none',
             background: '#fff'
           }}>
             <thead>
@@ -125,7 +131,7 @@ export default function TablaEquipos({
                   fontWeight: 700, 
                   fontSize: '13px', 
                   whiteSpace: 'nowrap', 
-                  width: '200px',
+                  width: mostrarSoloRecientes ? 'auto' : '200px',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'
@@ -139,7 +145,7 @@ export default function TablaEquipos({
                   fontWeight: 700, 
                   fontSize: '13px', 
                   whiteSpace: 'nowrap', 
-                  width: '150px',
+                  width: mostrarSoloRecientes ? 'auto' : '150px',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'
@@ -153,7 +159,7 @@ export default function TablaEquipos({
                   fontWeight: 700, 
                   fontSize: '13px', 
                   whiteSpace: 'nowrap', 
-                  width: '120px',
+                  width: mostrarSoloRecientes ? 'auto' : '120px',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'
@@ -167,7 +173,7 @@ export default function TablaEquipos({
                   fontWeight: 700, 
                   fontSize: '13px', 
                   whiteSpace: 'nowrap', 
-                  width: '160px',
+                  width: mostrarSoloRecientes ? 'auto' : '160px',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'
@@ -181,7 +187,7 @@ export default function TablaEquipos({
                   fontWeight: 700, 
                   fontSize: '13px', 
                   whiteSpace: 'nowrap', 
-                  width: '140px',
+                  width: mostrarSoloRecientes ? 'auto' : '140px',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'
@@ -196,7 +202,7 @@ export default function TablaEquipos({
                     fontWeight: 700, 
                     fontSize: '13px', 
                     whiteSpace: 'nowrap', 
-                    width: '120px',
+                    width: mostrarSoloRecientes ? 'auto' : '120px',
                     letterSpacing: '0.5px',
                     textTransform: 'uppercase',
                     borderBottom: 'none'
@@ -211,7 +217,7 @@ export default function TablaEquipos({
                   fontWeight: 700, 
                   fontSize: '13px', 
                   whiteSpace: 'nowrap', 
-                  width: mostrarBotonEliminar ? '150px' : '120px',
+                  width: mostrarSoloRecientes ? 'auto' : (mostrarBotonEliminar ? '150px' : '120px'),
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'

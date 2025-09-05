@@ -212,7 +212,9 @@ export default function Dashboard() {
             maxWidth="100%"
             margin="32px auto"
             containerStyle={{
-              padding: '24px'
+              padding: '24px',
+              maxWidth: '100%',
+              overflow: 'visible'
             }}
           />
         </div>
