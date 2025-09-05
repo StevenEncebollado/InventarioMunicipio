@@ -142,37 +142,6 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
       return false;
     }
     
-    // Validar formato de IP (más flexible)
-    const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-    if (ip && !ipRegex.test(ip)) {
-      // Validar que cada octeto esté en el rango 0-255
-      const octetos = ip.split('.');
-      if (octetos.length === 4) {
-        const octetosValidos = octetos.every(octeto => {
-          const num = parseInt(octeto, 10);
-          return !isNaN(num) && num >= 0 && num <= 255;
-        });
-        if (!octetosValidos) {
-          setEditError("La dirección IP debe tener octetos válidos (0-255). Ejemplo: 192.168.1.100");
-          return false;
-        }
-      } else {
-        setEditError("La dirección IP debe tener 4 octetos separados por puntos. Ejemplo: 192.168.1.100");
-        return false;
-      }
-    }
-    
-    // Validar formato de MAC (más flexible)
-    if (mac) {
-      const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
-      const macSinSeparadores = /^[0-9A-Fa-f]{12}$/; // MAC sin separadores
-      
-      if (!macRegex.test(mac) && !macSinSeparadores.test(mac.replace(/[:-]/g, ''))) {
-        setEditError("La dirección MAC no tiene un formato válido. Use formato: 00:1B:63:84:45:E6 o 00-1B-63-84-45-E6");
-        return false;
-      }
-    }
-    
     return true;
   };
 

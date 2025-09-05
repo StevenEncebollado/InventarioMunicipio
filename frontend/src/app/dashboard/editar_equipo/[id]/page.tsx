@@ -212,7 +212,7 @@ export default function EditarEquipoPage() {
                   <input 
                     value={editarEquipo.ip} 
                     onChange={e => editarEquipo.setIp(e.target.value)} 
-                    placeholder="192.168.1.100"
+                    placeholder="Ej: 192.168.1.100"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -224,7 +224,7 @@ export default function EditarEquipoPage() {
                   <input 
                     value={editarEquipo.mac} 
                     onChange={e => editarEquipo.setMac(e.target.value)} 
-                    placeholder="00:1B:63:84:45:E6"
+                    placeholder="Ej: 00:1B:63:84:45:E6"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -236,7 +236,7 @@ export default function EditarEquipoPage() {
                   <input 
                     value={editarEquipo.nombrePc} 
                     onChange={e => editarEquipo.setNombrePc(e.target.value)} 
-                    placeholder="PC-OFICINA-01"
+                    placeholder="Ej: PC-OFICINA-01"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -248,7 +248,7 @@ export default function EditarEquipoPage() {
                   <input 
                     value={editarEquipo.funcionario} 
                     onChange={e => editarEquipo.setFuncionario(e.target.value)} 
-                    placeholder="Juan Pérez"
+                    placeholder="Ej: Juan Pérez"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -260,7 +260,7 @@ export default function EditarEquipoPage() {
                   <input 
                     value={editarEquipo.anydesk} 
                     onChange={e => editarEquipo.setAnydesk(e.target.value)} 
-                    placeholder="123456789"
+                    placeholder="Ej: 123456789"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -272,7 +272,7 @@ export default function EditarEquipoPage() {
                   <textarea 
                     value={editarEquipo.observaciones} 
                     onChange={e => editarEquipo.setObservaciones(e.target.value)} 
-                    placeholder="Observaciones adicionales..."
+                    placeholder="Escriba cualquier observación adicional..."
                     rows={3}
                     style={{ 
                       ...EstiloDashboardEspecifico.catalogos.selectStyle, 

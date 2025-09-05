@@ -145,7 +145,7 @@ export default function AgregarEquipoPage() {
                   <input 
                     value={agregarEquipo.ip} 
                     onChange={e => agregarEquipo.setIp(e.target.value)} 
-                    placeholder="192.168.1.100"
+                    placeholder="Ej: 192.168.1.100"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -157,7 +157,7 @@ export default function AgregarEquipoPage() {
                   <input 
                     value={agregarEquipo.mac} 
                     onChange={e => agregarEquipo.setMac(e.target.value)} 
-                    placeholder="00:1B:63:84:45:E6"
+                    placeholder="Ej: 00:1B:63:84:45:E6"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -169,7 +169,7 @@ export default function AgregarEquipoPage() {
                   <input 
                     value={agregarEquipo.nombrePc} 
                     onChange={e => agregarEquipo.setNombrePc(e.target.value)} 
-                    placeholder="PC-OFICINA-01"
+                    placeholder="Ej: PC-OFICINA-01"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -181,7 +181,7 @@ export default function AgregarEquipoPage() {
                   <input 
                     value={agregarEquipo.funcionario} 
                     onChange={e => agregarEquipo.setFuncionario(e.target.value)} 
-                    placeholder="Juan Pérez"
+                    placeholder="Ej: Juan Pérez"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -193,7 +193,7 @@ export default function AgregarEquipoPage() {
                   <input 
                     value={agregarEquipo.anydesk} 
                     onChange={e => agregarEquipo.setAnydesk(e.target.value)} 
-                    placeholder="123456789"
+                    placeholder="Ej: 123456789"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
