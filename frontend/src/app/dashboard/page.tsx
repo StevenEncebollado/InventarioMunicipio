@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { getEquipos, logout, getErrorMessage, APP_CONFIG } from '@/services/api';
 import { useLoading, useError } from '@/hooks';
 import type { Usuario, Equipo } from '@/types';
+import { FaDesktop } from 'react-icons/fa';
 
 import Navbar from '../Diseño/Diseño dashboard/Navbar';
 import PanelControl from '../Diseño/Diseño dashboard/PanelControl';
@@ -142,6 +143,8 @@ export default function Dashboard() {
           )}
           <TablaEquipos 
             equipos={equipos}
+            titulo="Equipos Recientes"
+            icono={<FaDesktop style={{ color: '#3b82f6', fontSize: '1.5rem' }} />}
           />
         </div>
         
