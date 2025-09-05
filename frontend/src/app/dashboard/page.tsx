@@ -41,7 +41,6 @@ export default function Dashboard() {
       await loadEquipos();
     } catch (err) {
       setError('Error al cargar el dashboard');
-      console.error('Error:', err);
     }
   };
 
@@ -133,8 +132,6 @@ export default function Dashboard() {
         });
         
       } catch (error: any) {
-        console.error('Error al eliminar equipo:', error);
-        
         // Mostrar mensaje de error
         await Swal.fire({
           icon: 'error',

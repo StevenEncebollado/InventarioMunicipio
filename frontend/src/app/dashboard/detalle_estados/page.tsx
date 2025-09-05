@@ -153,8 +153,6 @@ export default function EquiposLista() {
         });
         
       } catch (error: any) {
-        console.error('Error al eliminar equipo:', error);
-        
         // Mostrar mensaje de error con SweetAlert2
         await Swal.fire({
           icon: 'error',

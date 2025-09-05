@@ -89,15 +89,21 @@ export default function EditarEquipoPage() {
         let errorMessage = 'Error al actualizar equipo';
         try {
           const errorData = await response.json();
-          errorMessage = errorData.message || errorData.error || errorMessage;
+          
+          // Verificación segura de las propiedades del error
+          if (errorData && typeof errorData === 'object') {
+            if ('message' in errorData && typeof errorData.message === 'string') {
+              errorMessage = errorData.message;
+            } else if ('error' in errorData && typeof errorData.error === 'string') {
+              errorMessage = errorData.error;
+            }
+          }
         } catch {
           errorMessage = `Error del servidor: ${response.status} ${response.statusText}`;
         }
         throw new Error(errorMessage);
       }
     } catch (err: any) {
-      console.error('Error al actualizar equipo:', err);
-      
       // Mostrar SweetAlert de error
       await Swal.fire({
         title: 'Error',

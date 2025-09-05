@@ -45,7 +45,6 @@ export default function AgregarEquipoPage() {
     
     try {
       const formData = agregarEquipo.getFormData();
-      console.log('Enviando datos al servidor:', formData);
       
       const response = await fetch('http://localhost:5000/inventario', {
         method: 'POST',
@@ -71,14 +70,19 @@ export default function AgregarEquipoPage() {
         router.push('/dashboard'); // Regresar al dashboard
       } else {
         let errorMessage = 'No se pudo crear el equipo. Verifica los datos ingresados.';
-        let errorData: any = {};
         
         try {
-          errorData = await response.json();
-          console.error('Error del servidor:', errorData);
-          errorMessage = errorData.error || errorData.message || errorMessage;
+          const errorData = await response.json();
+          
+          // Verificación segura de las propiedades del error
+          if (errorData && typeof errorData === 'object') {
+            if ('error' in errorData && typeof errorData.error === 'string') {
+              errorMessage = errorData.error;
+            } else if ('message' in errorData && typeof errorData.message === 'string') {
+              errorMessage = errorData.message;
+            }
+          }
         } catch (parseError) {
-          console.error('Error al parsear respuesta del servidor:', parseError);
           errorMessage = `Error del servidor (${response.status}): ${response.statusText}`;
         }
         
@@ -92,8 +96,6 @@ export default function AgregarEquipoPage() {
         });
       }
     } catch (err: any) {
-      console.error('Error de conexión:', err);
-      
       // Mostrar error de conexión con SweetAlert2
       await Swal.fire({
         icon: 'error',

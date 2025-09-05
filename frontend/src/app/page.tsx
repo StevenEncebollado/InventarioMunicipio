@@ -300,11 +300,19 @@ export default function LoginPage() {
                     setConfirmNewPassword('');
                     setCurrentUsername('');
                   } else {
+                    // Obtener mensaje de error de manera segura
+                    let errorMessage = 'Error al cambiar la contraseña. Verifica los datos ingresados.';
+                    if (data && typeof data === 'object' && 'error' in data) {
+                      errorMessage = data.error || errorMessage;
+                    } else if (data && typeof data === 'object' && 'message' in data) {
+                      errorMessage = data.message || errorMessage;
+                    }
+                    
                     // Mostrar error con SweetAlert2
                     await Swal.fire({
                       icon: 'error',
                       title: 'Error al cambiar contraseña',
-                      text: data.error || 'Error al cambiar la contraseña. Verifica los datos ingresados.',
+                      text: errorMessage,
                       confirmButtonColor: '#dc3545'
                     });
                   }
@@ -557,11 +565,17 @@ export default function LoginPage() {
                     localStorage.setItem(APP_CONFIG.session.storageKey, JSON.stringify(userData));
                     router.push('/dashboard');
                   } else {
+                    // Obtener mensaje de error de manera segura
+                    let errorMessage = 'Error al registrar usuario. Por favor, intenta nuevamente.';
+                    if (data && typeof data === 'object' && 'message' in data) {
+                      errorMessage = data.message || errorMessage;
+                    }
+                    
                     // Mostrar error con SweetAlert2
                     await Swal.fire({
                       icon: 'error',
                       title: 'Error en el registro',
-                      text: data.message || 'Error al registrar usuario. Por favor, intenta nuevamente.',
+                      text: errorMessage,
                       confirmButtonColor: '#dc3545'
                     });
                   }
