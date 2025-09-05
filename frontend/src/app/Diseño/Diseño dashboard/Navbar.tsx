@@ -31,10 +31,6 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
     router.push('/dashboard');
   };
   
-  const handleGoToAddEquipo = () => {
-    router.push('/dashboard/agregar_equipo');
-  };
-  
   return (
     <nav style={EstiloDashboardEspecifico.navbar.navbar}>
       {/* Efecto de ondas de fondo */}
@@ -83,41 +79,6 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
           }}
         >
           Inventario Municipio
-        </button>
-      </div>
-      
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px', position: 'relative', zIndex: 1 }}>
-        <button
-          onClick={handleGoToAddEquipo}
-          style={{
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            color: '#fff',
-            fontSize: '14px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            padding: '10px 20px',
-            borderRadius: '16px',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            textShadow: '0 1px 2px rgba(0,0,0,0.2)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          }}
-          onMouseOver={e => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
-            e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-            e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.2)';
-          }}
-          onMouseOut={e => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-            e.currentTarget.style.transform = 'translateY(0) scale(1)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-          }}
-        >
-          Agregar Equipo
         </button>
       </div>
       

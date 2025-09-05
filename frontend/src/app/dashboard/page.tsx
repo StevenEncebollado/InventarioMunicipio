@@ -208,6 +208,7 @@ export default function Dashboard() {
             mostrarSoloRecientes={true}
             mostrarColumnaAnyDesk={true}
             mostrarBotonEliminar={true}
+            mostrarBotonAgregar={true}
             onEliminar={handleEliminar}
             maxWidth="100%"
             margin="32px auto"

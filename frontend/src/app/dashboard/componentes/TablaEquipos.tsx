@@ -13,6 +13,7 @@ interface TablaEquiposProps {
   mostrarSoloRecientes?: boolean;
   mostrarColumnaAnyDesk?: boolean;
   mostrarBotonEliminar?: boolean;
+  mostrarBotonAgregar?: boolean;
   onEliminar?: (equipo: any) => void;
   maxWidth?: string | number;
   margin?: string;
@@ -26,6 +27,7 @@ export default function TablaEquipos({
   mostrarSoloRecientes = true,
   mostrarColumnaAnyDesk = false,
   mostrarBotonEliminar = false,
+  mostrarBotonAgregar = false,
   onEliminar,
   maxWidth = 1200,
   margin = '48px auto',
@@ -86,20 +88,57 @@ export default function TablaEquipos({
           {titulo}
         </h2>
         <div style={{ 
-          color: '#6b7280', 
-          fontSize: '14px', 
-          fontWeight: 500,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '16px' 
         }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: '#3b82f6'
-          }}></div>
-          {equiposAMostrar.length} de {equipos.length} equipos
+          {mostrarBotonAgregar && (
+            <button
+              onClick={() => router.push('/dashboard/agregar_equipo')}
+              style={{
+                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                color: '#fff',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                padding: '10px 16px',
+                borderRadius: '12px',
+                border: 'none',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+              onMouseOver={e => {
+                e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+              }}
+              onMouseOut={e => {
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+              }}
+            >
+              <FaPlus style={{ fontSize: '12px' }} />
+              Agregar Equipo
+            </button>
+          )}
+          <div style={{ 
+            color: '#6b7280', 
+            fontSize: '14px',
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <div style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: '#3b82f6'
+            }}></div>
+            {equiposAMostrar.length} de {equipos.length} equipos
+          </div>
         </div>
       </div>
 
