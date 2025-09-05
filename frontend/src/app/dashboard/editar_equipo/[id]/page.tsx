@@ -9,6 +9,7 @@ import { useEditarEquipo } from '../../hooks/useEditarEquipo';
 import MultiSelectTags from '../../componentes/MultiSelectTags';
 import { APP_CONFIG } from '@/services/api';
 import type { Usuario } from '@/types';
+import Swal from 'sweetalert2';
 
 export default function EditarEquipoPage() {
   const router = useRouter();
@@ -37,12 +38,31 @@ export default function EditarEquipoPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     editarEquipo.setEditError("");
-    editarEquipo.setEditLoading(true);
     
     if (!editarEquipo.validarCampos()) {
-      editarEquipo.setEditLoading(false);
       return;
     }
+    
+    // Mostrar confirmación antes de proceder
+    const result = await Swal.fire({
+      title: '¿Confirmar cambios?',
+      text: '¿Estás seguro de que deseas actualizar este equipo con los cambios realizados?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, actualizar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#6b7280',
+      backdrop: true,
+      reverseButtons: true
+    });
+
+    // Si el usuario cancela, no hacer nada
+    if (!result.isConfirmed) {
+      return;
+    }
+    
+    editarEquipo.setEditLoading(true);
     
     try {
       const response = await fetch(`http://localhost:5000/inventario/${equipoId}`, {
@@ -52,8 +72,17 @@ export default function EditarEquipoPage() {
       });
       
       if (response.ok) {
-        // Mostrar mensaje de éxito brevemente antes de redirigir
-        alert('Equipo actualizado correctamente');
+        // Mostrar SweetAlert de éxito
+        await Swal.fire({
+          title: '¡Éxito!',
+          text: 'El equipo ha sido actualizado correctamente',
+          icon: 'success',
+          confirmButtonText: 'Continuar',
+          confirmButtonColor: '#2563eb',
+          backdrop: true,
+          allowOutsideClick: false
+        });
+        
         router.push('/dashboard'); // Regresar al dashboard
       } else {
         // Intentar obtener el mensaje de error del backend
@@ -68,6 +97,17 @@ export default function EditarEquipoPage() {
       }
     } catch (err: any) {
       console.error('Error al actualizar equipo:', err);
+      
+      // Mostrar SweetAlert de error
+      await Swal.fire({
+        title: 'Error',
+        text: `Error al actualizar equipo: ${err.message || 'Error desconocido'}`,
+        icon: 'error',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#dc2626',
+        backdrop: true
+      });
+      
       editarEquipo.setEditError("Error al actualizar equipo: " + (err.message || 'Error desconocido'));
     } finally {
       editarEquipo.setEditLoading(false);
@@ -262,24 +302,6 @@ export default function EditarEquipoPage() {
                     onChange={e => editarEquipo.setAnydesk(e.target.value)} 
                     placeholder="Ej: 123456789"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Observaciones
-                  </label>
-                  <textarea 
-                    value={editarEquipo.observaciones} 
-                    onChange={e => editarEquipo.setObservaciones(e.target.value)} 
-                    placeholder="Escriba cualquier observación adicional..."
-                    rows={3}
-                    style={{ 
-                      ...EstiloDashboardEspecifico.catalogos.selectStyle, 
-                      width: '100%',
-                      resize: 'vertical',
-                      minHeight: '80px'
-                    }}
                   />
                 </div>
 
