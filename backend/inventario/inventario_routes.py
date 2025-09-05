@@ -80,7 +80,7 @@ def get_inventario():
 
 
 # Obtener un registro del inventario por ID
-@inventario_bp.route('/inventario/<int:item_id>', methods=['GET'])
+@inventario_bp.route('/<int:item_id>', methods=['GET'])
 def get_inventario_by_id(item_id):
     # Devuelve un registro del inventario por su ID
     conn = get_db_connection()
@@ -235,7 +235,7 @@ def update_inventario(item_id):
 
 
 # Endpoint: Eliminar un item del inventario
-@inventario_bp.route('/inventario/<int:item_id>', methods=['DELETE'])
+@inventario_bp.route('/<int:item_id>', methods=['DELETE'])
 def delete_inventario(item_id):
     """Elimina un registro del inventario por su ID."""
     conn = get_db_connection()
@@ -245,28 +245,3 @@ def delete_inventario(item_id):
     cur.close()
     conn.close()
     return jsonify({'msg': 'Eliminado correctamente'})
-
-
-    # Eliminar un registro del inventario y registrar en historial
-    @inventario_bp.route('/inventario/<int:item_id>', methods=['DELETE'])
-    def delete_inventario(item_id):
-        # Elimina un registro del inventario por su ID y lo registra en el historial
-        usuario_id = request.args.get('usuario_id')  # Se recomienda pasar el usuario por query param
-        conn = get_db_connection()
-        cur = conn.cursor()
-        # Obtener datos anteriores
-        cur.execute('SELECT * FROM inventario WHERE id = %s', (item_id,))
-        row = cur.fetchone()
-        columns = [desc[0] for desc in cur.description]
-        datos_anteriores = dict(zip(columns, row)) if row else None
-        # Eliminar
-        cur.execute('DELETE FROM inventario WHERE id = %s', (item_id,))
-        # Registrar en historial (acción: eliminado)
-        cur.execute('''
-            INSERT INTO historial_inventario (inventario_id, usuario_id, accion, datos_anteriores)
-            VALUES (%s, %s, %s, %s)
-        ''', (item_id, usuario_id, 'eliminado', json.dumps(datos_anteriores)))
-        conn.commit()
-        cur.close()
-        conn.close()
-        return jsonify({'msg': 'Eliminado correctamente'})

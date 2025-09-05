@@ -1,10 +1,7 @@
 import React from 'react';
 import { FaUser, FaLaptopCode, FaDesktop, FaEye, FaEdit, FaBarcode, FaCircle, FaNetworkWired, FaCogs, FaTrash, FaPlus } from 'react-icons/fa';
 import type { Equipo } from '@/types';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Modal from '../../Diseño/Diseño dashboard/Modal';
-import EquipoDetalle from './EquipoDetalle';
 
 interface TablaEquiposProps {
   equipos: any[];
@@ -40,13 +37,10 @@ export default function TablaEquipos({
     ? (Array.isArray(equipos) ? [...equipos].sort((a, b) => b.id - a.id).slice(0, 4) : [])
     : (Array.isArray(equipos) ? equipos : []);
     
-  const [showDetalle, setShowDetalle] = useState(false);
-  const [equipoDetalle, setEquipoDetalle] = useState<Equipo | null>(null);
   const router = useRouter();
 
   const handleVerClick = (equipo: Equipo) => {
-    setEquipoDetalle(equipo);
-    setShowDetalle(true);
+    router.push(`/dashboard/equipo/${equipo.id}`);
   };
 
   const handleEditarClick = (equipoId: number) => {
@@ -534,10 +528,6 @@ export default function TablaEquipos({
           <p style={{ margin: 0 }}>No hay equipos registrados en el sistema.</p>
         </div>
       )}
-
-      <Modal open={showDetalle} onClose={() => setShowDetalle(false)}>
-        {equipoDetalle && <EquipoDetalle equipo={equipoDetalle} />}
-      </Modal>
     </section>
   );
 }

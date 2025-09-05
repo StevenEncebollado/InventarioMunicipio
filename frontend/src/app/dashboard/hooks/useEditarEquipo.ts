@@ -49,7 +49,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
         setLoadingEquipo(true);
         setEditError(""); // Limpiar errores previos
         
-        const response = await fetch(`http://localhost:5000/inventario/inventario/${equipoId}`);
+        const response = await fetch(`http://localhost:5000/inventario/${equipoId}`);
         
         if (!response.ok) {
           if (response.status === 404) {
