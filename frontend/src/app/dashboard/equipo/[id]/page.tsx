@@ -265,7 +265,7 @@ export default function DetalleEquipoPage() {
                 value={equipoExtendido.codigo_inventario} 
               />
               <InfoItem 
-                icon={<FaUser />} 
+                icon={null} 
                 label="Funcionario Asignado" 
                 value={equipoExtendido.nombres_funcionario} 
               />
