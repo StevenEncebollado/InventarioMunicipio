@@ -1,6 +1,3 @@
-// Catálogos unificados
-export const getCatalogosUnificados = (): Promise<any> =>
-  api.get<any>('/api/catalogos_unificados');
 import type { 
   Usuario, 
   Equipo, 
@@ -170,6 +167,10 @@ export const getTipoConexion = (): Promise<Array<{ id: number; nombre: string }>
   api.get<Array<{ id: number; nombre: string }>>('/catalogos/tipo_conexion');
 export const getProgramaAdicional = (): Promise<Array<{ id: number; nombre: string }>> =>
   api.get<Array<{ id: number; nombre: string }>>('/catalogos/programas_adicionales');
+
+// Catálogos unificados
+export const getCatalogosUnificados = (): Promise<any> =>
+  api.get<any>('/api/catalogos_unificados');
 
 // Utilidades
 export const isApiError = (error: unknown): error is ApiError => error instanceof ApiError;
