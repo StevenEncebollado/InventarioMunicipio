@@ -9,7 +9,7 @@ import type { Equipo, Usuario } from '@/types';
 import { useEffect, useState } from 'react';
 import { getEquipos, updateEquipo, APP_CONFIG } from '@/services/api';
 import { filtrarEquipos } from '@/utils/filtrarEquipos';
-import { FaPlus, FaEdit, FaTrash, FaTimes, FaEye } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaTimes, FaEye, FaUser, FaBarcode, FaCircle, FaDesktop, FaNetworkWired, FaLaptopCode, FaCogs } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 
 import Navbar from '../../Diseño/Diseño dashboard/Navbar';
@@ -323,36 +323,85 @@ export default function EquiposLista() {
           onInfoClick={handlePanelInfo}
           loading={loading}
         />
-  <div style={{ maxWidth: '100%', width: '100%', margin: '32px auto', background: '#fff', borderRadius: 14, boxShadow: '0 2px 16px rgba(0,0,0,0.08)', padding: '16px 8px' }}>
-          <div style={{ marginBottom: 24, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
-            <div style={{ minWidth: 180 }}>
-              <h2 style={{ margin: 0, fontSize: '1.2rem', wordBreak: 'break-word' }}>{TITULOS[tipo] || 'Equipos'}</h2>
-              <div style={{ color: '#64748b', fontSize: '14px', fontWeight: 500, marginTop: '4px' }}>
+  <div style={{ 
+    maxWidth: '100%', 
+    width: '100%', 
+    margin: '32px auto', 
+    background: '#fff', 
+    borderRadius: 16, 
+    boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
+    padding: '24px',
+    border: '1px solid #f1f5f9'
+  }}>
+          <div style={{ 
+            marginBottom: 32, 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            gap: 20,
+            paddingBottom: '20px',
+            borderBottom: '2px solid #f1f5f9'
+          }}>
+            <div style={{ minWidth: 200 }}>
+              <h2 style={{ 
+                margin: 0, 
+                fontSize: '1.5rem', 
+                fontWeight: 700,
+                color: '#1f2937',
+                letterSpacing: '-0.5px'
+              }}>
+                {TITULOS[tipo] || 'Equipos'}
+              </h2>
+              <div style={{ 
+                color: '#6b7280', 
+                fontSize: '14px', 
+                fontWeight: 500, 
+                marginTop: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: '#3b82f6'
+                }}></div>
                 {equiposFiltrados.length} equipos encontrados
               </div>
             </div>
             <button
               onClick={handleAgregar}
               style={{
-                background: '#2563eb',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                 color: '#fff',
                 border: 'none',
-                borderRadius: '8px',
-                padding: '10px 16px',
+                borderRadius: '12px',
+                padding: '14px 20px',
                 cursor: 'pointer',
                 fontSize: '14px',
                 fontWeight: 600,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '10px',
                 transition: 'all 0.2s ease',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                minWidth: 140,
-                width: '100%',
-                maxWidth: 220,
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                minWidth: 160,
+                height: '50px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
               }}
             >
-              <FaPlus size={12} />
+              <FaPlus size={14} />
               Agregar Equipo
             </button>
           </div>
@@ -398,21 +447,128 @@ export default function EquiposLista() {
           ) : (
             <>
               {/* Tabla de equipos */}
-              <div style={{ overflowX: 'auto', marginBottom: '20px' }}>
+              <div style={{ 
+                overflowX: 'auto', 
+                marginBottom: '20px',
+                borderRadius: '12px',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                border: '1px solid #e5e7eb'
+              }}>
                 <table style={{ 
                   width: '100%', 
                   borderCollapse: 'collapse',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  tableLayout: 'fixed',
+                  minWidth: '1000px',
+                  background: '#fff'
                 }}>
                   <thead>
-                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Funcionario</th>
-                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Código</th>
-                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Estado</th>
-                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Nombre PC</th>
-                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Dirección IP</th>
-                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>AnyDesk</th>
-                      <th style={{ ...EstiloComponentesUI.tablas.tableHeader, textAlign: 'center', padding: '12px 16px', background: '#2563eb', color: '#fff' }}>Acciones</th>
+                    <tr style={{ background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' }}>
+                      <th style={{ 
+                        textAlign: 'left', 
+                        padding: '16px 20px', 
+                        color: '#fff', 
+                        fontWeight: 700, 
+                        fontSize: '13px', 
+                        whiteSpace: 'nowrap', 
+                        width: '200px',
+                        letterSpacing: '0.5px',
+                        textTransform: 'uppercase',
+                        borderBottom: 'none'
+                      }}>
+                        <FaUser style={{ marginRight: '8px', fontSize: '12px' }} />
+                        Funcionario
+                      </th>
+                      <th style={{ 
+                        textAlign: 'left', 
+                        padding: '16px 20px', 
+                        color: '#fff', 
+                        fontWeight: 700, 
+                        fontSize: '13px', 
+                        whiteSpace: 'nowrap', 
+                        width: '150px',
+                        letterSpacing: '0.5px',
+                        textTransform: 'uppercase',
+                        borderBottom: 'none'
+                      }}>
+                        <FaBarcode style={{ marginRight: '8px', fontSize: '12px' }} />
+                        Código
+                      </th>
+                      <th style={{ 
+                        textAlign: 'left', 
+                        padding: '16px 20px', 
+                        color: '#fff', 
+                        fontWeight: 700, 
+                        fontSize: '13px', 
+                        whiteSpace: 'nowrap', 
+                        width: '130px',
+                        letterSpacing: '0.5px',
+                        textTransform: 'uppercase',
+                        borderBottom: 'none'
+                      }}>
+                        <FaCircle style={{ marginRight: '8px', fontSize: '10px' }} />
+                        Estado
+                      </th>
+                      <th style={{ 
+                        textAlign: 'left', 
+                        padding: '16px 20px', 
+                        color: '#fff', 
+                        fontWeight: 700, 
+                        fontSize: '13px', 
+                        whiteSpace: 'nowrap', 
+                        width: '160px',
+                        letterSpacing: '0.5px',
+                        textTransform: 'uppercase',
+                        borderBottom: 'none'
+                      }}>
+                        <FaDesktop style={{ marginRight: '8px', fontSize: '12px' }} />
+                        Nombre PC
+                      </th>
+                      <th style={{ 
+                        textAlign: 'left', 
+                        padding: '16px 20px', 
+                        color: '#fff', 
+                        fontWeight: 700, 
+                        fontSize: '13px', 
+                        whiteSpace: 'nowrap', 
+                        width: '140px',
+                        letterSpacing: '0.5px',
+                        textTransform: 'uppercase',
+                        borderBottom: 'none'
+                      }}>
+                        <FaNetworkWired style={{ marginRight: '8px', fontSize: '12px' }} />
+                        Dirección IP
+                      </th>
+                      <th style={{ 
+                        textAlign: 'left', 
+                        padding: '16px 20px', 
+                        color: '#fff', 
+                        fontWeight: 700, 
+                        fontSize: '13px', 
+                        whiteSpace: 'nowrap', 
+                        width: '120px',
+                        letterSpacing: '0.5px',
+                        textTransform: 'uppercase',
+                        borderBottom: 'none'
+                      }}>
+                        <FaLaptopCode style={{ marginRight: '8px', fontSize: '12px' }} />
+                        AnyDesk
+                      </th>
+                      <th style={{ 
+                        textAlign: 'center', 
+                        padding: '16px 20px', 
+                        color: '#fff', 
+                        fontWeight: 700, 
+                        fontSize: '13px', 
+                        whiteSpace: 'nowrap', 
+                        width: '150px',
+                        letterSpacing: '0.5px',
+                        textTransform: 'uppercase',
+                        borderBottom: 'none'
+                      }}>
+                        <FaCogs style={{ marginRight: '8px', fontSize: '12px' }} />
+                        Acciones
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -420,133 +576,266 @@ export default function EquiposLista() {
                       <tr 
                         key={equipo.id} 
                         style={{ 
-                          borderBottom: '1px solid #e2e8f0',
-                          background: index % 2 === 0 ? '#fff' : '#f9fafb'
+                          borderBottom: '1px solid #f1f5f9',
+                          background: index % 2 === 0 ? '#ffffff' : '#f8fafc',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#f1f5f9';
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = index % 2 === 0 ? '#ffffff' : '#f8fafc';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = 'none';
                         }}
                       >
-                        <td style={{ padding: '12px 16px', fontWeight: 600 }}>
-                          {equipo.nombres_funcionario || 'Sin asignar'}
-                        </td>
-                        <td style={{ padding: '12px 16px' }}>
-                          {equipo.codigo_inventario || 'Sin código'}
-                        </td>
-                        <td style={{ padding: '12px 16px' }}>
-                          <div>
-                            <span style={{
-                              background: equipo.estado === 'Activo' ? '#dcfce7' : 
-                                        equipo.estado === 'Mantenimiento' ? '#fef3c7' : '#fecaca',
-                              color: equipo.estado === 'Activo' ? '#166534' : 
-                                     equipo.estado === 'Mantenimiento' ? '#92400e' : '#991b1b',
-                              padding: '4px 8px',
-                              borderRadius: '6px',
+                        <td style={{ 
+                          padding: '16px 20px', 
+                          fontWeight: 600, 
+                          whiteSpace: 'nowrap', 
+                          overflow: 'hidden', 
+                          textOverflow: 'ellipsis',
+                          color: '#1f2937',
+                          fontSize: '14px'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ 
+                              width: '32px', 
+                              height: '32px', 
+                              borderRadius: '50%', 
+                              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#fff',
                               fontSize: '12px',
-                              fontWeight: 600
+                              fontWeight: 700
                             }}>
+                              {(equipo.nombres_funcionario || 'SA').charAt(0).toUpperCase()}
+                            </div>
+                            <span>{equipo.nombres_funcionario || 'Sin asignar'}</span>
+                          </div>
+                        </td>
+                        <td style={{ 
+                          padding: '16px 20px', 
+                          whiteSpace: 'nowrap',
+                          color: '#4b5563',
+                          fontSize: '13px',
+                          fontFamily: 'monospace',
+                          fontWeight: 500
+                        }}>
+                          <div style={{
+                            background: '#f3f4f6',
+                            padding: '4px 8px',
+                            borderRadius: '6px',
+                            border: '1px solid #e5e7eb',
+                            display: 'inline-block'
+                          }}>
+                            {equipo.codigo_inventario || 'Sin código'}
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px 20px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <span style={{
+                              background: equipo.estado === 'Activo' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 
+                                        equipo.estado === 'Mantenimiento' ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : 
+                                        'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                              color: '#fff',
+                              padding: '6px 12px',
+                              borderRadius: '20px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.5px',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}>
+                              <FaCircle style={{ fontSize: '6px' }} />
                               {equipo.estado}
                             </span>
                             {equipo.estado === 'Inactivo' && equipo.fecha_eliminacion && (
                               <div style={{ 
                                 fontSize: '10px', 
                                 color: '#6b7280', 
-                                marginTop: '2px',
-                                fontStyle: 'italic'
+                                marginTop: '4px',
+                                fontStyle: 'italic',
+                                background: '#f9fafb',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                marginLeft: '8px'
                               }}>
-                                Eliminado: {new Date(equipo.fecha_eliminacion).toLocaleDateString('es-ES', {
-                                  year: 'numeric',
+                                {new Date(equipo.fecha_eliminacion).toLocaleDateString('es-ES', {
                                   month: '2-digit',
-                                  day: '2-digit',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
+                                  day: '2-digit'
                                 })}
                               </div>
                             )}
                           </div>
                         </td>
-                        <td style={{ padding: '12px 16px' }}>
-                          {equipo.nombre_pc || 'N/A'}
+                        <td style={{ 
+                          padding: '16px 20px', 
+                          whiteSpace: 'nowrap',
+                          color: '#374151',
+                          fontSize: '14px',
+                          fontWeight: 500
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <FaDesktop style={{ color: '#6b7280', fontSize: '14px' }} />
+                            {equipo.nombre_pc || 'N/A'}
+                          </div>
                         </td>
-                        <td style={{ padding: '12px 16px', fontFamily: 'monospace' }}>
-                          {equipo.direccion_ip || 'N/A'}
+                        <td style={{ 
+                          padding: '16px 20px', 
+                          fontFamily: 'monospace', 
+                          whiteSpace: 'nowrap',
+                          color: '#4b5563',
+                          fontSize: '13px',
+                          fontWeight: 500
+                        }}>
+                          <div style={{
+                            background: '#f8fafc',
+                            padding: '6px 10px',
+                            borderRadius: '6px',
+                            border: '1px solid #e2e8f0',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}>
+                            <FaNetworkWired style={{ color: '#6b7280', fontSize: '12px' }} />
+                            {equipo.direccion_ip || 'N/A'}
+                          </div>
                         </td>
-                        <td style={{ padding: '12px 16px' }}>
-                          {equipo.anydesk || 'N/A'}
+                        <td style={{ 
+                          padding: '16px 20px', 
+                          whiteSpace: 'nowrap',
+                          color: '#374151',
+                          fontSize: '13px',
+                          fontWeight: 500
+                        }}>
+                          <div style={{
+                            background: '#fff7ed',
+                            padding: '6px 10px',
+                            borderRadius: '6px',
+                            border: '1px solid #fed7aa',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            color: '#c2410c'
+                          }}>
+                            <FaLaptopCode style={{ fontSize: '12px' }} />
+                            {equipo.anydesk || 'N/A'}
+                          </div>
                         </td>
-                        <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                        <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center' }}>
                             <button
                               onClick={() => handleVerDetalles(equipo)}
                               style={{
-                                background: '#3b82f6',
+                                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                                 color: '#fff',
                                 border: 'none',
-                                borderRadius: '6px',
-                                padding: '6px 8px',
+                                borderRadius: '8px',
+                                padding: '8px 10px',
                                 cursor: 'pointer',
                                 fontSize: '12px',
                                 display: 'flex',
                                 alignItems: 'center',
+                                justifyContent: 'center',
                                 gap: '4px',
-                                transition: 'all 0.2s ease'
+                                transition: 'all 0.2s ease',
+                                boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
+                                minWidth: '36px',
+                                height: '36px'
                               }}
-                              onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'}
-                              onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'scale(1.05)';
+                                e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.4)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'scale(1)';
+                                e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.3)';
+                              }}
                               title="Ver detalles del equipo"
                             >
-                              <FaPlus size={10} />
+                              <FaEye size={12} />
                             </button>
                             
                             <button
                               onClick={() => handleEditar(equipo)}
                               style={{
-                                background: '#f59e0b',
+                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                                 color: '#fff',
                                 border: 'none',
-                                borderRadius: '6px',
-                                padding: '6px 8px',
+                                borderRadius: '8px',
+                                padding: '8px 10px',
                                 cursor: 'pointer',
                                 fontSize: '12px',
                                 display: 'flex',
                                 alignItems: 'center',
+                                justifyContent: 'center',
                                 gap: '4px',
-                                transition: 'all 0.2s ease'
+                                transition: 'all 0.2s ease',
+                                boxShadow: '0 2px 4px rgba(16, 185, 129, 0.3)',
+                                minWidth: '36px',
+                                height: '36px'
                               }}
-                              onMouseOver={(e) => e.currentTarget.style.background = '#d97706'}
-                              onMouseOut={(e) => e.currentTarget.style.background = '#f59e0b'}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'scale(1.05)';
+                                e.currentTarget.style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.4)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'scale(1)';
+                                e.currentTarget.style.boxShadow = '0 2px 4px rgba(16, 185, 129, 0.3)';
+                              }}
                               title="Editar equipo"
                             >
-                              <FaEdit size={10} />
+                              <FaEdit size={12} />
                             </button>
                             
                             <button
                               onClick={() => handleEliminar(equipo)}
                               disabled={equipo.estado === 'Inactivo'}
                               style={{
-                                background: equipo.estado === 'Inactivo' ? '#9ca3af' : '#ef4444',
+                                background: equipo.estado === 'Inactivo' 
+                                  ? 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)' 
+                                  : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                                 color: '#fff',
                                 border: 'none',
-                                borderRadius: '6px',
-                                padding: '6px 8px',
+                                borderRadius: '8px',
+                                padding: '8px 10px',
                                 cursor: equipo.estado === 'Inactivo' ? 'not-allowed' : 'pointer',
                                 fontSize: '12px',
                                 display: 'flex',
                                 alignItems: 'center',
+                                justifyContent: 'center',
                                 gap: '4px',
                                 transition: 'all 0.2s ease',
-                                opacity: equipo.estado === 'Inactivo' ? 0.6 : 1
+                                boxShadow: equipo.estado === 'Inactivo' 
+                                  ? '0 2px 4px rgba(156, 163, 175, 0.3)' 
+                                  : '0 2px 4px rgba(239, 68, 68, 0.3)',
+                                opacity: equipo.estado === 'Inactivo' ? 0.7 : 1,
+                                minWidth: '36px',
+                                height: '36px'
                               }}
-                              onMouseOver={(e) => {
+                              onMouseEnter={(e) => {
                                 if (equipo.estado !== 'Inactivo') {
-                                  e.currentTarget.style.background = '#dc2626';
+                                  e.currentTarget.style.transform = 'scale(1.05)';
+                                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(239, 68, 68, 0.4)';
                                 }
                               }}
-                              onMouseOut={(e) => {
+                              onMouseLeave={(e) => {
                                 if (equipo.estado !== 'Inactivo') {
-                                  e.currentTarget.style.background = '#ef4444';
+                                  e.currentTarget.style.transform = 'scale(1)';
+                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(239, 68, 68, 0.3)';
                                 }
                               }}
                               title={equipo.estado === 'Inactivo' ? 'Equipo ya inactivo' : 'Marcar como inactivo'}
                             >
-                              <FaTrash size={10} />
+                              <FaTrash size={11} />
                             </button>
                           </div>
                         </td>
@@ -609,24 +898,44 @@ export default function EquiposLista() {
             </>
           )}
           
-          <button 
-            onClick={() => router.push('/dashboard')} 
-            style={{ 
-              marginTop: 24, 
-              background: '#2563eb', 
-              color: '#fff', 
-              border: 'none', 
-              borderRadius: 8, 
-              padding: '10px 22px', 
-              fontWeight: 600, 
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              width: '100%',
-              maxWidth: 220,
-            }}
-          >
-            Volver al Dashboard
-          </button>
+          <div style={{ 
+            marginTop: 32, 
+            display: 'flex', 
+            justifyContent: 'center',
+            paddingTop: '24px',
+            borderTop: '1px solid #f1f5f9'
+          }}>
+            <button 
+              onClick={() => router.push('/dashboard')} 
+              style={{ 
+                background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)', 
+                color: '#fff', 
+                border: 'none', 
+                borderRadius: 12, 
+                padding: '14px 28px', 
+                fontWeight: 600, 
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                boxShadow: '0 4px 12px rgba(107, 114, 128, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(107, 114, 128, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(107, 114, 128, 0.3)';
+              }}
+            >
+              ← Volver al Dashboard
+            </button>
+          </div>
         </div>
 
         {/* Modal de detalles del equipo */}

@@ -42,26 +42,28 @@ export default function TablaEquipos({ equipos }: TablaEquiposProps) {
           <table style={{ 
             width: '100%', 
             borderCollapse: 'collapse',
-            fontSize: '14px'
+            fontSize: '14px',
+            tableLayout: 'fixed',
+            minWidth: '800px'
           }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff', fontWeight: 600 }}>
+                <th style={{ textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', width: '200px' }}>
                   <FaUser style={{ marginRight: 8 }} /> Funcionario
                 </th>
-                <th style={{ textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff', fontWeight: 600 }}>
+                <th style={{ textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', width: '150px' }}>
                   Código
                 </th>
-                <th style={{ textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff', fontWeight: 600 }}>
+                <th style={{ textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', width: '120px' }}>
                   Estado
                 </th>
-                <th style={{ textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff', fontWeight: 600 }}>
+                <th style={{ textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', width: '160px' }}>
                   Nombre PC
                 </th>
-                <th style={{ textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff', fontWeight: 600 }}>
+                <th style={{ textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', width: '140px' }}>
                   Dirección IP
                 </th>
-                <th style={{ textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff', fontWeight: 600 }}>
+                <th style={{ textAlign: 'left', padding: '12px 16px', background: '#2563eb', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', width: '120px' }}>
                   Acciones
                 </th>
               </tr>
@@ -75,10 +77,10 @@ export default function TablaEquipos({ equipos }: TablaEquiposProps) {
                     background: index % 2 === 0 ? '#fff' : '#f9fafb'
                   }}
                 >
-                  <td style={{ padding: '12px 16px', fontWeight: 600 }}>
+                  <td style={{ padding: '12px 16px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {equipo.nombres_funcionario || 'Sin asignar'}
                   </td>
-                  <td style={{ padding: '12px 16px' }}>
+                  <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
                     {equipo.codigo_inventario || 'Sin código'}
                   </td>
                   <td style={{ padding: '12px 16px' }}>
@@ -95,10 +97,10 @@ export default function TablaEquipos({ equipos }: TablaEquiposProps) {
                       {equipo.estado}
                     </span>
                   </td>
-                  <td style={{ padding: '12px 16px' }}>
+                  <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
                     {equipo.nombre_pc || 'N/A'}
                   </td>
-                  <td style={{ padding: '12px 16px', fontFamily: 'monospace' }}>
+                  <td style={{ padding: '12px 16px', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
                     {equipo.direccion_ip || 'N/A'}
                   </td>
                   <td style={{ padding: '12px 16px' }}>
