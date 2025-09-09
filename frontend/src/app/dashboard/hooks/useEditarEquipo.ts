@@ -8,6 +8,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
   // Campos de texto
   const [ip, setIp] = useState("");
   const [mac, setMac] = useState("");
+  const [codigoInventario, setCodigoInventario] = useState("");
   const [nombrePc, setNombrePc] = useState("");
   const [funcionario, setFuncionario] = useState("");
   const [anydesk, setAnydesk] = useState("");
@@ -65,6 +66,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
         // Llenar los campos con los datos existentes (con valores por defecto seguros)
         setIp(equipoData.direccion_ip || "");
         setMac(equipoData.direccion_mac || "");
+        setCodigoInventario(equipoData.codigo_inventario || "");
         setNombrePc(equipoData.nombre_pc || "");
         setFuncionario(equipoData.nombres_funcionario || "");
         setAnydesk(equipoData.anydesk || "");
@@ -96,6 +98,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
   const limpiarCampos = () => {
     setIp("");
     setMac("");
+    setCodigoInventario("");
     setNombrePc("");
     setFuncionario("");
     setAnydesk("");
@@ -130,17 +133,18 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
     
     // Validar campos obligatorios
     const camposObligatorios = [
-      { valor: nombrePc, nombre: "Nombre de PC" },
-      { valor: funcionario, nombre: "Funcionario Responsable" },
+      { valor: ip, nombre: "Dirección IP" },
+      { valor: mac, nombre: "Dirección MAC" },
+      { valor: codigoInventario, nombre: "Código de Inventario" },
+      { valor: nombrePc, nombre: "Nombre PC" },
+      { valor: funcionario, nombre: "Funcionario" },
       { valor: tipoEquipo, nombre: "Tipo de Equipo" },
       { valor: marca, nombre: "Marca" },
       { valor: ram, nombre: "RAM" },
-      { valor: disco, nombre: "Disco Duro" },
+      { valor: disco, nombre: "Disco" },
       { valor: dependencia, nombre: "Dependencia" },
       { valor: estado, nombre: "Estado" }
-    ];
-    
-    const camposFaltantes = camposObligatorios.filter(campo => !campo.valor || campo.valor.trim() === "");
+    ];    const camposFaltantes = camposObligatorios.filter(campo => !campo.valor || campo.valor.trim() === "");
     
     if (camposFaltantes.length > 0) {
       const nombresCampos = camposFaltantes.map(campo => campo.nombre).join(", ");
@@ -189,7 +193,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
       disco_id: disco || null,
       office_id: office || null,
       marca_id: marca || null,
-      codigo_inventario: limpiarString(mac),
+      codigo_inventario: limpiarString(codigoInventario),
       tipo_conexion_id: tipoConexion || null,
       anydesk: limpiarString(anydesk) || null,
       estado: estado || 'Activo',
@@ -203,6 +207,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
     // Campos de texto
     ip, setIp,
     mac, setMac,
+    codigoInventario, setCodigoInventario,
     nombrePc, setNombrePc,
     funcionario, setFuncionario,
     anydesk, setAnydesk,

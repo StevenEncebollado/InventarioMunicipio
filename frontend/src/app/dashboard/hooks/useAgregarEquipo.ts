@@ -7,6 +7,7 @@ export function useAgregarEquipo(usuarioId?: number) {
   // Campos de texto
   const [ip, setIp] = useState("");
   const [mac, setMac] = useState("");
+  const [codigoInventario, setCodigoInventario] = useState("");
   const [nombrePc, setNombrePc] = useState("");
   const [funcionario, setFuncionario] = useState("");
   const [anydesk, setAnydesk] = useState("");
@@ -35,6 +36,7 @@ export function useAgregarEquipo(usuarioId?: number) {
   const limpiarCampos = () => {
     setIp("");
     setMac("");
+    setCodigoInventario("");
     setNombrePc("");
     setFuncionario("");
     setAnydesk("");
@@ -64,7 +66,7 @@ export function useAgregarEquipo(usuarioId?: number) {
       return false;
     }
     
-    if (!ip || !mac || !nombrePc || !funcionario || 
+    if (!ip || !mac || !codigoInventario || !nombrePc || !funcionario || 
         !tipoEquipo || !marca || !ram || !disco || 
         !dependencia || !estado) {
       await Swal.fire({
@@ -99,7 +101,7 @@ export function useAgregarEquipo(usuarioId?: number) {
       disco_id: disco,
       office_id: office || null,
       marca_id: marca,
-      codigo_inventario: mac,
+      codigo_inventario: codigoInventario,
       tipo_conexion_id: tipoConexion || null,
       anydesk: anydesk || null,
       estado: estado,
@@ -111,6 +113,7 @@ export function useAgregarEquipo(usuarioId?: number) {
     // Campos de texto
     ip, setIp,
     mac, setMac,
+    codigoInventario, setCodigoInventario,
     nombrePc, setNombrePc,
     funcionario, setFuncionario,
     anydesk, setAnydesk,

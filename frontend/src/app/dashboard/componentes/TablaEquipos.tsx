@@ -151,7 +151,7 @@ export default function TablaEquipos({
             borderCollapse: 'collapse',
             fontSize: '14px',
             tableLayout: mostrarSoloRecientes ? 'auto' : 'fixed',
-            minWidth: mostrarSoloRecientes ? 'auto' : (mostrarColumnaAnyDesk ? '1000px' : '800px'),
+            minWidth: mostrarSoloRecientes ? 'auto' : (mostrarColumnaAnyDesk ? '1150px' : '950px'),
             maxWidth: mostrarSoloRecientes ? '100%' : 'none',
             background: '#fff'
           }}>
@@ -226,6 +226,20 @@ export default function TablaEquipos({
                   borderBottom: 'none'
                 }}>
                   <FaNetworkWired style={{ marginRight: 8, fontSize: '12px' }} /> Dirección IP
+                </th>
+                <th style={{ 
+                  textAlign: 'left', 
+                  padding: '16px 20px', 
+                  color: '#fff', 
+                  fontWeight: 700, 
+                  fontSize: '13px', 
+                  whiteSpace: 'nowrap', 
+                  width: mostrarSoloRecientes ? 'auto' : '150px',
+                  letterSpacing: '0.5px',
+                  textTransform: 'uppercase',
+                  borderBottom: 'none'
+                }}>
+                  <FaNetworkWired style={{ marginRight: 8, fontSize: '12px' }} /> Dirección MAC
                 </th>
                 {mostrarColumnaAnyDesk && (
                   <th style={{ 
@@ -376,6 +390,27 @@ export default function TablaEquipos({
                     }}>
                       <FaNetworkWired style={{ color: '#6b7280', fontSize: '12px' }} />
                       {equipo.direccion_ip || 'N/A'}
+                    </div>
+                  </td>
+                  <td style={{ 
+                    padding: '16px 20px', 
+                    fontFamily: 'monospace', 
+                    whiteSpace: 'nowrap',
+                    color: '#4b5563',
+                    fontSize: '13px',
+                    fontWeight: 500
+                  }}>
+                    <div style={{
+                      background: '#f0f9ff',
+                      padding: '6px 10px',
+                      borderRadius: '6px',
+                      border: '1px solid #bae6fd',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}>
+                      <FaNetworkWired style={{ color: '#0369a1', fontSize: '12px' }} />
+                      {equipo.direccion_mac || 'N/A'}
                     </div>
                   </td>
                   {mostrarColumnaAnyDesk && (

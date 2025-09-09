@@ -277,6 +277,18 @@ export default function EditarEquipoPage() {
 
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Código de Inventario *
+                  </label>
+                  <input 
+                    value={editarEquipo.codigoInventario} 
+                    onChange={e => editarEquipo.setCodigoInventario(e.target.value)} 
+                    placeholder="Ej: INV-001"
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                     Nombre de PC *
                   </label>
                   <input 
