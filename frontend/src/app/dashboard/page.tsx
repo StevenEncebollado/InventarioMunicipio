@@ -88,7 +88,7 @@ export default function Dashboard() {
   return (
     <div style={estiloGlobal.dashboard}>
       <Navbar user={user} onLogout={handleLogout} />
-      <main style={EstiloDashboard.dashboardContent}>
+        <main style={EstiloDashboard.dashboardContent}>
         {/* Sistema de partículas estables */}
         <div style={EstiloDashboard.efectosVisuales.sistemaParticulas.contenedor}>
           {/* Partículas principales */}
