@@ -283,9 +283,20 @@ export default function EquiposLista() {
   };
 
   return (
-    <div style={estiloGlobal.dashboard}>
+    <div className="detalle-estados-container" style={estiloGlobal.dashboard}>
       <Navbar user={user} onLogout={handleLogout} />
-      <main style={{...estiloGlobal.dashboardContent, background: '#f4f6fa', minHeight: '100vh', padding: '0 0 48px 0'}}>
+      <main style={{
+        ...estiloGlobal.dashboardContent, 
+        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)', 
+        minHeight: '100vh', 
+        padding: 'clamp(16px, 3vw, 32px) 0 clamp(60px, 10vh, 100px) 0'
+      }}>
+        <div style={{
+          maxWidth: '1400px',
+          margin: '0 auto',
+          padding: '0 clamp(16px, 3vw, 32px)',
+          width: '100%'
+        }}>
         <Filtros
           dependenciaSeleccionada={dependenciaSeleccionada}
           setDependenciaSeleccionada={setDependenciaSeleccionada}
@@ -345,101 +356,170 @@ export default function EquiposLista() {
           }}
         />
         
-        {/* Paginación */}
+        {/* Paginación modernizada */}
         {totalPages > 1 && (
-          <div style={{ 
+          <div className="pagination-container" style={{ 
             display: 'flex', 
             justifyContent: 'center', 
             alignItems: 'center',
-            gap: '8px',
-            marginTop: '20px',
-            background: '#fff',
-            padding: '20px',
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+            gap: 'clamp(8px, 2vw, 12px)',
+            marginTop: '24px',
+            background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+            padding: 'clamp(16px, 3vw, 24px)',
+            borderRadius: '16px',
+            boxShadow: '0 8px 25px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.05)',
+            border: '1px solid rgba(226,232,240,0.8)',
+            flexWrap: 'wrap'
           }}>
             <button
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
               style={{
-                padding: '10px 16px',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                background: currentPage === 1 ? '#f9fafb' : '#fff',
-                color: currentPage === 1 ? '#9ca3af' : '#374151',
+                padding: 'clamp(10px, 2vw, 14px) clamp(16px, 3vw, 20px)',
+                border: '2px solid #e2e8f0',
+                borderRadius: '12px',
+                background: currentPage === 1 
+                  ? 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)' 
+                  : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                color: currentPage === 1 ? '#9ca3af' : '#1e293b',
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                 fontWeight: 600,
-                transition: 'all 0.2s ease'
+                fontSize: 'clamp(0.85rem, 2vw, 0.95rem)',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                outline: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                letterSpacing: '0.025em',
+                opacity: currentPage === 1 ? 0.6 : 1,
+              }}
+              onMouseEnter={e => {
+                if (currentPage !== 1) {
+                  const target = e.target as HTMLButtonElement;
+                  target.style.borderColor = '#3b82f6';
+                  target.style.transform = 'translateY(-1px)';
+                  target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.2)';
+                }
+              }}
+              onMouseLeave={e => {
+                if (currentPage !== 1) {
+                  const target = e.target as HTMLButtonElement;
+                  target.style.borderColor = '#e2e8f0';
+                  target.style.transform = 'translateY(0)';
+                  target.style.boxShadow = 'none';
+                }
               }}
             >
-              ← Anterior
+              ← <span className="pagination-text">Anterior</span>
             </button>
             
-            <span style={{ 
-              padding: '10px 20px',
-              color: '#374151',
-              fontWeight: 600,
-              fontSize: '14px'
+            <div className="page-info" style={{ 
+              padding: 'clamp(12px, 2.5vw, 16px) clamp(16px, 3vw, 24px)',
+              background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+              border: '2px solid #3b82f6',
+              borderRadius: '12px',
+              color: '#1e40af',
+              fontWeight: 700,
+              fontSize: 'clamp(0.85rem, 2vw, 0.95rem)',
+              textAlign: 'center',
+              minWidth: 'fit-content',
+              letterSpacing: '0.025em',
             }}>
-              Página {currentPage} de {totalPages}
-            </span>
+              <span className="page-full">Página {currentPage} de {totalPages}</span>
+              <span className="page-short" style={{ display: 'none' }}>{currentPage}/{totalPages}</span>
+            </div>
             
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage === totalPages}
               style={{
-                padding: '10px 16px',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                background: currentPage === totalPages ? '#f9fafb' : '#fff',
-                color: currentPage === totalPages ? '#9ca3af' : '#374151',
+                padding: 'clamp(10px, 2vw, 14px) clamp(16px, 3vw, 20px)',
+                border: '2px solid #e2e8f0',
+                borderRadius: '12px',
+                background: currentPage === totalPages 
+                  ? 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)' 
+                  : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                color: currentPage === totalPages ? '#9ca3af' : '#1e293b',
                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                 fontWeight: 600,
-                transition: 'all 0.2s ease'
+                fontSize: 'clamp(0.85rem, 2vw, 0.95rem)',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                outline: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                letterSpacing: '0.025em',
+                opacity: currentPage === totalPages ? 0.6 : 1,
+              }}
+              onMouseEnter={e => {
+                if (currentPage !== totalPages) {
+                  const target = e.target as HTMLButtonElement;
+                  target.style.borderColor = '#3b82f6';
+                  target.style.transform = 'translateY(-1px)';
+                  target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.2)';
+                }
+              }}
+              onMouseLeave={e => {
+                if (currentPage !== totalPages) {
+                  const target = e.target as HTMLButtonElement;
+                  target.style.borderColor = '#e2e8f0';
+                  target.style.transform = 'translateY(0)';
+                  target.style.boxShadow = 'none';
+                }
               }}
             >
-              Siguiente →
+              <span className="pagination-text">Siguiente</span> →
             </button>
           </div>
         )}
 
-        {/* Botón de retorno */}
+        {/* Botón de retorno modernizado */}
         <div style={{ 
-          marginTop: 32, 
+          marginTop: 'clamp(24px, 4vw, 40px)', 
           display: 'flex', 
           justifyContent: 'center',
-          paddingTop: '24px'
+          paddingTop: 'clamp(16px, 3vw, 24px)'
         }}>
           <button 
             onClick={() => router.push('/dashboard')} 
+            className="return-button"
             style={{ 
-              background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)', 
+              background: 'linear-gradient(135deg, #64748b 0%, #475569 100%)', 
               color: '#fff', 
-              border: 'none', 
-              borderRadius: 12, 
-              padding: '14px 28px', 
-              fontWeight: 600, 
+              border: '2px solid transparent',
+              borderRadius: 16, 
+              padding: 'clamp(12px, 2.5vw, 16px) clamp(20px, 4vw, 32px)', 
+              fontWeight: 700, 
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              fontSize: '14px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              boxShadow: '0 4px 12px rgba(107, 114, 128, 0.3)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              fontSize: 'clamp(0.85rem, 2vw, 1rem)',
+              letterSpacing: '0.025em',
+              boxShadow: '0 8px 25px rgba(100, 116, 139, 0.3)',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px'
+              gap: 'clamp(8px, 2vw, 12px)',
+              outline: 'none',
+              backdropFilter: 'blur(10px)',
+              position: 'relative',
+              overflow: 'hidden',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 6px 16px rgba(107, 114, 128, 0.4)';
+              const target = e.target as HTMLButtonElement;
+              target.style.transform = 'translateY(-3px)';
+              target.style.boxShadow = '0 12px 35px rgba(100, 116, 139, 0.4)';
+              target.style.background = 'linear-gradient(135deg, #475569 0%, #334155 100%)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(107, 114, 128, 0.3)';
+              const target = e.target as HTMLButtonElement;
+              target.style.transform = 'translateY(0)';
+              target.style.boxShadow = '0 8px 25px rgba(100, 116, 139, 0.3)';
+              target.style.background = 'linear-gradient(135deg, #64748b 0%, #475569 100%)';
             }}
           >
-            ← Volver al Dashboard
+            <span style={{ fontSize: 'clamp(1rem, 2.5vw, 1.2rem)' }}>←</span>
+            <span>Volver al Dashboard</span>
           </button>
+        </div>
         </div>
 
         {/* Modal de detalles del equipo */}
@@ -749,6 +829,103 @@ export default function EquiposLista() {
           </div>
         )}
       </main>
+      
+      {/* CSS responsivo para detalle de estados */}
+      <style jsx global>{`
+        /* Responsive para móviles */
+        @media (max-width: 768px) {
+          .pagination-container {
+            flex-direction: column !important;
+            gap: 16px !important;
+            padding: 20px !important;
+          }
+          
+          .pagination-text {
+            display: none !important;
+          }
+          
+          .page-full {
+            display: none !important;
+          }
+          
+          .page-short {
+            display: inline !important;
+          }
+          
+          .detalle-estados-container main {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .pagination-container {
+            padding: 16px !important;
+            border-radius: 12px !important;
+          }
+          
+          .pagination-container button {
+            padding: 10px 14px !important;
+            font-size: 0.8rem !important;
+          }
+          
+          .page-info {
+            padding: 10px 16px !important;
+            font-size: 0.8rem !important;
+          }
+          
+          .return-button {
+            padding: 12px 20px !important;
+            font-size: 0.85rem !important;
+            border-radius: 12px !important;
+          }
+        }
+        
+        /* Tablets */
+        @media (min-width: 769px) and (max-width: 1024px) {
+          .pagination-container {
+            padding: 20px !important;
+          }
+        }
+        
+        /* Pantallas grandes */
+        @media (min-width: 1441px) {
+          .pagination-container {
+            padding: 28px !important;
+            gap: 16px !important;
+          }
+          
+          .return-button {
+            padding: 18px 36px !important;
+            font-size: 1.1rem !important;
+          }
+        }
+        
+        /* Mejoras en accesibilidad */
+        .pagination-container button:focus-visible,
+        .return-button:focus-visible {
+          outline: 2px solid #3b82f6;
+          outline-offset: 2px;
+        }
+        
+        /* Animaciones suaves */
+        .pagination-container button,
+        .return-button {
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Estados disabled mejorados */
+        .pagination-container button:disabled {
+          cursor: not-allowed;
+          transform: none !important;
+          box-shadow: none !important;
+        }
+        
+        .pagination-container button:disabled:hover {
+          border-color: #e2e8f0 !important;
+          box-shadow: none !important;
+        }
+      `}</style>
     </div>
   );
 }

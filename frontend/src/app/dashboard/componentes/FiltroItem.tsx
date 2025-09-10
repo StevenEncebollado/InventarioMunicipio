@@ -29,63 +29,74 @@ export default function FiltroItem({
   };
 
   return (
-    <div style={{
-      minWidth: 280,
+    <div className="filter-item" style={{
+      minWidth: 'min(100%, 280px)',
+      width: '100%',
       position: 'relative',
-      background: '#fff',
-      padding: '22px 20px 18px 20px',
-      borderRadius: '16px',
-      border: '1.5px solid #dbeafe',
-      boxShadow: '0 4px 18px 0 rgba(37,99,235,0.08)',
+      background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+      padding: 'clamp(18px, 3vw, 24px)',
+      borderRadius: '18px',
+      border: '2px solid #e2e8f0',
+      boxShadow: '0 8px 25px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.05)',
       display: 'flex',
       flexDirection: 'column',
-      gap: 10,
+      gap: 12,
       marginBottom: 0,
-      transition: 'box-shadow 0.2s',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      backdropFilter: 'blur(10px)',
     }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '10px',
+        alignItems: 'flex-start',
+        marginBottom: '8px',
+        gap: '12px',
       }}>
         <label style={{
-          fontWeight: 700,
+          fontWeight: 600,
           color: '#1e293b',
-          fontSize: '1.08rem',
+          fontSize: 'clamp(1rem, 2vw, 1.1rem)',
           flex: 1,
-          marginRight: '8px',
-          letterSpacing: '0.1px',
+          lineHeight: '1.4',
+          letterSpacing: '-0.025em',
         }}>
           {label}
         </label>
         <button
           onClick={onRemove}
           style={{
-            background: '#f1f5f9',
-            border: 'none',
-            color: '#2563eb',
-            fontSize: 18,
+            background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
+            border: '1px solid #fca5a5',
+            color: '#dc2626',
+            fontSize: 16,
             cursor: 'pointer',
             borderRadius: '50%',
-            width: '28px',
-            height: '28px',
+            width: '32px',
+            height: '32px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            transition: 'all 0.18s',
+            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
             flexShrink: 0,
-            boxShadow: '0 1px 4px #e0e7ff',
+            boxShadow: '0 2px 8px rgba(220, 38, 38, 0.15)',
+            outline: 'none',
           }}
-          onMouseOver={e => {
-            e.currentTarget.style.background = '#dbeafe';
-            e.currentTarget.style.color = '#1e40af';
+          onMouseEnter={e => {
+            const target = e.currentTarget;
+            target.style.background = 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+            target.style.color = '#ffffff';
+            target.style.transform = 'scale(1.1)';
+            target.style.boxShadow = '0 4px 15px rgba(220, 38, 38, 0.3)';
           }}
-          onMouseOut={e => {
-            e.currentTarget.style.background = '#f1f5f9';
-            e.currentTarget.style.color = '#2563eb';
+          onMouseLeave={e => {
+            const target = e.currentTarget;
+            target.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
+            target.style.color = '#dc2626';
+            target.style.transform = 'scale(1)';
+            target.style.boxShadow = '0 2px 8px rgba(220, 38, 38, 0.15)';
           }}
           title={`Quitar filtro ${label}`}
+          aria-label={`Quitar filtro ${label}`}
         >
           <FaTimes />
         </button>
@@ -106,18 +117,35 @@ export default function FiltroItem({
         ) : (
           <select
             style={{
-              ...EstiloDashboardEspecifico.catalogos.selectStyle,
               width: '100%',
               fontWeight: 500,
-              fontSize: '1rem',
-              color: '#334155',
-              background: '#f8fafc',
-              borderRadius: 8,
-              border: '1px solid #e2e8f0',
-              marginTop: 2,
+              fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+              color: '#1e293b',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+              borderRadius: 12,
+              border: '2px solid #e2e8f0',
+              padding: '12px 16px',
+              marginTop: 4,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              outline: 'none',
+              appearance: 'none',
+              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+              backgroundPosition: 'right 12px center',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: '16px',
+              paddingRight: '40px',
             }}
             value={Array.isArray(value) ? '' : value}
             onChange={e => onChange(e.target.value)}
+            onFocus={e => {
+              e.target.style.borderColor = '#3b82f6';
+              e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+            }}
+            onBlur={e => {
+              e.target.style.borderColor = '#e2e8f0';
+              e.target.style.boxShadow = 'none';
+            }}
           >
             <option value="">{placeholder}</option>
             {options.map(opt => (
@@ -128,6 +156,28 @@ export default function FiltroItem({
           </select>
         )}
       </div>
+      
+      {/* CSS específico para este componente */}
+      <style jsx>{`
+        .filter-item:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 35px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.1) !important;
+          border-color: #cbd5e1;
+        }
+        
+        @media (max-width: 768px) {
+          .filter-item {
+            min-width: 100% !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .filter-item {
+            padding: 16px !important;
+            border-radius: 14px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import { useCatalogos } from '../hooks/useCatalogos';
 import type { Equipo, EquipoExtendido } from '@/types';
 
-export function useEquipoExtendido(equipo: Equipo): EquipoExtendido {
+export function useEquipoExtendido(equipo: Equipo | null | undefined): EquipoExtendido | null {
   const { catalogos } = useCatalogos();
 
-  const equipoExtendido = useMemo((): EquipoExtendido => {
-    if (!equipo) return equipo as EquipoExtendido;
+  const equipoExtendido = useMemo((): EquipoExtendido | null => {
+    if (!equipo) return null;
 
     // Buscar nombres en los catálogos
     const dependencia = catalogos.dependencias.find(d => d.id === equipo.dependencia_id);

@@ -147,80 +147,130 @@ export default function Dashboard() {
   return (
     <div style={estiloGlobal.dashboard}>
       <Navbar user={user} onLogout={handleLogout} />
-        <main style={EstiloDashboard.dashboardContent}>
-        {/* Sistema de partículas estables */}
-        <div style={EstiloDashboard.efectosVisuales.sistemaParticulas.contenedor}>
-          {/* Partículas principales */}
-          {EstiloDashboard.efectosVisuales.sistemaParticulas.particulas.map((particula, index) => (
-            <div key={`particula-${index}`} style={particula} />
-          ))}
-          
-          {/* Micro partículas brillantes */}
-          {EstiloDashboard.efectosVisuales.sistemaParticulas.microParticulas.map((micro, index) => (
-            <div key={`micro-${index}`} style={micro} />
-          ))}
-        </div>
-        
-        {/* Patrón geométrico estable */}
-        <div style={EstiloDashboard.efectosVisuales.patronGeometrico} />
-        
-        {/* Ondas de energía dinámicas */}
-        {EstiloDashboard.efectosVisuales.ondasEnergia.map((onda, index) => (
-          <div key={`onda-${index}`} style={onda} />
-        ))}
-        
-        {/* Efectos ambientales */}
-        <div style={EstiloDashboard.efectosVisuales.efectosAmbientales.aurora} />
-        <div style={EstiloDashboard.efectosVisuales.efectosAmbientales.resplandorCentral} />
-        
-        {/* Elementos decorativos flotantes */}
-        {EstiloDashboard.efectosVisuales.elementosFlotantes.map((elemento, index) => (
-          <div key={`flotante-${index}`} style={elemento} />
-        ))}
-        
-        <div style={EstiloDashboard.contenidoRelativo}>
-          <PanelControl
-            total={stats.total}
-            active={stats.active}
-            maintenance={stats.maintenance}
-            inactive={stats.inactive}
-            onInfoClick={handlePanelInfo}
-            loading={isLoading}
-          />
-          {error && (
-            <div style={{...estiloGlobal.alert, ...estiloGlobal.alertError}}>
-              {error}
-              <button 
-                onClick={clearError}
-                style={estiloGlobal.alertClose}
-                aria-label="Cerrar"
-              >
-                ×
-              </button>
-            </div>
-          )}
-          <TablaEquipos 
-            equipos={equipos}
-            titulo="Equipos Recientes"
-            icono={<FaDesktop style={{ color: '#3b82f6', fontSize: '1.5rem' }} />}
-            mostrarSoloRecientes={true}
-            mostrarColumnaAnyDesk={true}
-            mostrarBotonEliminar={true}
-            mostrarBotonAgregar={true}
-            onEliminar={handleEliminar}
-            maxWidth="100%"
-            margin="32px auto"
-            containerStyle={{
-              padding: '24px',
-              maxWidth: '100%',
-              overflow: 'visible'
-            }}
-          />
-        </div>
-        
-        {/* Animaciones CSS */}
-        <style>{EstiloDashboard.animacionesCSS}</style>
+        <main style={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+          paddingBottom: 'clamp(80px, 12vh, 120px)',
+        }}>
+          <div className="dashboard-container" style={{ 
+            padding: 'clamp(16px, 3vw, 32px)', 
+            maxWidth: '1400px', 
+            margin: '0 auto',
+            position: 'relative',
+            zIndex: 1,
+            width: '100%'
+          }}>
+            <PanelControl
+              total={stats.total}
+              active={stats.active}
+              maintenance={stats.maintenance}
+              inactive={stats.inactive}
+              onInfoClick={handlePanelInfo}
+              loading={isLoading}
+            />
+            {error && (
+              <div style={{...estiloGlobal.alert, ...estiloGlobal.alertError}}>
+                {error}
+                <button 
+                  onClick={clearError}
+                  style={estiloGlobal.alertClose}
+                  aria-label="Cerrar"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            <TablaEquipos 
+              equipos={equipos}
+              titulo="Equipos Recientes"
+              icono={<FaDesktop style={{ color: '#3b82f6', fontSize: '1.5rem' }} />}
+              mostrarSoloRecientes={true}
+              mostrarColumnaAnyDesk={true}
+              mostrarBotonEliminar={true}
+              mostrarBotonAgregar={true}
+              onEliminar={handleEliminar}
+              maxWidth="100%"
+              margin="32px auto"
+              containerStyle={{
+                padding: '24px',
+                maxWidth: '100%',
+                overflow: 'visible'
+              }}
+            />
+          </div>
       </main>
+      
+      {/* CSS responsivo para el dashboard */}
+      <style jsx global>{`
+        /* Responsive para móviles */
+        @media (max-width: 768px) {
+          .dashboard-container {
+            padding: 16px !important;
+          }
+          
+          main {
+            padding-bottom: 80px !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .dashboard-container {
+            padding: 12px !important;
+          }
+          
+          main {
+            padding-bottom: 60px !important;
+          }
+        }
+        
+        /* Responsive para tablets */
+        @media (min-width: 769px) and (max-width: 1024px) {
+          .dashboard-container {
+            padding: 24px !important;
+          }
+        }
+        
+        /* Pantallas grandes */
+        @media (min-width: 1441px) {
+          .dashboard-container {
+            padding: 40px !important;
+            max-width: 1600px !important;
+          }
+        }
+        
+        /* Mejoras generales de performance */
+        * {
+          box-sizing: border-box;
+        }
+        
+        /* Scroll suave */
+        html {
+          scroll-behavior: smooth;
+        }
+        
+        /* Optimización de imágenes y elementos */
+        img, svg {
+          display: block;
+          max-width: 100%;
+          height: auto;
+        }
+        
+        /* Mejoras en accesibilidad */
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+          outline: 2px solid #3b82f6;
+          outline-offset: 2px;
+        }
+        
+        /* Transiciones globales optimizadas */
+        button, 
+        input, 
+        select, 
+        .interactive-element {
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+      `}</style>
     </div>
   );
 }

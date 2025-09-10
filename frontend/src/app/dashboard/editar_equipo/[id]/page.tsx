@@ -215,66 +215,108 @@ export default function EditarEquipoPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f4f6fa' }}>
+    <div className="editar-equipo-container" style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' 
+    }}>
       <Navbar user={user} onLogout={handleLogout} />
       
-      <div style={{ padding: '40px 20px' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <div style={{ 
-            background: '#fff', 
-            borderRadius: '16px', 
-            padding: '32px', 
-            boxShadow: '0 4px 24px rgba(44,62,80,0.08)' 
+      <div style={{ 
+        padding: 'clamp(20px, 4vw, 48px) clamp(16px, 3vw, 32px)',
+        paddingBottom: 'clamp(60px, 10vh, 100px)'
+      }}>
+        <div style={{ 
+          maxWidth: '900px', 
+          margin: '0 auto',
+          width: '100%'
+        }}>
+          <div className="edit-form-container" style={{ 
+            background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)', 
+            borderRadius: '20px', 
+            padding: 'clamp(24px, 4vw, 40px)', 
+            boxShadow: '0 20px 60px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.05)',
+            border: '1px solid rgba(226,232,240,0.8)',
+            backdropFilter: 'blur(10px)'
           }}>
-            <div style={{ marginBottom: '32px', textAlign: 'center' }}>
+            <div className="header-section" style={{ 
+              marginBottom: 'clamp(24px, 4vw, 40px)', 
+              textAlign: 'center' 
+            }}>
               <h1 style={{ 
-                fontSize: '2rem', 
+                fontSize: 'clamp(1.5rem, 4vw, 2.2rem)', 
                 fontWeight: 700, 
-                color: '#2563eb', 
+                background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
                 margin: 0,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '12px'
+                gap: 'clamp(8px, 2vw, 16px)',
+                flexWrap: 'wrap',
+                letterSpacing: '-0.025em'
               }}>
-                <span role="img" aria-label="Editar" style={{ fontSize: '2.5rem' }}>✏️</span>
-                Editar Equipo
+                <span role="img" aria-label="Editar" style={{ 
+                  fontSize: 'clamp(2rem, 5vw, 2.8rem)',
+                  filter: 'drop-shadow(0 2px 4px rgba(59,130,246,0.2))'
+                }}>✏️</span>
+                <span>Editar Equipo</span>
               </h1>
-              <p style={{ color: '#64748b', margin: '8px 0 0 0' }}>
+              <p style={{ 
+                color: '#64748b', 
+                fontSize: 'clamp(0.9rem, 2.2vw, 1.1rem)',
+                lineHeight: '1.5',
+                maxWidth: '600px',
+                margin: 'clamp(8px, 2vw, 12px) auto 0'
+              }}>
                 Modifique los campos necesarios para actualizar el equipo
               </p>
-              <div style={{ 
-                background: '#f0f9ff', 
-                border: '1px solid #0ea5e9', 
-                color: '#0369a1', 
-                padding: '8px 16px', 
-                borderRadius: '8px', 
-                marginTop: '16px',
-                fontSize: '14px'
+              <div className="equipo-info" style={{ 
+                background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)', 
+                border: '2px solid #3b82f6', 
+                color: '#1e40af', 
+                padding: 'clamp(10px, 2vw, 16px) clamp(12px, 2.5vw, 20px)', 
+                borderRadius: '12px', 
+                marginTop: 'clamp(16px, 3vw, 24px)',
+                fontSize: 'clamp(0.8rem, 1.8vw, 0.95rem)',
+                fontWeight: 600,
+                display: 'inline-block',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.15)'
               }}>
-                ID del equipo: {equipoId} | PC: {editarEquipo.equipo.nombre_pc}
+                <span className="equipo-info-full">
+                  ID del equipo: {equipoId} | PC: {editarEquipo.equipo.nombre_pc}
+                </span>
+                <span className="equipo-info-short" style={{ display: 'none' }}>
+                  ID: {equipoId}
+                </span>
               </div>
             </div>
 
             {editarEquipo.editError && (
-              <div style={{ 
-                background: '#fee2e2', 
-                border: '1px solid #fecaca', 
-                color: '#dc2626', 
-                padding: '12px 16px', 
-                borderRadius: '8px', 
-                marginBottom: '24px' 
+              <div className="error-message" style={{ 
+                background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)', 
+                border: '2px solid #f87171', 
+                color: '#b91c1c', 
+                padding: 'clamp(12px, 2.5vw, 16px) clamp(16px, 3vw, 20px)', 
+                borderRadius: '12px', 
+                marginBottom: 'clamp(20px, 3vw, 28px)',
+                fontSize: 'clamp(0.85rem, 2vw, 0.95rem)',
+                fontWeight: 600,
+                boxShadow: '0 4px 12px rgba(185, 28, 28, 0.15)',
+                backdropFilter: 'blur(10px)'
               }}>
                 {editarEquipo.editError}
               </div>
             )}
 
             <form onSubmit={handleSubmit}>
-              <div style={{ 
+              <div className="form-grid" style={{ 
                 display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-                gap: '20px',
-                marginBottom: '24px'
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', 
+                gap: 'clamp(16px, 3vw, 24px)',
+                marginBottom: 'clamp(20px, 3vw, 32px)'
               }}>
                 {/* Campos de texto */}
                 {campoVisible('ip') && (
@@ -577,21 +619,45 @@ export default function EditarEquipoPage() {
               </div>
               )}
 
-              {/* Botones */}
-              <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
+              {/* Botones modernizados */}
+              <div className="form-buttons" style={{ 
+                display: 'flex', 
+                gap: 'clamp(12px, 3vw, 20px)', 
+                justifyContent: 'flex-end',
+                flexWrap: 'wrap',
+                marginTop: 'clamp(24px, 4vw, 32px)'
+              }}>
                 <button
                   type="button"
                   onClick={() => router.push('/dashboard')}
+                  className="cancel-button"
                   style={{
-                    background: '#f3f4f6',
-                    border: '1px solid #d1d5db',
-                    color: '#374151',
-                    fontSize: '16px',
+                    background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                    border: '2px solid #cbd5e1',
+                    color: '#475569',
+                    fontSize: 'clamp(0.9rem, 2vw, 1rem)',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    padding: '12px 24px',
-                    borderRadius: '8px',
-                    transition: 'all 0.2s ease',
+                    padding: 'clamp(12px, 2.5vw, 16px) clamp(20px, 4vw, 28px)',
+                    borderRadius: '12px',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    outline: 'none',
+                    minWidth: 'fit-content',
+                    letterSpacing: '0.025em',
+                  }}
+                  onMouseEnter={e => {
+                    const target = e.target as HTMLButtonElement;
+                    target.style.background = 'linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)';
+                    target.style.borderColor = '#94a3b8';
+                    target.style.transform = 'translateY(-1px)';
+                    target.style.boxShadow = '0 4px 12px rgba(71, 85, 105, 0.2)';
+                  }}
+                  onMouseLeave={e => {
+                    const target = e.target as HTMLButtonElement;
+                    target.style.background = 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)';
+                    target.style.borderColor = '#cbd5e1';
+                    target.style.transform = 'translateY(0)';
+                    target.style.boxShadow = 'none';
                   }}
                 >
                   Cancelar
@@ -599,25 +665,212 @@ export default function EditarEquipoPage() {
                 
                 <button 
                   type="submit" 
-                  disabled={editarEquipo.editLoading} 
+                  disabled={editarEquipo.editLoading}
+                  className="submit-button"
                   style={{
-                    ...EstiloComponentesUI.botones.btn,
-                    ...EstiloComponentesUI.botones.btnPrimary,
-                    fontSize: '16px',
-                    fontWeight: 600,
-                    padding: '12px 32px',
-                    borderRadius: '8px',
-                    opacity: editarEquipo.editLoading ? 0.6 : 1,
+                    background: editarEquipo.editLoading
+                      ? 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)'
+                      : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                    border: '2px solid transparent',
+                    color: '#ffffff',
+                    fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                    fontWeight: 700,
                     cursor: editarEquipo.editLoading ? 'not-allowed' : 'pointer',
+                    padding: 'clamp(12px, 2.5vw, 16px) clamp(24px, 4vw, 36px)',
+                    borderRadius: '12px',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    outline: 'none',
+                    minWidth: 'fit-content',
+                    letterSpacing: '0.025em',
+                    boxShadow: editarEquipo.editLoading 
+                      ? 'none' 
+                      : '0 8px 25px rgba(59, 130, 246, 0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                  onMouseEnter={e => {
+                    if (!editarEquipo.editLoading) {
+                      const target = e.target as HTMLButtonElement;
+                      target.style.background = 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)';
+                      target.style.transform = 'translateY(-2px)';
+                      target.style.boxShadow = '0 12px 35px rgba(59, 130, 246, 0.5)';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!editarEquipo.editLoading) {
+                      const target = e.target as HTMLButtonElement;
+                      target.style.background = 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)';
+                      target.style.transform = 'translateY(0)';
+                      target.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.4)';
+                    }
                   }}
                 >
-                  {editarEquipo.editLoading ? 'Actualizando...' : 'Actualizar Equipo'}
+                  {editarEquipo.editLoading && (
+                    <div style={{
+                      width: '16px',
+                      height: '16px',
+                      border: '2px solid rgba(255,255,255,0.3)',
+                      borderTop: '2px solid #ffffff',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }} />
+                  )}
+                  <span>{editarEquipo.editLoading ? 'Actualizando...' : 'Actualizar Equipo'}</span>
                 </button>
               </div>
             </form>
           </div>
         </div>
       </div>
+      
+      {/* CSS responsivo para editar equipo */}
+      <style jsx global>{`
+        /* Animación de carga */
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive para móviles */
+        @media (max-width: 768px) {
+          .edit-form-container {
+            border-radius: 16px !important;
+            margin: 0 8px !important;
+          }
+          
+          .form-grid {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+          
+          .form-buttons {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+          }
+          
+          .cancel-button,
+          .submit-button {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+          
+          .equipo-info-full {
+            display: none !important;
+          }
+          
+          .equipo-info-short {
+            display: inline !important;
+          }
+          
+          .header-section h1 {
+            flex-direction: column !important;
+            gap: 12px !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .editar-equipo-container {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+          }
+          
+          .edit-form-container {
+            padding: 20px !important;
+            border-radius: 12px !important;
+          }
+          
+          .form-grid {
+            gap: 12px !important;
+          }
+          
+          .header-section h1 span:first-child {
+            font-size: 1.8rem !important;
+          }
+          
+          .equipo-info {
+            padding: 8px 12px !important;
+            font-size: 0.75rem !important;
+          }
+          
+          .error-message {
+            padding: 10px 14px !important;
+            font-size: 0.8rem !important;
+          }
+        }
+        
+        /* Tablets */
+        @media (min-width: 769px) and (max-width: 1024px) {
+          .form-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+          }
+          
+          .edit-form-container {
+            padding: 32px !important;
+          }
+        }
+        
+        /* Pantallas grandes */
+        @media (min-width: 1441px) {
+          .edit-form-container {
+            max-width: 1000px !important;
+            padding: 48px !important;
+          }
+          
+          .form-grid {
+            gap: 28px !important;
+          }
+        }
+        
+        /* Mejoras en accesibilidad */
+        .cancel-button:focus-visible,
+        .submit-button:focus-visible {
+          outline: 2px solid #3b82f6;
+          outline-offset: 2px;
+        }
+        
+        /* Estilos para campos de formulario */
+        .form-grid input,
+        .form-grid select {
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          border-radius: 12px !important;
+          border: 2px solid #e2e8f0 !important;
+          padding: 12px 16px !important;
+          font-size: clamp(0.9rem, 2vw, 1rem) !important;
+          background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+        }
+        
+        .form-grid input:focus,
+        .form-grid select:focus {
+          border-color: #3b82f6 !important;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+          outline: none !important;
+        }
+        
+        .form-grid label {
+          font-weight: 600 !important;
+          color: #1e293b !important;
+          margin-bottom: 8px !important;
+          font-size: clamp(0.85rem, 2vw, 0.95rem) !important;
+          letter-spacing: 0.025em !important;
+        }
+        
+        /* Estados disabled mejorados */
+        .submit-button:disabled {
+          transform: none !important;
+          box-shadow: none !important;
+          cursor: not-allowed !important;
+        }
+        
+        .submit-button:disabled:hover {
+          background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%) !important;
+          transform: none !important;
+          box-shadow: none !important;
+        }
+      `}</style>
     </div>
   );
 }

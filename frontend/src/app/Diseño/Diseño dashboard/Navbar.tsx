@@ -32,8 +32,14 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
   };
   
   return (
-    <nav style={EstiloDashboardEspecifico.navbar.navbar}>
-      {/* Efecto de ondas de fondo */}
+    <nav className="navbar-container" style={{
+      ...EstiloDashboardEspecifico.navbar.navbar,
+      position: 'relative',
+      overflow: 'hidden',
+      backdropFilter: 'blur(10px)',
+      borderBottom: '1px solid rgba(255,255,255,0.1)',
+    }}>
+      {/* Efecto de ondas de fondo mejorado */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -41,76 +47,147 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
         right: 0,
         bottom: 0,
         background: `
-          radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
-          radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%)
+          radial-gradient(circle at 15% 85%, rgba(255,255,255,0.12) 0%, transparent 50%),
+          radial-gradient(circle at 85% 15%, rgba(255,255,255,0.12) 0%, transparent 50%),
+          radial-gradient(circle at 50% 50%, rgba(59,130,246,0.1) 0%, transparent 70%)
         `,
         zIndex: 0,
       }} />
       
-      <div style={{ ...EstiloDashboardEspecifico.navbar.navBrand, position: 'relative', zIndex: 1 }}>
+      <div className="navbar-brand" style={{ 
+        ...EstiloDashboardEspecifico.navbar.navBrand, 
+        position: 'relative', 
+        zIndex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 'clamp(8px, 2vw, 16px)',
+        flex: '1',
+        minWidth: '0'
+      }}>
         <FaCity style={{ 
-          fontSize: '2.4rem', 
+          fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', 
           color: '#fff', 
           animation: 'spin 3s linear infinite',
-          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+          filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.4))',
+          flexShrink: 0,
         }} />
         <button
           onClick={handleGoHome}
+          className="navbar-title"
           style={{
             background: 'none',
             border: 'none',
             color: '#fff',
-            fontSize: '1.8rem',
-            fontWeight: 800,
+            fontSize: 'clamp(1.2rem, 3vw, 1.9rem)',
+            fontWeight: 700,
             cursor: 'pointer',
             margin: 0,
-            padding: 0,
-            textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-            letterSpacing: '1px',
-            transition: 'all 0.3s ease',
+            padding: '8px 0',
+            textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+            letterSpacing: '-0.025em',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            textAlign: 'left',
+            outline: 'none',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            minWidth: '0',
           }}
-          onMouseOver={e => {
-            e.currentTarget.style.transform = 'scale(1.02)';
-            e.currentTarget.style.textShadow = '0 2px 8px rgba(0,0,0,0.5)';
+          onMouseEnter={e => {
+            const target = e.target as HTMLButtonElement;
+            target.style.transform = 'scale(1.02)';
+            target.style.textShadow = '0 3px 12px rgba(0,0,0,0.6)';
           }}
-          onMouseOut={e => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.textShadow = '0 2px 4px rgba(0,0,0,0.3)';
+          onMouseLeave={e => {
+            const target = e.target as HTMLButtonElement;
+            target.style.transform = 'scale(1)';
+            target.style.textShadow = '0 2px 8px rgba(0,0,0,0.4)';
           }}
         >
-          Inventario Municipio
+          <span className="full-title">Inventario Municipio</span>
+          <span className="short-title" style={{ display: 'none' }}>Inventario</span>
         </button>
       </div>
       
-      <div style={{ ...EstiloDashboardEspecifico.navbar.navUser, position: 'relative', zIndex: 1 }}>
+      <div className="navbar-user" style={{ 
+        ...EstiloDashboardEspecifico.navbar.navUser, 
+        position: 'relative', 
+        zIndex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 'clamp(8px, 2vw, 16px)',
+        flex: 'none',
+        minWidth: '0'
+      }}>
         {user && (
           <>
-            <FaUserCircle style={{ 
-              fontSize: '1.8rem', 
-              marginRight: 8, 
+            <FaUserCircle className="user-icon" style={{ 
+              fontSize: 'clamp(1.4rem, 3vw, 2rem)', 
               color: '#fff',
-              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+              filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.4))',
+              flexShrink: 0,
             }} />
-            <span style={{ 
-              fontWeight: 700, 
-              fontSize: '1.2rem',
+            <span className="welcome-text" style={{ 
+              fontWeight: 600, 
+              fontSize: 'clamp(0.9rem, 2.2vw, 1.3rem)',
+              color: '#fff',
+              textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              minWidth: '0',
             }}>
-              Bienvenido, <strong style={{ 
-                background: 'linear-gradient(45deg, #fff, #e0f2fe)',
+              <span className="welcome-full">Bienvenido, </span>
+              <strong style={{ 
+                background: 'linear-gradient(45deg, #ffffff, #e0f2fe)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
+                filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))',
               }}>{user.username}</strong>
             </span>
             <button
               onClick={onLogout}
               type="button"
-              style={EstiloDashboardEspecifico.navbar.logoutButton}
-              onMouseOver={e => Object.assign(e.currentTarget.style, EstiloDashboardEspecifico.navbar.logoutButtonHover)}
-              onMouseOut={e => Object.assign(e.currentTarget.style, EstiloDashboardEspecifico.navbar.logoutButton)}
+              className="logout-button"
+              style={{
+                ...EstiloDashboardEspecifico.navbar.logoutButton,
+                fontSize: 'clamp(0.8rem, 1.8vw, 1rem)',
+                padding: 'clamp(8px, 1.5vw, 12px) clamp(12px, 2.5vw, 20px)',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'clamp(4px, 1vw, 8px)',
+                border: '2px solid rgba(255,255,255,0.2)',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                fontWeight: 600,
+                letterSpacing: '0.025em',
+                outline: 'none',
+                whiteSpace: 'nowrap',
+                minWidth: 'fit-content',
+              }}
+              onMouseEnter={e => {
+                const target = e.target as HTMLButtonElement;
+                target.style.background = 'rgba(255,255,255,0.25)';
+                target.style.borderColor = 'rgba(255,255,255,0.4)';
+                target.style.transform = 'translateY(-1px)';
+                target.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)';
+              }}
+              onMouseLeave={e => {
+                const target = e.target as HTMLButtonElement;
+                target.style.background = 'rgba(255,255,255,0.15)';
+                target.style.borderColor = 'rgba(255,255,255,0.2)';
+                target.style.transform = 'translateY(0)';
+                target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+              }}
             >
-              <FaSignOutAlt style={{ fontSize: '1.2rem', marginRight: 4 }} />
-              Cerrar Sesión
+              <FaSignOutAlt style={{ 
+                fontSize: 'clamp(1rem, 2vw, 1.3rem)', 
+                flexShrink: 0 
+              }} />
+              <span className="logout-text">Cerrar Sesión</span>
+              <span className="logout-text-short" style={{ display: 'none' }}>Salir</span>
             </button>
           </>
         )}

@@ -24,6 +24,98 @@ export default function LoginPage() {
     if (score === 4) return { level: 'Alto', color: '#3498db', score };
     return { level: 'Muy Alto', color: '#27ae60', score };
   }
+
+  // Función para mostrar notificaciones de error elegantes
+  const showErrorNotification = async (error: any) => {
+    let title = 'Error en el Sistema';
+    let message = 'Ha ocurrido un error inesperado. Por favor, intente nuevamente.';
+    let icon: 'error' | 'warning' | 'info' = 'error';
+    
+    // Casos especiales de validación
+    if (error && typeof error === 'object' && error.message === 'validation_required') {
+      title = 'Campos Requeridos';
+      message = '📝 ' + (error.details || 'Todos los campos son obligatorios.');
+      icon = 'info';
+    }
+    // Analizar el tipo de error específico
+    else if (typeof error === 'string') {
+      if (error.includes('401') || error.includes('UNAUTHORIZED') || error.includes('Usuario o contraseña incorrectos')) {
+        title = 'Credenciales Incorrectas';
+        message = '🔒 El usuario o contraseña que ingresaste no son válidos. Verifica tus datos e intenta nuevamente.';
+        icon = 'warning';
+      } else if (error.includes('403') || error.includes('FORBIDDEN')) {
+        title = 'Acceso Denegado';
+        message = '🚫 No tienes permisos para acceder al sistema. Contacta al administrador.';
+        icon = 'warning';
+      } else if (error.includes('404') || error.includes('NOT FOUND')) {
+        title = 'Servicio No Disponible';
+        message = '🔍 El servicio de autenticación no está disponible en este momento.';
+        icon = 'info';
+      } else if (error.includes('500') || error.includes('INTERNAL SERVER ERROR')) {
+        title = 'Error del Servidor';
+        message = '⚠️ Hay un problema en el servidor. Nuestro equipo técnico ya fue notificado.';
+        icon = 'error';
+      } else if (error.includes('network') || error.includes('conexión') || error.includes('connection')) {
+        title = 'Problema de Conexión';
+        message = '🌐 No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta nuevamente.';
+        icon = 'warning';
+      } else if (error.includes('timeout')) {
+        title = 'Tiempo de Espera Agotado';
+        message = '⏱️ El servidor está tardando demasiado en responder. Por favor, intenta más tarde.';
+        icon = 'warning';
+      }
+    }
+    // Si el error tiene propiedades específicas
+    else if (error && typeof error === 'object') {
+      if (error.message) {
+        if (error.message.includes('Usuario o contraseña incorrectos')) {
+          title = 'Datos Incorrectos';
+          message = '🔒 Las credenciales ingresadas no son correctas. Revisa tu usuario y contraseña.';
+          icon = 'warning';
+        } else if (error.message.includes('Network Error')) {
+          title = 'Sin Conexión';
+          message = '🌐 No se pudo establecer conexión con el servidor. Verifica tu conexión a internet.';
+          icon = 'error';
+        } else if (error.message.includes('fetch')) {
+          title = 'Error de Comunicación';
+          message = '📡 Hubo un problema al comunicarse con el servidor. Intenta nuevamente.';
+          icon = 'warning';
+        }
+      }
+    }
+
+    await Swal.fire({
+      icon: icon,
+      title: title,
+      html: `
+        <div style="text-align: left; padding: 10px 0;">
+          <p style="margin: 0; font-size: 1rem; line-height: 1.5; color: #374151;">
+            ${message}
+          </p>
+          <div style="margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: 8px; border-left: 4px solid ${icon === 'warning' ? '#f59e0b' : '#ef4444'};">
+            <p style="margin: 0; font-size: 0.875rem; color: #6b7280;">
+              💡 <strong>Sugerencia:</strong> ${
+                icon === 'warning' && title.includes('Credenciales') 
+                  ? 'Asegúrate de que no esté activado el Caps Lock y que estés usando las credenciales correctas.'
+                  : icon === 'error' && title.includes('Conexión')
+                  ? 'Intenta recargar la página o verifica que el servidor esté funcionando.'
+                  : 'Revise su usuario o contraseña. Si el problema persiste, contacta al administrador del sistema.'
+              }
+            </p>
+          </div>
+        </div>
+      `,
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: icon === 'warning' ? '#f59e0b' : '#ef4444',
+      backdrop: 'rgba(0,0,0,0.4)',
+      allowOutsideClick: false,
+      customClass: {
+        popup: 'error-notification-popup',
+        title: 'error-notification-title',
+        confirmButton: 'error-notification-button'
+      }
+    });
+  };
   const [passwordChangeRequired, setPasswordChangeRequired] = useState(false);
   const [passwordExpiryWarning, setPasswordExpiryWarning] = useState('');
   const [fechaCambioPassword, setFechaCambioPassword] = useState<string | null>(null);
@@ -70,7 +162,10 @@ export default function LoginPage() {
     clearError();
     
     if (!username.trim() || !password.trim()) {
-      setError('Usuario y contraseña son requeridos');
+      await showErrorNotification({
+        message: 'validation_required',
+        details: 'Todos los campos son obligatorios para iniciar sesión.'
+      });
       return;
     }
 
@@ -94,18 +189,33 @@ export default function LoginPage() {
         const diffInDays = Math.floor((ahora.getTime() - fechaCambio.getTime()) / (1000 * 60 * 60 * 24));
         
         if (diffInDays >= 88 && diffInDays < 90) {
-          setPasswordExpiryWarning(`Tu contraseña expirará en ${90 - diffInDays} día(s). Considera cambiarla pronto.`);
+          // Mostrar advertencia de expiración con estilo bonito
+          await Swal.fire({
+            icon: 'info',
+            title: '⏰ Contraseña Próxima a Expirar',
+            html: `
+              <div style="text-align: center; padding: 15px 0;">
+                <p style="margin: 0; font-size: 1rem; color: #374151; line-height: 1.5;">
+                  Tu contraseña expirará en <strong>${90 - diffInDays} día(s)</strong>.
+                </p>
+                <p style="margin: 10px 0 0 0; font-size: 0.9rem; color: #6b7280;">
+                  Te recomendamos cambiarla pronto para evitar inconvenientes.
+                </p>
+              </div>
+            `,
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3b82f6',
+            timer: 5000,
+            timerProgressBar: true
+          });
         }
       }
 
       localStorage.setItem(APP_CONFIG.session.storageKey, JSON.stringify(response));
       router.push('/dashboard');
     } catch (err: any) {
-      if (err.message === 'Usuario o contraseña incorrectos') {
-        setError('Tu usuario o contraseña son incorrectos');
-      } else {
-        setError(getErrorMessage(err));
-      }
+      // Usar la nueva función de notificaciones elegantes
+      await showErrorNotification(err);
     } finally {
       stopLoading();
     }
@@ -187,19 +297,6 @@ export default function LoginPage() {
           Registrar Usuario
         </button>
       </form>
-          {error && (
-            <div style={{
-              marginTop: '1rem',
-              padding: '1rem',
-              backgroundColor: '#fee2e2',
-              border: '1px solid #fecaca',
-              borderRadius: '8px',
-              color: '#b91c1c',
-              fontSize: '0.95rem',
-            }}>
-              {error}
-            </div>
-          )}
         </div>
       </div>
 
@@ -476,21 +573,53 @@ export default function LoginPage() {
           left: 0,
           width: '100vw',
           height: '100vh',
-          background: 'rgba(0,0,0,0.4)',
+          background: 'rgba(0,0,0,0.5)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 1000
+          zIndex: 1000,
+          padding: '20px',
+          backdropFilter: 'blur(4px)'
         }}>
-          <div style={{
-            background: '#fff',
-            padding: '2rem',
-            borderRadius: '8px',
+          <div className="modal-container" style={{
+            background: 'linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)',
+            padding: '2.5rem',
+            borderRadius: '16px',
+            width: '100%',
+            maxWidth: '480px',
             minWidth: '320px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-            position: 'relative'
+            boxShadow: '0 20px 60px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.05)',
+            position: 'relative',
+            border: '1px solid rgba(226,232,240,0.8)',
+            overflow: 'hidden'
           }}>
-            <h2 style={{ marginBottom: '1rem' }}>Registro de Usuario</h2>
+            {/* Decoración de fondo */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              width: '200px',
+              height: '200px',
+              background: 'linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(147,197,253,0.05) 100%)',
+              borderRadius: '50%',
+              transform: 'translate(50%, -50%)',
+              zIndex: 0
+            }} />
+            
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <h2 className="modal-title" style={{ 
+                marginBottom: '1.5rem',
+                fontSize: '1.75rem',
+                fontWeight: 700,
+                color: '#1e40af',
+                textAlign: 'center',
+                background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}>
+                Registro de Usuario
+              </h2>
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
@@ -592,8 +721,17 @@ export default function LoginPage() {
                 }
               }}
             >
-              <div style={EstiloComponentesUI.formularios.formGroup}>
-                <label htmlFor="register-username" style={EstiloComponentesUI.formularios.label}>Usuario:</label>
+              <div style={{
+                ...EstiloComponentesUI.formularios.formGroup,
+                marginBottom: '1.5rem'
+              }}>
+                <label htmlFor="register-username" style={{
+                  ...EstiloComponentesUI.formularios.label,
+                  fontSize: '0.95rem',
+                  fontWeight: 600,
+                  color: '#374151',
+                  marginBottom: '8px'
+                }}>Usuario:</label>
                 <input
                   id="register-username"
                   type="text"
@@ -602,7 +740,26 @@ export default function LoginPage() {
                   autoComplete="username"
                   required
                   disabled={registerLoading}
-                  style={EstiloComponentesUI.formularios.input}
+                  placeholder="Ingrese su nombre de usuario"
+                  style={{
+                    ...EstiloComponentesUI.formularios.input,
+                    borderRadius: '12px',
+                    border: '2px solid #e2e8f0',
+                    fontSize: '1rem',
+                    padding: '12px 16px',
+                    transition: 'all 0.2s ease',
+                    background: registerLoading ? '#f8fafc' : '#ffffff',
+                    width: '100%',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={e => {
+                    e.target.style.borderColor = '#3b82f6';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.1)';
+                  }}
+                  onBlur={e => {
+                    e.target.style.borderColor = '#e2e8f0';
+                    e.target.style.boxShadow = 'none';
+                  }}
                 />
               </div>
               <div style={{ marginBottom: '0.5rem', fontSize: '0.95rem', color: '#555' }}>
@@ -735,27 +892,248 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
-              <button
-                type="submit"
-                style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnPrimary, width: '100%', marginTop: '1rem' }}
-                disabled={registerLoading}
-              >
-                {registerLoading ? 'Registrando...' : 'Registrar'}
-              </button>
-              <button
-                type="button"
-                style={{ ...EstiloComponentesUI.botones.btn, ...EstiloComponentesUI.botones.btnSecondary, width: '100%', marginTop: '0.5rem' }}
-                onClick={() => setShowRegister(false)}
-                disabled={registerLoading}
-              >
-                Cancelar
-              </button>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                marginTop: '1.5rem'
+              }}>
+                <button
+                  type="submit"
+                  style={{
+                    ...EstiloComponentesUI.botones.btn,
+                    ...EstiloComponentesUI.botones.btnPrimary,
+                    width: '100%',
+                    padding: '14px 24px',
+                    fontSize: '1rem',
+                    fontWeight: 700,
+                    borderRadius: '12px',
+                    background: registerLoading 
+                      ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'
+                      : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    border: 'none',
+                    color: '#ffffff',
+                    cursor: registerLoading ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: registerLoading 
+                      ? 'none'
+                      : '0 4px 12px rgba(59, 130, 246, 0.4)',
+                    transform: 'translateY(0)',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                  disabled={registerLoading}
+                  onMouseEnter={e => {
+                    if (!registerLoading) {
+                      const target = e.target as HTMLButtonElement;
+                      target.style.transform = 'translateY(-2px)';
+                      target.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.5)';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!registerLoading) {
+                      const target = e.target as HTMLButtonElement;
+                      target.style.transform = 'translateY(0)';
+                      target.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+                    }
+                  }}
+                >
+                  {registerLoading ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <div style={{
+                        width: '16px',
+                        height: '16px',
+                        border: '2px solid rgba(255,255,255,0.3)',
+                        borderTop: '2px solid #ffffff',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                      }} />
+                      Registrando...
+                    </div>
+                  ) : 'Registrar Usuario'}
+                </button>
+                
+                <button
+                  type="button"
+                  style={{
+                    ...EstiloComponentesUI.botones.btn,
+                    ...EstiloComponentesUI.botones.btnSecondary,
+                    width: '100%',
+                    padding: '14px 24px',
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                    border: '2px solid #e2e8f0',
+                    color: '#475569',
+                    cursor: registerLoading ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={() => {
+                    // Limpiar todos los campos al cancelar
+                    setRegisterUsername('');
+                    setRegisterPassword('');
+                    setRegisterConfirmPassword('');
+                    setRegisterError('');
+                    setShowRegister(false);
+                  }}
+                  disabled={registerLoading}
+                  onMouseEnter={e => {
+                    if (!registerLoading) {
+                      const target = e.target as HTMLButtonElement;
+                      target.style.background = 'linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)';
+                      target.style.borderColor = '#cbd5e1';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!registerLoading) {
+                      const target = e.target as HTMLButtonElement;
+                      target.style.background = 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)';
+                      target.style.borderColor = '#e2e8f0';
+                    }
+                  }}
+                >
+                  Cancelar
+                </button>
+              </div>
               {registerError && (
-                <div style={{ ...estiloGlobal.errorMessage, marginTop: '1rem' }} role="alert">
+                <div style={{ 
+                  ...estiloGlobal.errorMessage, 
+                  marginTop: '1rem',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  background: '#fee2e2',
+                  border: '1px solid #fecaca',
+                  color: '#b91c1c'
+                }} role="alert">
                   {registerError}
                 </div>
               )}
             </form>
+            </div>
+            
+            {/* CSS para animaciones y estilos globales */}
+            <style jsx global>{`
+              /* Animaciones del modal de registro */
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+              
+              /* Estilos personalizados para SweetAlert2 */
+              .error-notification-popup {
+                border-radius: 16px !important;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+                border: 1px solid rgba(226, 232, 240, 0.8) !important;
+              }
+              
+              .error-notification-title {
+                font-size: 1.5rem !important;
+                font-weight: 700 !important;
+                color: #1f2937 !important;
+                margin-bottom: 1rem !important;
+              }
+              
+              .error-notification-button {
+                border-radius: 10px !important;
+                font-weight: 600 !important;
+                padding: 12px 24px !important;
+                font-size: 0.95rem !important;
+                transition: all 0.2s ease !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+              }
+              
+              .error-notification-button:hover {
+                transform: translateY(-1px) !important;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
+              }
+              
+              .swal2-popup {
+                animation: slideInUp 0.3s ease-out !important;
+              }
+              
+              @keyframes slideInUp {
+                from {
+                  transform: translateY(30px);
+                  opacity: 0;
+                }
+                to {
+                  transform: translateY(0);
+                  opacity: 1;
+                }
+              }
+              
+              .swal2-backdrop-show {
+                animation: fadeIn 0.2s ease-out !important;
+              }
+              
+              @keyframes fadeIn {
+                from {
+                  opacity: 0;
+                }
+                to {
+                  opacity: 1;
+                }
+              }
+              
+              /* Responsive para móviles */
+              @media (max-width: 640px) {
+                .modal-container {
+                  padding: 1.5rem !important;
+                  margin: 10px !important;
+                }
+                
+                .modal-title {
+                  font-size: 1.5rem !important;
+                }
+                
+                .form-input {
+                  font-size: 16px !important; /* Previene zoom en iOS */
+                }
+                
+                .requirements-grid {
+                  grid-template-columns: 1fr !important;
+                }
+                
+                .button-group {
+                  gap: 8px !important;
+                }
+                
+                .form-button {
+                  padding: 12px 20px !important;
+                  font-size: 0.95rem !important;
+                }
+                
+                .error-notification-popup {
+                  margin: 20px !important;
+                  max-width: calc(100% - 40px) !important;
+                }
+                
+                .error-notification-title {
+                  font-size: 1.25rem !important;
+                }
+                
+                .swal2-html-container {
+                  font-size: 0.9rem !important;
+                  line-height: 1.5 !important;
+                }
+              }
+              
+              @media (max-width: 480px) {
+                .modal-container {
+                  padding: 1rem !important;
+                  border-radius: 12px !important;
+                }
+                
+                .requirements-container {
+                  padding: 12px !important;
+                }
+                
+                .requirement-item {
+                  font-size: 0.8rem !important;
+                }
+              }
+            `}</style>
           </div>
         </div>
       )}
