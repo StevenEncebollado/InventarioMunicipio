@@ -56,27 +56,27 @@ def listar_caracteristicas():
 def agregar_caracteristica():
     # Agrega una nueva característica
     data = request.json
-    nombre = data.get('nombre')
-    if not nombre:
-        return jsonify({'error': 'El nombre es obligatorio'}), 400
+    descripcion = data.get('descripcion')
+    if not descripcion:
+        return jsonify({'error': 'La descripción es obligatoria'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('INSERT INTO caracteristicas (nombre) VALUES (%s) RETURNING id', (nombre,))
+    cur.execute('INSERT INTO caracteristicas (descripcion) VALUES (%s) RETURNING id', (descripcion,))
     nueva_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
     conn.close()
-    return jsonify({'id': nueva_id, 'nombre': nombre}), 201
+    return jsonify({'id': nueva_id, 'descripcion': descripcion}), 201
 @caracteristicas_bp.route('/caracteristicas/<int:id>', methods=['PUT'])
 def actualizar_caracteristica(id):
-    # Actualiza el nombre de una característica por su ID
+    # Actualiza la descripción de una característica por su ID
     data = request.json
-    nombre = data.get('nombre')
-    if not nombre:
-        return jsonify({'error': 'El nombre es obligatorio'}), 400
+    descripcion = data.get('descripcion')
+    if not descripcion:
+        return jsonify({'error': 'La descripción es obligatoria'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('UPDATE caracteristicas SET nombre = %s WHERE id = %s', (nombre, id))
+    cur.execute('UPDATE caracteristicas SET descripcion = %s WHERE id = %s', (descripcion, id))
     conn.commit()
     cur.close()
     conn.close()

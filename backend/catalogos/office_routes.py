@@ -56,27 +56,27 @@ def listar_office():
 def agregar_office():
     # Agrega una nueva versión de Office
     data = request.json
-    nombre = data.get('nombre')
-    if not nombre:
-        return jsonify({'error': 'El nombre es obligatorio'}), 400
+    version = data.get('version')
+    if not version:
+        return jsonify({'error': 'La versión es obligatoria'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('INSERT INTO office (nombre) VALUES (%s) RETURNING id', (nombre,))
+    cur.execute('INSERT INTO office (version) VALUES (%s) RETURNING id', (version,))
     nueva_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
     conn.close()
-    return jsonify({'id': nueva_id, 'nombre': nombre}), 201
+    return jsonify({'id': nueva_id, 'version': version}), 201
 @office_bp.route('/office/<int:id>', methods=['PUT'])
 def actualizar_office(id):
-    # Actualiza el nombre de una versión de Office por su ID
+    # Actualiza la versión de Office por su ID
     data = request.json
-    nombre = data.get('nombre')
-    if not nombre:
-        return jsonify({'error': 'El nombre es obligatorio'}), 400
+    version = data.get('version')
+    if not version:
+        return jsonify({'error': 'La versión es obligatoria'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('UPDATE office SET nombre = %s WHERE id = %s', (nombre, id))
+    cur.execute('UPDATE office SET version = %s WHERE id = %s', (version, id))
     conn.commit()
     cur.close()
     conn.close()

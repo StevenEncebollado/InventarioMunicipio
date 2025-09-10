@@ -47,7 +47,7 @@ export default function EditarEquipoPage() {
       'dependencia': equipo.dependencia_id,
       'direccion': equipo.direccion_area_id,
       'equipamiento': equipo.equipamiento_id,
-      'caracteristica': equipo.caracteristicas_id,
+      'caracteristicas': equipo.caracteristicas_id,
       'sistemaOperativo': equipo.tipo_sistema_operativo_id
     };
     
@@ -524,7 +524,7 @@ export default function EditarEquipoPage() {
                 </div>
                 )}
 
-                {campoVisible('caracteristica') && (
+                {campoVisible('caracteristicas') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                     Característica

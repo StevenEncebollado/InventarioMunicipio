@@ -38,14 +38,14 @@ export default function AgregarEquipoPage() {
     if (dispositivo) {
       console.log('Usando configuración por defecto para:', dispositivo.nombre);
       const configuracion: { [key: string]: string[] } = {
-        'Computadora': ['ip', 'mac', 'codigoInventario', 'nombrePc', 'funcionario', 'anydesk', 'estado', 'tipoEquipo', 'marca', 'ram', 'disco', 'office', 'tipoConexion', 'programaAdicional', 'dependencia', 'direccion', 'equipamiento', 'caracteristica', 'sistemaOperativo'],
-        'Laptop': ['codigoInventario', 'nombrePc', 'funcionario', 'mac', 'anydesk', 'estado', 'tipoEquipo', 'marca', 'ram', 'disco', 'office', 'tipoConexion', 'programaAdicional', 'dependencia', 'direccion', 'equipamiento', 'caracteristica', 'sistemaOperativo'],
-        'Mouse': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
-        'Teclado': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
-        'Monitor': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
-        'Impresora': ['ip', 'codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
-        'Scanner': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
-        'Telefono': ['ip', 'codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion', 'equipamiento', 'caracteristica']
+        'Computadora': ['ip', 'mac', 'codigoInventario', 'nombrePc', 'funcionario', 'anydesk', 'estado', 'tipoEquipo', 'marca', 'ram', 'disco', 'office', 'tipoConexion', 'programaAdicional', 'dependencia', 'direccion', 'equipamiento', 'caracteristicas', 'sistemaOperativo'],
+        'Laptop': ['codigoInventario', 'nombrePc', 'funcionario', 'mac', 'anydesk', 'estado', 'tipoEquipo', 'marca', 'ram', 'disco', 'office', 'tipoConexion', 'programaAdicional', 'dependencia', 'direccion', 'equipamiento', 'caracteristicas', 'sistemaOperativo'],
+        'Mouse': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion', 'equipamiento', 'caracteristicas'],
+        'Teclado': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristicas'],
+        'Monitor': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristicas'],
+        'Impresora': ['ip', 'codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristicas'],
+        'Scanner': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristicas'],
+        'Telefono': ['ip', 'codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion', 'equipamiento', 'caracteristicas']
       };
       return configuracion[dispositivo.nombre]?.includes(campo) || false;
     }
@@ -516,7 +516,7 @@ export default function AgregarEquipoPage() {
                 </div>
                 )}
 
-                {campoVisible('caracteristica') && (
+                {campoVisible('caracteristicas') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                     Característica

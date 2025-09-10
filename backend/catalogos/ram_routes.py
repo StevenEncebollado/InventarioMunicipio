@@ -56,27 +56,27 @@ def listar_ram():
 def agregar_ram():
     # Agrega una nueva opción de RAM
     data = request.json
-    nombre = data.get('nombre')
-    if not nombre:
-        return jsonify({'error': 'El nombre es obligatorio'}), 400
+    capacidad = data.get('capacidad')
+    if not capacidad:
+        return jsonify({'error': 'La capacidad es obligatoria'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('INSERT INTO ram (nombre) VALUES (%s) RETURNING id', (nombre,))
+    cur.execute('INSERT INTO ram (capacidad) VALUES (%s) RETURNING id', (capacidad,))
     nueva_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
     conn.close()
-    return jsonify({'id': nueva_id, 'nombre': nombre}), 201
+    return jsonify({'id': nueva_id, 'capacidad': capacidad}), 201
 @ram_bp.route('/ram/<int:id>', methods=['PUT'])
 def actualizar_ram(id):
-    # Actualiza el nombre de una opción de RAM por su ID
+    # Actualiza la capacidad de una opción de RAM por su ID
     data = request.json
-    nombre = data.get('nombre')
-    if not nombre:
-        return jsonify({'error': 'El nombre es obligatorio'}), 400
+    capacidad = data.get('capacidad')
+    if not capacidad:
+        return jsonify({'error': 'La capacidad es obligatoria'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('UPDATE ram SET nombre = %s WHERE id = %s', (nombre, id))
+    cur.execute('UPDATE ram SET capacidad = %s WHERE id = %s', (capacidad, id))
     conn.commit()
     cur.close()
     conn.close()

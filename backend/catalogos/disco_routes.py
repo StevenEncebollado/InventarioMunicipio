@@ -56,27 +56,27 @@ def listar_disco():
 def agregar_disco():
     # Agrega una nueva opción de disco
     data = request.json
-    nombre = data.get('nombre')
-    if not nombre:
-        return jsonify({'error': 'El nombre es obligatorio'}), 400
+    capacidad = data.get('capacidad')
+    if not capacidad:
+        return jsonify({'error': 'La capacidad es obligatoria'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('INSERT INTO disco (nombre) VALUES (%s) RETURNING id', (nombre,))
+    cur.execute('INSERT INTO disco (capacidad) VALUES (%s) RETURNING id', (capacidad,))
     nueva_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
     conn.close()
-    return jsonify({'id': nueva_id, 'nombre': nombre}), 201
+    return jsonify({'id': nueva_id, 'capacidad': capacidad}), 201
 @disco_bp.route('/disco/<int:id>', methods=['PUT'])
 def actualizar_disco(id):
-    # Actualiza el nombre de una opción de disco por su ID
+    # Actualiza la capacidad de una opción de disco por su ID
     data = request.json
-    nombre = data.get('nombre')
-    if not nombre:
-        return jsonify({'error': 'El nombre es obligatorio'}), 400
+    capacidad = data.get('capacidad')
+    if not capacidad:
+        return jsonify({'error': 'La capacidad es obligatoria'}), 400
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('UPDATE disco SET nombre = %s WHERE id = %s', (nombre, id))
+    cur.execute('UPDATE disco SET capacidad = %s WHERE id = %s', (capacidad, id))
     conn.commit()
     cur.close()
     conn.close()
