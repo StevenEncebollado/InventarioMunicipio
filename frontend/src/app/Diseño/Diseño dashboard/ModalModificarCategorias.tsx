@@ -13,6 +13,34 @@ interface ModalModificarCategoriasProps {
   onClose: () => void;
 }
 
+// Definir campos disponibles para dispositivos
+const CAMPOS_DISPONIBLES = [
+  { key: 'codigoInventario', label: 'Código de Inventario', esencial: true },
+  { key: 'nombrePc', label: 'Nombre del Equipo', esencial: true },
+  { key: 'funcionario', label: 'Funcionario Responsable', esencial: true },
+  { key: 'estado', label: 'Estado', esencial: true },
+  { key: 'marca', label: 'Marca', esencial: true },
+  { key: 'dependencia', label: 'Dependencia', esencial: true },
+  { key: 'direccion', label: 'Dirección', esencial: true },
+  { key: 'ip', label: 'Dirección IP', esencial: false },
+  { key: 'mac', label: 'Dirección MAC', esencial: false },
+  { key: 'anydesk', label: 'AnyDesk', esencial: false },
+  { key: 'tipoEquipo', label: 'Tipo de Equipo', esencial: false },
+  { key: 'ram', label: 'Memoria RAM', esencial: false },
+  { key: 'disco', label: 'Disco Duro', esencial: false },
+  { key: 'office', label: 'Office', esencial: false },
+  { key: 'tipoConexion', label: 'Tipo de Conexión', esencial: false },
+  { key: 'programaAdicional', label: 'Programas Adicionales', esencial: false },
+  { key: 'equipamiento', label: 'Equipamiento', esencial: false },
+  { key: 'caracteristica', label: 'Características', esencial: false },
+  { key: 'sistemaOperativo', label: 'Sistema Operativo', esencial: false }
+];
+
+interface ModalModificarCategoriasProps {
+  open: boolean;
+  onClose: () => void;
+}
+
 // Configuración de categorías
 const categoriesConfig = {
   dependencias: { 
@@ -100,6 +128,12 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
   const [newItem, setNewItem] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState('');
+  
+  // Estados para manejar selección de campos de dispositivos
+  const [showCamposSelector, setShowCamposSelector] = useState(false);
+  const [camposSeleccionados, setCamposSeleccionados] = useState<string[]>([
+    'codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion'
+  ]);
   const [isSaving, setIsSaving] = useState(false);
   
   // Usar el contexto de catálogos
@@ -142,23 +176,59 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
 
   const handleAddItem = async () => {
     if (newItem.trim() && selectedCategory) {
+      // Si es un dispositivo, mostrar selector de campos primero
+      if (selectedCategory === 'dispositivos' && !showCamposSelector) {
+        setShowCamposSelector(true);
+        return;
+      }
+      
       try {
         // Crear objeto según el tipo de categoría
-        const newItemData = selectedCategory === 'caracteristicas' 
-          ? { descripcion: newItem.trim() }
-          : selectedCategory === 'rams' || selectedCategory === 'discos'
-          ? { capacidad: newItem.trim() }
-          : selectedCategory === 'offices'
-          ? { version: newItem.trim() }
-          : { nombre: newItem.trim() };
+        let newItemData;
+        
+        if (selectedCategory === 'dispositivos') {
+          newItemData = { 
+            nombre: newItem.trim(),
+            campos: camposSeleccionados 
+          };
+        } else if (selectedCategory === 'caracteristicas') {
+          newItemData = { descripcion: newItem.trim() };
+        } else if (selectedCategory === 'rams' || selectedCategory === 'discos') {
+          newItemData = { capacidad: newItem.trim() };
+        } else if (selectedCategory === 'offices') {
+          newItemData = { version: newItem.trim() };
+        } else {
+          newItemData = { nombre: newItem.trim() };
+        }
         
         await addItemToCategoria(selectedCategory, newItemData);
         setNewItem('');
+        setShowCamposSelector(false);
+        // Resetear campos seleccionados a los básicos
+        setCamposSeleccionados(['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion']);
       } catch (error) {
         console.error('Error al agregar item:', error);
         alert('Error al agregar el item');
       }
     }
+  };
+
+  // Función para manejar selección/deselección de campos
+  const toggleCampo = (campoKey: string) => {
+    const campo = CAMPOS_DISPONIBLES.find(c => c.key === campoKey);
+    if (campo?.esencial) return; // No permitir deseleccionar campos esenciales
+    
+    setCamposSeleccionados(prev => 
+      prev.includes(campoKey) 
+        ? prev.filter(c => c !== campoKey)
+        : [...prev, campoKey]
+    );
+  };
+
+  // Función para cancelar la selección de campos
+  const cancelarSeleccionCampos = () => {
+    setShowCamposSelector(false);
+    setCamposSeleccionados(['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion']);
   };
 
   const handleDeleteItem = async (index: number) => {
@@ -540,6 +610,110 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
                   Agregar
                 </button>
               </div>
+
+              {/* Selector de campos para dispositivos */}
+              {selectedCategory === 'dispositivos' && showCamposSelector && (
+                <div style={{
+                  marginBottom: '24px',
+                  padding: '20px',
+                  background: '#f0f9ff',
+                  borderRadius: '12px',
+                  border: '1px solid #0ea5e9',
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: '16px',
+                    color: '#0ea5e9',
+                    fontWeight: 600,
+                    fontSize: '0.95rem'
+                  }}>
+                    <FaCog style={{ marginRight: '8px' }} />
+                    Seleccionar campos para "{newItem}"
+                  </div>
+                  
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: '12px',
+                    marginBottom: '16px'
+                  }}>
+                    {CAMPOS_DISPONIBLES.map(campo => (
+                      <label
+                        key={campo.key}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '8px 12px',
+                          background: camposSeleccionados.includes(campo.key) ? '#dbeafe' : '#fff',
+                          border: `2px solid ${camposSeleccionados.includes(campo.key) ? '#3b82f6' : '#e5e7eb'}`,
+                          borderRadius: '8px',
+                          cursor: campo.esencial ? 'not-allowed' : 'pointer',
+                          opacity: campo.esencial ? 0.7 : 1,
+                          transition: 'all 0.2s ease',
+                        }}
+                        onClick={() => !campo.esencial && toggleCampo(campo.key)}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={camposSeleccionados.includes(campo.key)}
+                          onChange={() => !campo.esencial && toggleCampo(campo.key)}
+                          disabled={campo.esencial}
+                          style={{
+                            marginRight: '8px',
+                            width: '16px',
+                            height: '16px'
+                          }}
+                        />
+                        <span style={{
+                          fontSize: '0.9rem',
+                          fontWeight: campo.esencial ? 600 : 400,
+                          color: campo.esencial ? '#059669' : '#374151'
+                        }}>
+                          {campo.label}
+                          {campo.esencial && <span style={{ color: '#ef4444', marginLeft: '4px' }}>*</span>}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  
+                  <div style={{
+                    display: 'flex',
+                    gap: '12px',
+                    justifyContent: 'flex-end'
+                  }}>
+                    <button
+                      onClick={cancelarSeleccionCampos}
+                      style={{
+                        padding: '8px 16px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        background: '#fff',
+                        color: '#374151',
+                        cursor: 'pointer',
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleAddItem}
+                      style={{
+                        padding: '8px 16px',
+                        border: 'none',
+                        borderRadius: '6px',
+                        background: '#3b82f6',
+                        color: '#fff',
+                        cursor: 'pointer',
+                        fontSize: '0.9rem',
+                        fontWeight: 600
+                      }}
+                    >
+                      Confirmar Dispositivo
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Lista de items */}
               <div style={{

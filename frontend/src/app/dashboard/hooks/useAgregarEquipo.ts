@@ -66,17 +66,17 @@ export function useAgregarEquipo(usuarioId?: number) {
       return false;
     }
     
-    if (!ip || !mac || !codigoInventario || !nombrePc || !funcionario || 
-        !tipoEquipo || !marca || !ram || !disco || 
-        !dependencia || !estado) {
+    // Solo validar el código de inventario que es realmente esencial
+    if (!codigoInventario) {
       await Swal.fire({
         icon: 'warning',
-        title: 'Campos requeridos',
-        text: 'Los campos marcados con * son obligatorios. Por favor, completa todos los campos.',
+        title: 'Campo requerido',
+        text: 'El código de inventario es obligatorio.',
         confirmButtonColor: '#f59e0b'
       });
       return false;
     }
+    
     return true;
   };
 

@@ -116,18 +116,58 @@ def create_inventario():
             'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado'
         ]
         
-        # Validar campos obligatorios
-        campos_obligatorios = ['usuario_id', 'dependencia_id', 'direccion_ip', 'direccion_mac', 
-                              'nombre_pc', 'nombres_funcionario', 'tipo_equipo_id', 'ram_id', 
-                              'disco_id', 'marca_id', 'codigo_inventario', 'estado']
+        # Obtener los campos configurados para el dispositivo seleccionado
+        dispositivo_id = data.get('dispositivo_id')
+        campos_configurados = []
         
-        campos_faltantes = []
-        for campo in campos_obligatorios:
-            if not data.get(campo):
-                campos_faltantes.append(campo)
+        if dispositivo_id:
+            cur.execute('SELECT campos FROM dispositivo WHERE id = %s', (dispositivo_id,))
+            result = cur.fetchone()
+            if result and result[0]:
+                campos_configurados = result[0]
         
-        if campos_faltantes:
-            return jsonify({'error': f'Campos obligatorios faltantes: {", ".join(campos_faltantes)}'}), 400
+        # Mapeo de campos frontend a backend
+        campo_mapping = {
+            'codigoInventario': 'codigo_inventario',
+            'nombrePc': 'nombre_pc',
+            'funcionario': 'nombres_funcionario',
+            'estado': 'estado',
+            'marca': 'marca_id',
+            'dependencia': 'dependencia_id',
+            'direccion': 'direccion_area_id',
+            'equipamiento': 'equipamiento_id',
+            'office': 'office_id',
+            'disco': 'disco_id',
+            'programaAdicional': 'programa_adicional_ids',
+            'ip': 'direccion_ip',
+            'mac': 'direccion_mac',
+            'tipoEquipo': 'tipo_equipo_id',
+            'sistemaOperativo': 'tipo_sistema_operativo_id',
+            'caracteristicas': 'caracteristicas_id',
+            'ram': 'ram_id',
+            'tipoConexion': 'tipo_conexion_id',
+            'anydesk': 'anydesk'
+        }
+        
+        # Agregar usuario por defecto si no se proporciona
+        if not data.get('usuario_id'):
+            data['usuario_id'] = 1  # Usuario por defecto
+        
+        # Solo validar campos verdaderamente esenciales
+        if not data.get('codigo_inventario'):
+            return jsonify({'error': 'El código de inventario es obligatorio'}), 400
+        
+        # Normalizar valores para evitar errores de tipo en la base de datos
+        for campo in campos:
+            valor = data.get(campo)
+            # Convertir cadenas vacías a None para campos que pueden ser null
+            if valor == '' or valor == 'null':
+                data[campo] = None
+            # Convertir strings a integers para campos ID
+            elif campo.endswith('_id') and valor and isinstance(valor, str) and valor.isdigit():
+                data[campo] = int(valor)
+            elif campo.endswith('_id') and not valor:
+                data[campo] = None
         
         valores = [data.get(campo) for campo in campos]
         programas = data.get('programa_adicional_ids', [])  # Recibe los programas seleccionados

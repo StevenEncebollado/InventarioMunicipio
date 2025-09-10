@@ -2,6 +2,7 @@
 Rutas para la gestión de dispositivos (hardware).
 Permite crear, listar, actualizar y eliminar dispositivos.
 """
+import json
 from flask import Blueprint, request, jsonify
 from ..db import get_db_connection
 
@@ -11,8 +12,8 @@ dispositivos_bp = Blueprint('dispositivos', __name__)
 def listar_dispositivos():
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('SELECT id, nombre FROM dispositivo ORDER BY nombre')
-    dispositivos = [{'id': row[0], 'nombre': row[1]} for row in cur.fetchall()]
+    cur.execute('SELECT id, nombre, campos FROM dispositivo ORDER BY nombre')
+    dispositivos = [{'id': row[0], 'nombre': row[1], 'campos': row[2] or []} for row in cur.fetchall()]
     cur.close()
     conn.close()
     return jsonify(dispositivos)
@@ -20,31 +21,39 @@ def listar_dispositivos():
 
 @dispositivos_bp.route('/dispositivos', methods=['POST'])
 def agregar_dispositivo():
-    """Agrega un nuevo dispositivo."""
+    """Agrega un nuevo dispositivo con sus campos configurables."""
     data = request.json
     nombre = data.get('nombre')
+    campos = data.get('campos', [])
+    
     if not nombre:
         return jsonify({'error': 'El nombre es obligatorio'}), 400
+    
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('INSERT INTO dispositivo (nombre) VALUES (%s) RETURNING id', (nombre,))
+    cur.execute('INSERT INTO dispositivo (nombre, campos) VALUES (%s, %s) RETURNING id', 
+                (nombre, json.dumps(campos)))
     nueva_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
     conn.close()
-    return jsonify({'id': nueva_id, 'nombre': nombre}), 201
+    return jsonify({'id': nueva_id, 'nombre': nombre, 'campos': campos}), 201
 
 # Endpoint para actualizar un dispositivo existente
 @dispositivos_bp.route('/dispositivos/<int:id>', methods=['PUT'])
 def actualizar_dispositivo(id):
-    """Actualiza el nombre de un dispositivo por su ID."""
+    """Actualiza el nombre y campos de un dispositivo por su ID."""
     data = request.json
     nombre = data.get('nombre')
+    campos = data.get('campos', [])
+    
     if not nombre:
         return jsonify({'error': 'El nombre es obligatorio'}), 400
+    
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('UPDATE dispositivo SET nombre = %s WHERE id = %s', (nombre, id))
+    cur.execute('UPDATE dispositivo SET nombre = %s, campos = %s WHERE id = %s', 
+                (nombre, json.dumps(campos), id))
     conn.commit()
     cur.close()
     conn.close()

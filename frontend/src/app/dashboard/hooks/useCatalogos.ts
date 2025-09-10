@@ -12,6 +12,7 @@ interface CaracteristicaItem {
 interface CatalogoItem {
   id: number;
   nombre: string;
+  campos?: string[];
 }
 
 interface RamItem {

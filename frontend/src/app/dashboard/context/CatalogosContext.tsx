@@ -84,7 +84,7 @@ export const CatalogosProvider = ({ children }: { children: ReactNode }) => {
           await addDireccion({ nombre: item.nombre });
           break;
         case 'dispositivos':
-          await addDispositivo({ nombre: item.nombre });
+          await addDispositivo({ nombre: item.nombre, campos: item.campos });
           break;
         case 'equipamientos':
           await addEquipamiento({ nombre: item.nombre });

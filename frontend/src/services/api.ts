@@ -175,8 +175,8 @@ export const addDependencia = (data: { nombre: string }): Promise<{ id: number; 
 export const addDireccion = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
   api.post<{ id: number; nombre: string }>('/catalogos/direcciones', data);
 
-export const addDispositivo = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
-  api.post<{ id: number; nombre: string }>('/catalogos/dispositivos', data);
+export const addDispositivo = (data: { nombre: string; campos?: string[] }): Promise<{ id: number; nombre: string; campos?: string[] }> =>
+  api.post<{ id: number; nombre: string; campos?: string[] }>('/catalogos/dispositivos', data);
 
 export const addEquipamiento = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
   api.post<{ id: number; nombre: string }>('/catalogos/equipamientos', data);
