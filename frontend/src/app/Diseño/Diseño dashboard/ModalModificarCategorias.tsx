@@ -8,32 +8,27 @@ import {
 } from 'react-icons/fa';
 import { useCatalogosContext, CategoriaType } from '../../dashboard/context/CatalogosContext';
 
-interface ModalModificarCategoriasProps {
-  open: boolean;
-  onClose: () => void;
-}
-
-// Definir campos disponibles para dispositivos
+// Campos disponibles para configurar en dispositivos
 const CAMPOS_DISPONIBLES = [
   { key: 'codigoInventario', label: 'Código de Inventario', esencial: true },
-  { key: 'nombrePc', label: 'Nombre del Equipo', esencial: true },
-  { key: 'funcionario', label: 'Funcionario Responsable', esencial: true },
+  { key: 'nombrePc', label: 'Nombre de PC', esencial: true },
+  { key: 'funcionario', label: 'Funcionario', esencial: true },
   { key: 'estado', label: 'Estado', esencial: true },
-  { key: 'marca', label: 'Marca', esencial: true },
-  { key: 'dependencia', label: 'Dependencia', esencial: true },
-  { key: 'direccion', label: 'Dirección', esencial: true },
+  { key: 'marca', label: 'Marca', esencial: false },
+  { key: 'dependencia', label: 'Dependencia', esencial: false },
+  { key: 'direccion', label: 'Dirección', esencial: false },
+  { key: 'equipamiento', label: 'Equipamiento', esencial: false },
+  { key: 'office', label: 'Office', esencial: false },
+  { key: 'disco', label: 'Disco', esencial: false },
+  { key: 'programaAdicional', label: 'Programa Adicional', esencial: false },
   { key: 'ip', label: 'Dirección IP', esencial: false },
   { key: 'mac', label: 'Dirección MAC', esencial: false },
-  { key: 'anydesk', label: 'AnyDesk', esencial: false },
   { key: 'tipoEquipo', label: 'Tipo de Equipo', esencial: false },
-  { key: 'ram', label: 'Memoria RAM', esencial: false },
-  { key: 'disco', label: 'Disco Duro', esencial: false },
-  { key: 'office', label: 'Office', esencial: false },
+  { key: 'sistemaOperativo', label: 'Sistema Operativo', esencial: false },
+  { key: 'caracteristicas', label: 'Características', esencial: false },
+  { key: 'ram', label: 'RAM', esencial: false },
   { key: 'tipoConexion', label: 'Tipo de Conexión', esencial: false },
-  { key: 'programaAdicional', label: 'Programas Adicionales', esencial: false },
-  { key: 'equipamiento', label: 'Equipamiento', esencial: false },
-  { key: 'caracteristica', label: 'Características', esencial: false },
-  { key: 'sistemaOperativo', label: 'Sistema Operativo', esencial: false }
+  { key: 'anydesk', label: 'AnyDesk', esencial: false }
 ];
 
 interface ModalModificarCategoriasProps {
@@ -128,13 +123,13 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
   const [newItem, setNewItem] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   
-  // Estados para manejar selección de campos de dispositivos
+  // Estados para manejo de campos en dispositivos
   const [showCamposSelector, setShowCamposSelector] = useState(false);
   const [camposSeleccionados, setCamposSeleccionados] = useState<string[]>([
     'codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion'
   ]);
-  const [isSaving, setIsSaving] = useState(false);
   
   // Usar el contexto de catálogos
   const { catalogos, isLoading, error, updateCategoria, addItemToCategoria, removeItemFromCategoria, editItemInCategoria } = useCatalogosContext();
@@ -213,24 +208,6 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
     }
   };
 
-  // Función para manejar selección/deselección de campos
-  const toggleCampo = (campoKey: string) => {
-    const campo = CAMPOS_DISPONIBLES.find(c => c.key === campoKey);
-    if (campo?.esencial) return; // No permitir deseleccionar campos esenciales
-    
-    setCamposSeleccionados(prev => 
-      prev.includes(campoKey) 
-        ? prev.filter(c => c !== campoKey)
-        : [...prev, campoKey]
-    );
-  };
-
-  // Función para cancelar la selección de campos
-  const cancelarSeleccionCampos = () => {
-    setShowCamposSelector(false);
-    setCamposSeleccionados(['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion']);
-  };
-
   const handleDeleteItem = async (index: number) => {
     if (selectedCategory) {
       try {
@@ -278,6 +255,20 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
   const handleCancelEdit = () => {
     setEditingIndex(null);
     setEditingValue('');
+  };
+
+  // Función para manejar selección/deselección de campos
+  const toggleCampo = (campoKey: string) => {
+    const campo = CAMPOS_DISPONIBLES.find(c => c.key === campoKey);
+    if (campo?.esencial) return; // No permitir deseleccionar campos esenciales
+    
+    setCamposSeleccionados(prev => {
+      if (prev.includes(campoKey)) {
+        return prev.filter(c => c !== campoKey);
+      } else {
+        return [...prev, campoKey];
+      }
+    });
   };
 
   const handleSaveCategory = async () => {
@@ -616,82 +607,82 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
                 <div style={{
                   marginBottom: '24px',
                   padding: '20px',
-                  background: '#f0f9ff',
+                  background: '#f8fafc',
                   borderRadius: '12px',
-                  border: '1px solid #0ea5e9',
+                  border: '1px solid #e2e8f0',
                 }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginBottom: '16px',
-                    color: '#0ea5e9',
+                  <h4 style={{
+                    margin: '0 0 16px 0',
+                    fontSize: '1rem',
                     fontWeight: 600,
-                    fontSize: '0.95rem'
+                    color: '#1f2937',
                   }}>
-                    <FaCog style={{ marginRight: '8px' }} />
-                    Seleccionar campos para "{newItem}"
-                  </div>
+                    Selecciona los campos que debe tener este dispositivo:
+                  </h4>
                   
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                     gap: '12px',
-                    marginBottom: '16px'
+                    marginBottom: '16px',
                   }}>
-                    {CAMPOS_DISPONIBLES.map(campo => (
+                    {CAMPOS_DISPONIBLES.map((campo) => (
                       <label
                         key={campo.key}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
+                          gap: '8px',
                           padding: '8px 12px',
-                          background: camposSeleccionados.includes(campo.key) ? '#dbeafe' : '#fff',
-                          border: `2px solid ${camposSeleccionados.includes(campo.key) ? '#3b82f6' : '#e5e7eb'}`,
+                          background: 'white',
                           borderRadius: '8px',
+                          border: '1px solid #d1d5db',
                           cursor: campo.esencial ? 'not-allowed' : 'pointer',
                           opacity: campo.esencial ? 0.7 : 1,
-                          transition: 'all 0.2s ease',
                         }}
-                        onClick={() => !campo.esencial && toggleCampo(campo.key)}
                       >
                         <input
                           type="checkbox"
                           checked={camposSeleccionados.includes(campo.key)}
-                          onChange={() => !campo.esencial && toggleCampo(campo.key)}
+                          onChange={() => toggleCampo(campo.key)}
                           disabled={campo.esencial}
                           style={{
-                            marginRight: '8px',
-                            width: '16px',
-                            height: '16px'
+                            marginRight: '4px',
                           }}
                         />
                         <span style={{
                           fontSize: '0.9rem',
-                          fontWeight: campo.esencial ? 600 : 400,
-                          color: campo.esencial ? '#059669' : '#374151'
+                          color: '#374151',
                         }}>
                           {campo.label}
-                          {campo.esencial && <span style={{ color: '#ef4444', marginLeft: '4px' }}>*</span>}
+                          {campo.esencial && (
+                            <span style={{
+                              fontSize: '0.8rem',
+                              color: '#6b7280',
+                              marginLeft: '4px',
+                            }}>
+                              (esencial)
+                            </span>
+                          )}
                         </span>
                       </label>
                     ))}
                   </div>
                   
-                  <div style={{
-                    display: 'flex',
-                    gap: '12px',
-                    justifyContent: 'flex-end'
-                  }}>
+                  <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
                     <button
-                      onClick={cancelarSeleccionCampos}
+                      onClick={() => {
+                        setShowCamposSelector(false);
+                        setNewItem('');
+                      }}
                       style={{
                         padding: '8px 16px',
-                        border: '1px solid #d1d5db',
+                        background: '#6b7280',
+                        color: 'white',
+                        border: 'none',
                         borderRadius: '6px',
-                        background: '#fff',
-                        color: '#374151',
                         cursor: 'pointer',
-                        fontSize: '0.9rem'
+                        fontSize: '0.9rem',
                       }}
                     >
                       Cancelar
@@ -700,13 +691,12 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
                       onClick={handleAddItem}
                       style={{
                         padding: '8px 16px',
+                        background: categoriesConfig[selectedCategory].color,
+                        color: 'white',
                         border: 'none',
                         borderRadius: '6px',
-                        background: '#3b82f6',
-                        color: '#fff',
                         cursor: 'pointer',
                         fontSize: '0.9rem',
-                        fontWeight: 600
                       }}
                     >
                       Confirmar Dispositivo

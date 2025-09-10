@@ -14,44 +14,43 @@ import Swal from 'sweetalert2';
 export default function AgregarEquipoPage() {
   const router = useRouter();
   const [user, setUser] = useState<Usuario | null>(null);
-  const [tipoDispositivoSeleccionado, setTipoDispositivoSeleccionado] = useState<string>('');
+  const [dispositivoIdSeleccionado, setDispositivoIdSeleccionado] = useState<string>('');
   const { catalogos, isLoading: catalogosLoading, error: catalogosError } = useCatalogosContext();
   const agregarEquipo = useAgregarEquipo(user?.id);
 
-  // Función para determinar si un campo debe estar visible
+  // Función para determinar si un campo debe estar visible según el dispositivo seleccionado
   const campoVisible = (campo: string): boolean => {
-    if (!tipoDispositivoSeleccionado) return false; // Ocultar todo hasta seleccionar dispositivo
+    if (!dispositivoIdSeleccionado) return false; // Ocultar todo hasta seleccionar dispositivo
     
-    // Buscar el dispositivo seleccionado en los catálogos
-    const dispositivo = catalogos.dispositivos?.find(d => d.nombre === tipoDispositivoSeleccionado);
-    
-    // Debug: Verificar qué dispositivo se encuentra
-    console.log('Dispositivo seleccionado:', tipoDispositivoSeleccionado);
+    // Buscar el dispositivo seleccionado por ID en los catálogos
+    const dispositivo = catalogos?.dispositivos?.find(d => d.id.toString() === dispositivoIdSeleccionado);
+    console.log('Dispositivo ID seleccionado:', dispositivoIdSeleccionado);
     console.log('Dispositivo encontrado:', dispositivo);
     console.log('Campos del dispositivo:', dispositivo?.campos);
     
-    // Si el dispositivo tiene campos configurados, usarlos
+    // Si el dispositivo tiene campos configurados en la BD, usarlos
     if (dispositivo && dispositivo.campos && Array.isArray(dispositivo.campos)) {
       console.log('Usando campos de BD:', dispositivo.campos);
       return dispositivo.campos.includes(campo);
     }
     
-    // Fallback a configuración por defecto si no hay campos en BD
-    console.log('Usando configuración por defecto para:', tipoDispositivoSeleccionado);
-    const configuracion: { [key: string]: string[] } = {
-      'Computadora': ['ip', 'mac', 'codigoInventario', 'nombrePc', 'funcionario', 'anydesk', 'estado', 'tipoEquipo', 'marca', 'ram', 'disco', 'office', 'tipoConexion', 'programaAdicional', 'dependencia', 'direccion', 'equipamiento', 'caracteristica', 'sistemaOperativo'],
-      'Laptop': ['codigoInventario', 'nombrePc', 'funcionario', 'mac', 'anydesk', 'estado', 'tipoEquipo', 'marca', 'ram', 'disco', 'office', 'tipoConexion', 'programaAdicional', 'dependencia', 'direccion', 'equipamiento', 'caracteristica', 'sistemaOperativo'],
-      'Mouse': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
-      'Teclado': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
-      'Monitor': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
-      'Impresora': ['ip', 'codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
-      'Scanner': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
-      'Telefono': ['ip', 'codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion', 'equipamiento', 'caracteristica']
-    };
+    // Fallback: configuración por defecto basada en el nombre del dispositivo
+    if (dispositivo) {
+      console.log('Usando configuración por defecto para:', dispositivo.nombre);
+      const configuracion: { [key: string]: string[] } = {
+        'Computadora': ['ip', 'mac', 'codigoInventario', 'nombrePc', 'funcionario', 'anydesk', 'estado', 'tipoEquipo', 'marca', 'ram', 'disco', 'office', 'tipoConexion', 'programaAdicional', 'dependencia', 'direccion', 'equipamiento', 'caracteristica', 'sistemaOperativo'],
+        'Laptop': ['codigoInventario', 'nombrePc', 'funcionario', 'mac', 'anydesk', 'estado', 'tipoEquipo', 'marca', 'ram', 'disco', 'office', 'tipoConexion', 'programaAdicional', 'dependencia', 'direccion', 'equipamiento', 'caracteristica', 'sistemaOperativo'],
+        'Mouse': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
+        'Teclado': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
+        'Monitor': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
+        'Impresora': ['ip', 'codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
+        'Scanner': ['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'tipoConexion', 'dependencia', 'direccion', 'equipamiento', 'caracteristica'],
+        'Telefono': ['ip', 'codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion', 'equipamiento', 'caracteristica']
+      };
+      return configuracion[dispositivo.nombre]?.includes(campo) || false;
+    }
     
-    const resultado = configuracion[tipoDispositivoSeleccionado]?.includes(campo) || false;
-    console.log(`Campo '${campo}' visible para '${tipoDispositivoSeleccionado}':`, resultado);
-    return resultado;
+    return false;
   };
 
   // Verificar usuario autenticado
@@ -215,13 +214,7 @@ export default function AgregarEquipoPage() {
 
             <form onSubmit={handleSubmit}>
               {/* Selector de Tipo de Dispositivo */}
-              <div style={{ 
-                marginBottom: '32px',
-                padding: '20px',
-                backgroundColor: '#f8fafc',
-                borderRadius: '8px',
-                border: '2px solid #e2e8f0'
-              }}>
+              <div style={{ marginBottom: '24px' }}>
                 <label style={{ 
                   display: 'block', 
                   marginBottom: '8px', 
@@ -229,38 +222,43 @@ export default function AgregarEquipoPage() {
                   color: '#374151',
                   fontSize: '1.1rem'
                 }}>
-                  <span role="img" aria-label="Dispositivo" style={{ marginRight: '8px' }}>📱</span>
-                  Tipo de Dispositivo *
+                  Tipo de Dispositivo
                 </label>
-                <select 
-                  value={tipoDispositivoSeleccionado} 
-                  onChange={(e) => setTipoDispositivoSeleccionado(e.target.value)}
+                <select
+                  value={dispositivoIdSeleccionado}
+                  onChange={(e) => setDispositivoIdSeleccionado(e.target.value)}
                   style={{ 
                     ...EstiloDashboardEspecifico.catalogos.selectStyle, 
                     width: '100%',
-                    fontSize: '1.1rem',
+                    fontSize: '1rem',
                     padding: '12px'
                   }}
-                  required
                 >
-                  <option value="">Seleccionar tipo de dispositivo...</option>
-                  {catalogos.dispositivos?.map((dispositivo: any) => (
-                    <option key={dispositivo.id} value={dispositivo.nombre}>
+                  <option value="">Seleccione un tipo de dispositivo</option>
+                  {catalogos.dispositivos?.map(dispositivo => (
+                    <option key={dispositivo.id} value={dispositivo.id}>
                       {dispositivo.nombre}
                     </option>
                   ))}
                 </select>
-                {tipoDispositivoSeleccionado && (
-                  <p style={{ 
-                    marginTop: '12px', 
-                    padding: '8px 12px', 
-                    background: '#dbeafe', 
-                    color: '#1e40af', 
-                    borderRadius: '6px',
-                    fontSize: '0.9rem'
+                
+                {dispositivoIdSeleccionado && (
+                  <div style={{
+                    marginTop: '12px',
+                    padding: '12px',
+                    backgroundColor: '#e0f2fe',
+                    borderRadius: '8px',
+                    border: '1px solid #0891b2',
                   }}>
-                    ℹ️ Formulario adaptado para: <strong>{tipoDispositivoSeleccionado}</strong>
-                  </p>
+                    <p style={{ 
+                      margin: 0, 
+                      fontSize: '0.9rem', 
+                      color: '#0e7490',
+                      fontWeight: 500 
+                    }}>
+                      📝 Formulario adaptado para: {catalogos.dispositivos?.find(d => d.id.toString() === dispositivoIdSeleccionado)?.nombre}
+                    </p>
+                  </div>
                 )}
               </div>
 
@@ -272,304 +270,304 @@ export default function AgregarEquipoPage() {
               }}>
                 {/* Campos de texto */}
                 {campoVisible('ip') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Dirección IP *
-                    </label>
-                    <input 
-                      value={agregarEquipo.ip} 
-                      onChange={e => agregarEquipo.setIp(e.target.value)} 
-                      placeholder="Ej: 192.168.1.100"
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    />
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Dirección IP
+                  </label>
+                  <input 
+                    value={agregarEquipo.ip} 
+                    onChange={e => agregarEquipo.setIp(e.target.value)} 
+                    placeholder="Ej: 192.168.1.100"
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  />
+                </div>
                 )}
 
                 {campoVisible('mac') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Dirección MAC *
-                    </label>
-                    <input 
-                      value={agregarEquipo.mac} 
-                      onChange={e => agregarEquipo.setMac(e.target.value)} 
-                      placeholder="Ej: 00:1B:63:84:45:E6"
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    />
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Dirección MAC
+                  </label>
+                  <input 
+                    value={agregarEquipo.mac} 
+                    onChange={e => agregarEquipo.setMac(e.target.value)} 
+                    placeholder="Ej: 00:1B:63:84:45:E6"
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  />
+                </div>
                 )}
 
                 {campoVisible('codigoInventario') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Código de Inventario *
-                    </label>
-                    <input 
-                      value={agregarEquipo.codigoInventario} 
-                      onChange={e => agregarEquipo.setCodigoInventario(e.target.value)} 
-                      placeholder="Ej: INV-001"
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    />
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Código de Inventario
+                  </label>
+                  <input 
+                    value={agregarEquipo.codigoInventario} 
+                    onChange={e => agregarEquipo.setCodigoInventario(e.target.value)} 
+                    placeholder="Ej: INV-001"
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  />
+                </div>
                 )}
 
                 {campoVisible('nombrePc') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Nombre de PC *
-                    </label>
-                    <input 
-                      value={agregarEquipo.nombrePc} 
-                      onChange={e => agregarEquipo.setNombrePc(e.target.value)} 
-                      placeholder="Ej: PC-OFICINA-01"
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    />
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Nombre de PC
+                  </label>
+                  <input 
+                    value={agregarEquipo.nombrePc} 
+                    onChange={e => agregarEquipo.setNombrePc(e.target.value)} 
+                    placeholder="Ej: PC-OFICINA-01"
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  />
+                </div>
                 )}
 
                 {campoVisible('funcionario') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Funcionario Responsable *
-                    </label>
-                    <input 
-                      value={agregarEquipo.funcionario} 
-                      onChange={e => agregarEquipo.setFuncionario(e.target.value)} 
-                      placeholder="Ej: Juan Pérez"
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    />
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Funcionario Responsable
+                  </label>
+                  <input 
+                    value={agregarEquipo.funcionario} 
+                    onChange={e => agregarEquipo.setFuncionario(e.target.value)} 
+                    placeholder="Ej: Juan Pérez"
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  />
+                </div>
                 )}
 
                 {campoVisible('anydesk') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      AnyDesk
-                    </label>
-                    <input 
-                      value={agregarEquipo.anydesk} 
-                      onChange={e => agregarEquipo.setAnydesk(e.target.value)} 
-                      placeholder="Ej: 123456789"
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    />
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    AnyDesk
+                  </label>
+                  <input 
+                    value={agregarEquipo.anydesk} 
+                    onChange={e => agregarEquipo.setAnydesk(e.target.value)} 
+                    placeholder="Ej: 123456789"
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  />
+                </div>
                 )}
 
                 {/* Select Estado */}
                 {campoVisible('estado') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Estado *
-                    </label>
-                    <select 
-                      value={agregarEquipo.estado} 
-                      onChange={e => agregarEquipo.setEstado(e.target.value)} 
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    >
-                      <option value="">Seleccionar estado</option>
-                      <option value="Activo">Activo</option>
-                      <option value="Mantenimiento">Mantenimiento</option>
-                    </select>
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Estado
+                  </label>
+                  <select 
+                    value={agregarEquipo.estado} 
+                    onChange={e => agregarEquipo.setEstado(e.target.value)} 
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  >
+                    <option value="">Seleccionar estado</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Mantenimiento">Mantenimiento</option>
+                  </select>
+                </div>
                 )}
 
                 {/* Selects de catálogos */}
                 {campoVisible('tipoEquipo') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Tipo de Equipo *
-                    </label>
-                    <select 
-                      value={agregarEquipo.tipoEquipo} 
-                      onChange={e => agregarEquipo.setTipoEquipo(e.target.value)} 
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    >
-                      <option value="">Seleccionar tipo</option>
-                      {catalogos.tiposEquipo.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
-                    </select>
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Tipo de Equipo
+                  </label>
+                  <select 
+                    value={agregarEquipo.tipoEquipo} 
+                    onChange={e => agregarEquipo.setTipoEquipo(e.target.value)} 
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  >
+                    <option value="">Seleccionar tipo</option>
+                    {catalogos.tiposEquipo.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
+                  </select>
+                </div>
                 )}
 
                 {campoVisible('marca') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Marca *
-                    </label>
-                    <select 
-                      value={agregarEquipo.marca} 
-                      onChange={e => agregarEquipo.setMarca(e.target.value)} 
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    >
-                      <option value="">Seleccionar marca</option>
-                      {catalogos.marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-                    </select>
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Marca
+                  </label>
+                  <select 
+                    value={agregarEquipo.marca} 
+                    onChange={e => agregarEquipo.setMarca(e.target.value)} 
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  >
+                    <option value="">Seleccionar marca</option>
+                    {catalogos.marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                  </select>
+                </div>
                 )}
 
                 {campoVisible('ram') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      RAM *
-                    </label>
-                    <select 
-                      value={agregarEquipo.ram} 
-                      onChange={e => agregarEquipo.setRam(e.target.value)} 
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    >
-                      <option value="">Seleccionar RAM</option>
-                      {catalogos.ram.map(r => <option key={r.id} value={r.id}>{r.capacidad}</option>)}
-                    </select>
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    RAM
+                  </label>
+                  <select 
+                    value={agregarEquipo.ram} 
+                    onChange={e => agregarEquipo.setRam(e.target.value)} 
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  >
+                    <option value="">Seleccionar RAM</option>
+                    {catalogos.ram.map(r => <option key={r.id} value={r.id}>{r.capacidad}</option>)}
+                  </select>
+                </div>
                 )}
 
                 {campoVisible('disco') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Disco Duro *
-                    </label>
-                    <select 
-                      value={agregarEquipo.disco} 
-                      onChange={e => agregarEquipo.setDisco(e.target.value)} 
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    >
-                      <option value="">Seleccionar disco</option>
-                      {catalogos.disco.map(d => <option key={d.id} value={d.id}>{d.capacidad}</option>)}
-                    </select>
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Disco Duro
+                  </label>
+                  <select 
+                    value={agregarEquipo.disco} 
+                    onChange={e => agregarEquipo.setDisco(e.target.value)} 
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  >
+                    <option value="">Seleccionar disco</option>
+                    {catalogos.disco.map(d => <option key={d.id} value={d.id}>{d.capacidad}</option>)}
+                  </select>
+                </div>
                 )}
 
                 {campoVisible('office') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Office
-                    </label>
-                    <select 
-                      value={agregarEquipo.office} 
-                      onChange={e => agregarEquipo.setOffice(e.target.value)} 
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    >
-                      <option value="">Seleccionar Office</option>
-                      {catalogos.office.map(o => <option key={o.id} value={o.id}>{o.version}</option>)}
-                    </select>
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Office
+                  </label>
+                  <select 
+                    value={agregarEquipo.office} 
+                    onChange={e => agregarEquipo.setOffice(e.target.value)} 
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  >
+                    <option value="">Seleccionar Office</option>
+                    {catalogos.office.map(o => <option key={o.id} value={o.id}>{o.version}</option>)}
+                  </select>
+                </div>
                 )}
 
                 {campoVisible('tipoConexion') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Tipo de Conexión
-                    </label>
-                    <select 
-                      value={agregarEquipo.tipoConexion} 
-                      onChange={e => agregarEquipo.setTipoConexion(e.target.value)} 
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    >
-                      <option value="">Seleccionar conexión</option>
-                      {catalogos.tipoConexion.map(tc => <option key={tc.id} value={tc.id}>{tc.nombre}</option>)}
-                    </select>
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Tipo de Conexión
+                  </label>
+                  <select 
+                    value={agregarEquipo.tipoConexion} 
+                    onChange={e => agregarEquipo.setTipoConexion(e.target.value)} 
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  >
+                    <option value="">Seleccionar conexión</option>
+                    {catalogos.tipoConexion.map(tc => <option key={tc.id} value={tc.id}>{tc.nombre}</option>)}
+                  </select>
+                </div>
                 )}
 
                 {campoVisible('dependencia') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Dependencia *
-                    </label>
-                    <select 
-                      value={agregarEquipo.dependencia} 
-                      onChange={e => agregarEquipo.setDependencia(e.target.value)} 
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    >
-                      <option value="">Seleccionar dependencia</option>
-                      {catalogos.dependencias.map(dep => <option key={dep.id} value={dep.id}>{dep.nombre}</option>)}
-                    </select>
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Dependencia
+                  </label>
+                  <select 
+                    value={agregarEquipo.dependencia} 
+                    onChange={e => agregarEquipo.setDependencia(e.target.value)} 
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  >
+                    <option value="">Seleccionar dependencia</option>
+                    {catalogos.dependencias.map(dep => <option key={dep.id} value={dep.id}>{dep.nombre}</option>)}
+                  </select>
+                </div>
                 )}
 
                 {campoVisible('direccion') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Dirección/Área
-                    </label>
-                    <select 
-                      value={agregarEquipo.direccion} 
-                      onChange={e => agregarEquipo.setDireccion(e.target.value)} 
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    >
-                      <option value="">Seleccionar dirección</option>
-                      {catalogos.direcciones.map(dir => <option key={dir.id} value={dir.id}>{dir.nombre}</option>)}
-                    </select>
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Dirección/Área
+                  </label>
+                  <select 
+                    value={agregarEquipo.direccion} 
+                    onChange={e => agregarEquipo.setDireccion(e.target.value)} 
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  >
+                    <option value="">Seleccionar dirección</option>
+                    {catalogos.direcciones.map(dir => <option key={dir.id} value={dir.id}>{dir.nombre}</option>)}
+                  </select>
+                </div>
                 )}
 
                 {campoVisible('equipamiento') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Equipamiento
-                    </label>
-                    <select 
-                      value={agregarEquipo.equipamiento} 
-                      onChange={e => agregarEquipo.setEquipamiento(e.target.value)} 
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    >
-                      <option value="">Seleccionar equipamiento</option>
-                      {catalogos.equipamientos.map(eq => <option key={eq.id} value={eq.id}>{eq.nombre}</option>)}
-                    </select>
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Equipamiento
+                  </label>
+                  <select 
+                    value={agregarEquipo.equipamiento} 
+                    onChange={e => agregarEquipo.setEquipamiento(e.target.value)} 
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  >
+                    <option value="">Seleccionar equipamiento</option>
+                    {catalogos.equipamientos.map(eq => <option key={eq.id} value={eq.id}>{eq.nombre}</option>)}
+                  </select>
+                </div>
                 )}
 
                 {campoVisible('caracteristica') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Característica
-                    </label>
-                    <select 
-                      value={agregarEquipo.caracteristica} 
-                      onChange={e => agregarEquipo.setCaracteristica(e.target.value)} 
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    >
-                      <option value="">Seleccionar característica</option>
-                      {catalogos.caracteristicas.map(c => <option key={c.id} value={c.id}>{c.descripcion}</option>)}
-                    </select>
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Característica
+                  </label>
+                  <select 
+                    value={agregarEquipo.caracteristica} 
+                    onChange={e => agregarEquipo.setCaracteristica(e.target.value)} 
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  >
+                    <option value="">Seleccionar característica</option>
+                    {catalogos.caracteristicas.map(c => <option key={c.id} value={c.id}>{c.descripcion}</option>)}
+                  </select>
+                </div>
                 )}
 
                 {campoVisible('sistemaOperativo') && (
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                      Sistema Operativo
-                    </label>
-                    <select 
-                      value={agregarEquipo.sistemaOperativo} 
-                      onChange={e => agregarEquipo.setSistemaOperativo(e.target.value)} 
-                      style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                    >
-                      <option value="">Seleccionar SO</option>
-                      {catalogos.sistemasOperativos.map(so => <option key={so.id} value={so.id}>{so.nombre}</option>)}
-                    </select>
-                  </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Sistema Operativo
+                  </label>
+                  <select 
+                    value={agregarEquipo.sistemaOperativo} 
+                    onChange={e => agregarEquipo.setSistemaOperativo(e.target.value)} 
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  >
+                    <option value="">Seleccionar SO</option>
+                    {catalogos.sistemasOperativos.map(so => <option key={so.id} value={so.id}>{so.nombre}</option>)}
+                  </select>
+                </div>
                 )}
               </div>
 
               {/* Programa Adicional - Span completo */}
               {campoVisible('programaAdicional') && (
-                <div style={{ marginBottom: '32px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Programas Adicionales
-                  </label>
-                  
-                  <MultiSelectTags
-                    options={catalogos.programaAdicional.map(pa => ({
-                      value: pa.id,
-                      label: pa.nombre
-                    }))}
-                    value={agregarEquipo.programaAdicional}
-                    onChange={agregarEquipo.setProgramaAdicional}
-                    placeholder="Buscar y seleccionar programas..."
-                    searchPlaceholder="Buscar programas..."
-                    maxHeight={200}
-                  />
-                </div>
+              <div style={{ marginBottom: '32px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                  Programas Adicionales
+                </label>
+                
+                <MultiSelectTags
+                  options={catalogos.programaAdicional.map(pa => ({
+                    value: pa.id,
+                    label: pa.nombre
+                  }))}
+                  value={agregarEquipo.programaAdicional}
+                  onChange={agregarEquipo.setProgramaAdicional}
+                  placeholder="Buscar y seleccionar programas..."
+                  searchPlaceholder="Buscar programas..."
+                  maxHeight={200}
+                />
+              </div>
               )}
 
               {/* Botones */}

@@ -21,7 +21,7 @@ BEGIN
     SELECT
         (SELECT json_agg(row_to_json(t)) FROM (SELECT id, nombre FROM dependencia) t) AS dependencia,
         (SELECT json_agg(row_to_json(t)) FROM (SELECT id, nombre FROM direccion_area) t) AS direccion_area,
-        (SELECT json_agg(row_to_json(t)) FROM (SELECT id, nombre, campos FROM dispositivo) t) AS dispositivo,
+        (SELECT json_agg(row_to_json(t)) FROM (SELECT id, nombre FROM dispositivo) t) AS dispositivo,
         (SELECT json_agg(row_to_json(t)) FROM (SELECT id, nombre FROM equipamiento) t) AS equipamiento,
         (SELECT json_agg(row_to_json(t)) FROM (SELECT id, nombre FROM tipo_equipo) t) AS tipo_equipo,
         (SELECT json_agg(row_to_json(t)) FROM (SELECT id, nombre FROM tipo_sistema_operativo) t) AS tipo_sistema_operativo,

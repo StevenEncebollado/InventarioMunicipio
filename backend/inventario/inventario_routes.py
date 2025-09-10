@@ -116,60 +116,17 @@ def create_inventario():
             'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado'
         ]
         
-        # Obtener los campos configurados para el dispositivo seleccionado
-        dispositivo_id = data.get('dispositivo_id')
-        campos_configurados = []
-        
-        if dispositivo_id:
-            cur.execute('SELECT campos FROM dispositivo WHERE id = %s', (dispositivo_id,))
-            result = cur.fetchone()
-            if result and result[0]:
-                campos_configurados = result[0]
-        
-        # Mapeo de campos frontend a backend
-        campo_mapping = {
-            'codigoInventario': 'codigo_inventario',
-            'nombrePc': 'nombre_pc',
-            'funcionario': 'nombres_funcionario',
-            'estado': 'estado',
-            'marca': 'marca_id',
-            'dependencia': 'dependencia_id',
-            'direccion': 'direccion_area_id',
-            'equipamiento': 'equipamiento_id',
-            'office': 'office_id',
-            'disco': 'disco_id',
-            'programaAdicional': 'programa_adicional_ids',
-            'ip': 'direccion_ip',
-            'mac': 'direccion_mac',
-            'tipoEquipo': 'tipo_equipo_id',
-            'sistemaOperativo': 'tipo_sistema_operativo_id',
-            'caracteristicas': 'caracteristicas_id',
-            'ram': 'ram_id',
-            'tipoConexion': 'tipo_conexion_id',
-            'anydesk': 'anydesk'
-        }
-        
-        # Agregar usuario por defecto si no se proporciona
+        # Solo usuario_id es obligatorio
         if not data.get('usuario_id'):
-            data['usuario_id'] = 1  # Usuario por defecto
+            return jsonify({'error': 'usuario_id es obligatorio'}), 400
         
-        # Solo validar campos verdaderamente esenciales
-        if not data.get('codigo_inventario'):
-            return jsonify({'error': 'El código de inventario es obligatorio'}), 400
-        
-        # Normalizar valores para evitar errores de tipo en la base de datos
-        for campo in campos:
-            valor = data.get(campo)
-            # Convertir cadenas vacías a None para campos que pueden ser null
-            if valor == '' or valor == 'null':
-                data[campo] = None
-            # Convertir strings a integers para campos ID
-            elif campo.endswith('_id') and valor and isinstance(valor, str) and valor.isdigit():
-                data[campo] = int(valor)
-            elif campo.endswith('_id') and not valor:
-                data[campo] = None
-        
-        valores = [data.get(campo) for campo in campos]
+        # Convertir string vacío a None para todos los campos
+        def limpiar_valor(valor):
+            if valor == '' or valor is None:
+                return None
+            return valor
+
+        valores = [limpiar_valor(data.get(campo)) for campo in campos]
         programas = data.get('programa_adicional_ids', [])  # Recibe los programas seleccionados
         
         conn = get_db_connection()

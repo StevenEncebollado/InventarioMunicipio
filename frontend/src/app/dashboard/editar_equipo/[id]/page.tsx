@@ -1,4 +1,5 @@
-'use client';
+  'use client';
+
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useCatalogosContext } from '../../context/CatalogosContext';
@@ -17,7 +18,48 @@ export default function EditarEquipoPage() {
   const equipoId = params.id as string;
   const [user, setUser] = useState<Usuario | null>(null);
   const { catalogos, isLoading: catalogosLoading, error: catalogosError } = useCatalogosContext();
+
   const editarEquipo = useEditarEquipo(equipoId, user?.id);
+
+  // Función para determinar si un campo debe estar visible según los datos del equipo
+  const campoVisible = (campo: string): boolean => {
+    // Si no hay equipo cargado, no mostrar ningún campo
+    if (!editarEquipo.equipo) return false;
+    
+    const equipo = editarEquipo.equipo;
+    
+    // Mapear los nombres de campos a las propiedades del equipo
+    const mapaCampos: { [key: string]: any } = {
+      'ip': equipo.direccion_ip,
+      'mac': equipo.direccion_mac,
+      'codigoInventario': equipo.codigo_inventario,
+      'nombrePc': equipo.nombre_pc,
+      'funcionario': equipo.nombres_funcionario,
+      'anydesk': equipo.anydesk,
+      'estado': equipo.estado,
+      'tipoEquipo': equipo.tipo_equipo_id,
+      'marca': equipo.marca_id,
+      'ram': equipo.ram_id,
+      'disco': equipo.disco_id,
+      'office': equipo.office_id,
+      'tipoConexion': equipo.tipo_conexion_id,
+      'programaAdicional': equipo.programa_adicional_ids,
+      'dependencia': equipo.dependencia_id,
+      'direccion': equipo.direccion_area_id,
+      'equipamiento': equipo.equipamiento_id,
+      'caracteristica': equipo.caracteristicas_id,
+      'sistemaOperativo': equipo.tipo_sistema_operativo_id
+    };
+    
+    const valor = mapaCampos[campo];
+    
+    // Mostrar el campo si tiene algún valor (no null, undefined, empty string, o array vacío)
+    if (Array.isArray(valor)) {
+      return valor.length > 0;
+    }
+    
+    return valor !== null && valor !== undefined && valor !== '';
+  };
 
   // Verificar usuario autenticado
   useEffect(() => {
@@ -165,24 +207,8 @@ export default function EditarEquipoPage() {
       <div>
         <Navbar user={user} onLogout={handleLogout} />
         <div style={{ padding: '40px 20px', textAlign: 'center' }}>
-          <h2>Equipo no encontrado</h2>
-          <p style={{ color: '#e74c3c' }}>
-            El equipo con ID {equipoId} no existe.
-          </p>
-          <button 
-            onClick={() => router.push('/dashboard')}
-            style={{
-              background: '#2563eb',
-              color: '#fff',
-              border: 'none',
-              padding: '12px 24px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              marginTop: '20px'
-            }}
-          >
-            Volver al Dashboard
-          </button>
+          <h2>Editar Equipo</h2>
+          <p>Cargando datos del equipo...</p>
         </div>
       </div>
     );
@@ -251,6 +277,7 @@ export default function EditarEquipoPage() {
                 marginBottom: '24px'
               }}>
                 {/* Campos de texto */}
+                {campoVisible('ip') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                     Dirección IP
@@ -262,7 +289,9 @@ export default function EditarEquipoPage() {
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
+                )}
 
+                {campoVisible('mac') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                     Dirección MAC
@@ -274,10 +303,12 @@ export default function EditarEquipoPage() {
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
+                )}
 
+                {campoVisible('codigoInventario') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Código de Inventario *
+                    Código de Inventario
                   </label>
                   <input 
                     value={editarEquipo.codigoInventario} 
@@ -286,10 +317,12 @@ export default function EditarEquipoPage() {
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
+                )}
 
+                {campoVisible('nombrePc') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Nombre de PC *
+                    Nombre de PC
                   </label>
                   <input 
                     value={editarEquipo.nombrePc} 
@@ -298,10 +331,12 @@ export default function EditarEquipoPage() {
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
+                )}
 
+                {campoVisible('funcionario') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Funcionario Responsable *
+                    Funcionario Responsable
                   </label>
                   <input 
                     value={editarEquipo.funcionario} 
@@ -310,7 +345,9 @@ export default function EditarEquipoPage() {
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
+                )}
 
+                {campoVisible('anydesk') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                     AnyDesk
@@ -322,11 +359,13 @@ export default function EditarEquipoPage() {
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
+                )}
 
                 {/* Select Estado */}
+                {campoVisible('estado') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Estado *
+                    Estado
                   </label>
                   <select 
                     value={editarEquipo.estado} 
@@ -338,11 +377,13 @@ export default function EditarEquipoPage() {
                     <option value="Mantenimiento">Mantenimiento</option>
                   </select>
                 </div>
+                )}
 
                 {/* Selects de catálogos */}
+                {campoVisible('tipoEquipo') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Tipo de Equipo *
+                    Tipo de Equipo
                   </label>
                   <select 
                     value={editarEquipo.tipoEquipo} 
@@ -353,10 +394,12 @@ export default function EditarEquipoPage() {
                     {catalogos.tiposEquipo.map(t => <option key={t.id} value={t.id}>{t.nombre}</option>)}
                   </select>
                 </div>
+                )}
 
+                {campoVisible('marca') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Marca *
+                    Marca
                   </label>
                   <select 
                     value={editarEquipo.marca} 
@@ -367,10 +410,12 @@ export default function EditarEquipoPage() {
                     {catalogos.marcas.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
                   </select>
                 </div>
+                )}
 
+                {campoVisible('ram') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    RAM *
+                    RAM
                   </label>
                   <select 
                     value={editarEquipo.ram} 
@@ -381,10 +426,12 @@ export default function EditarEquipoPage() {
                     {catalogos.ram.map(r => <option key={r.id} value={r.id}>{r.capacidad}</option>)}
                   </select>
                 </div>
+                )}
 
+                {campoVisible('disco') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Disco Duro *
+                    Disco Duro
                   </label>
                   <select 
                     value={editarEquipo.disco} 
@@ -395,7 +442,9 @@ export default function EditarEquipoPage() {
                     {catalogos.disco.map(d => <option key={d.id} value={d.id}>{d.capacidad}</option>)}
                   </select>
                 </div>
+                )}
 
+                {campoVisible('office') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                     Office
@@ -409,7 +458,9 @@ export default function EditarEquipoPage() {
                     {catalogos.office.map(o => <option key={o.id} value={o.id}>{o.version}</option>)}
                   </select>
                 </div>
+                )}
 
+                {campoVisible('tipoConexion') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                     Tipo de Conexión
@@ -423,10 +474,12 @@ export default function EditarEquipoPage() {
                     {catalogos.tipoConexion.map(tc => <option key={tc.id} value={tc.id}>{tc.nombre}</option>)}
                   </select>
                 </div>
+                )}
 
+                {campoVisible('dependencia') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Dependencia *
+                    Dependencia
                   </label>
                   <select 
                     value={editarEquipo.dependencia} 
@@ -437,7 +490,9 @@ export default function EditarEquipoPage() {
                     {catalogos.dependencias.map(dep => <option key={dep.id} value={dep.id}>{dep.nombre}</option>)}
                   </select>
                 </div>
+                )}
 
+                {campoVisible('direccion') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                     Dirección/Área
@@ -451,7 +506,9 @@ export default function EditarEquipoPage() {
                     {catalogos.direcciones.map(dir => <option key={dir.id} value={dir.id}>{dir.nombre}</option>)}
                   </select>
                 </div>
+                )}
 
+                {campoVisible('equipamiento') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                     Equipamiento
@@ -465,7 +522,9 @@ export default function EditarEquipoPage() {
                     {catalogos.equipamientos.map(eq => <option key={eq.id} value={eq.id}>{eq.nombre}</option>)}
                   </select>
                 </div>
+                )}
 
+                {campoVisible('caracteristica') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                     Característica
@@ -479,7 +538,9 @@ export default function EditarEquipoPage() {
                     {catalogos.caracteristicas.map(c => <option key={c.id} value={c.id}>{c.descripcion}</option>)}
                   </select>
                 </div>
+                )}
 
+                {campoVisible('sistemaOperativo') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                     Sistema Operativo
@@ -493,14 +554,15 @@ export default function EditarEquipoPage() {
                     {catalogos.sistemasOperativos.map(so => <option key={so.id} value={so.id}>{so.nombre}</option>)}
                   </select>
                 </div>
+                )}
               </div>
 
               {/* Programa Adicional - Span completo */}
+              {campoVisible('programaAdicional') && (
               <div style={{ marginBottom: '32px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
                   Programas Adicionales
                 </label>
-                
                 <MultiSelectTags
                   options={catalogos.programaAdicional.map(pa => ({
                     value: pa.id,
@@ -513,6 +575,7 @@ export default function EditarEquipoPage() {
                   maxHeight={200}
                 />
               </div>
+              )}
 
               {/* Botones */}
               <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>

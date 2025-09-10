@@ -12,6 +12,7 @@ dispositivos_bp = Blueprint('dispositivos', __name__)
 def listar_dispositivos():
     conn = get_db_connection()
     cur = conn.cursor()
+    # Ahora también seleccionamos la columna campos
     cur.execute('SELECT id, nombre, campos FROM dispositivo ORDER BY nombre')
     dispositivos = [{'id': row[0], 'nombre': row[1], 'campos': row[2] or []} for row in cur.fetchall()]
     cur.close()
@@ -21,22 +22,27 @@ def listar_dispositivos():
 
 @dispositivos_bp.route('/dispositivos', methods=['POST'])
 def agregar_dispositivo():
-    """Agrega un nuevo dispositivo con sus campos configurables."""
+    """Agrega un nuevo dispositivo con sus campos."""
     data = request.json
     nombre = data.get('nombre')
-    campos = data.get('campos', [])
+    campos = data.get('campos', [])  # Lista de campos seleccionados
     
     if not nombre:
         return jsonify({'error': 'El nombre es obligatorio'}), 400
     
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('INSERT INTO dispositivo (nombre, campos) VALUES (%s, %s) RETURNING id', 
-                (nombre, json.dumps(campos)))
+    
+    # Insertar con campos como JSONB
+    cur.execute(
+        'INSERT INTO dispositivo (nombre, campos) VALUES (%s, %s) RETURNING id', 
+        (nombre, json.dumps(campos))
+    )
     nueva_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
     conn.close()
+    
     return jsonify({'id': nueva_id, 'nombre': nombre, 'campos': campos}), 201
 
 # Endpoint para actualizar un dispositivo existente
@@ -52,11 +58,15 @@ def actualizar_dispositivo(id):
     
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('UPDATE dispositivo SET nombre = %s, campos = %s WHERE id = %s', 
-                (nombre, json.dumps(campos), id))
+    cur.execute(
+        'UPDATE dispositivo SET nombre = %s, campos = %s WHERE id = %s', 
+        (nombre, json.dumps(campos), id)
+    )
     conn.commit()
     cur.close()
     conn.close()
+    
+    return jsonify({'id': id, 'nombre': nombre, 'campos': campos})
     return jsonify({'msg': 'Dispositivo actualizado correctamente'})
 
 # Endpoint para eliminar un dispositivo existente

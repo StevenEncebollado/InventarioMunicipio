@@ -65,18 +65,7 @@ export function useAgregarEquipo(usuarioId?: number) {
       });
       return false;
     }
-    
-    // Solo validar el código de inventario que es realmente esencial
-    if (!codigoInventario) {
-      await Swal.fire({
-        icon: 'warning',
-        title: 'Campo requerido',
-        text: 'El código de inventario es obligatorio.',
-        confirmButtonColor: '#f59e0b'
-      });
-      return false;
-    }
-    
+    // Todos los campos son opcionales, así que siempre retorna true
     return true;
   };
 
