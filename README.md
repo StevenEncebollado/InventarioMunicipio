@@ -22,8 +22,7 @@ cd "Pasantías en munipio de Manta"
 Ubicación: `backend`
 ```sh
 cd backend
-python -m venv venv
-venv\Scripts\activate   # En Windows
+.\venv\Scripts\activatevenv\Scripts\activate   # En Windows
 pip install flask psycopg2-binary python-dotenv bcrypt
 ```
 
@@ -37,6 +36,7 @@ Ubicación: `frontend`
 ```sh
 cd ../frontend
 npm install
+npm install bootstrap
 ```
 
 #### Instalar íconos (obligatorio para la UI)

@@ -13,9 +13,12 @@ export const EstiloEfectosVisuales = {
       linear-gradient(135deg, #fafafa 0%, #f4f6fa 15%, #e8f2ff 30%, #f0f9ff 45%, #f8fafc 60%, #f3f4f6 75%, #fafafa 100%)
     `,
     minHeight: '100vh',
-    padding: '0 0 64px 0',
+    padding: '0 0 80px 0',
     position: 'relative' as const,
     overflow: 'hidden' as const,
+    border: 'none',
+    outline: 'none',
+    boxShadow: 'none',
   },
 
   // ===== SISTEMA DE PARTÍCULAS =====
@@ -336,5 +339,7 @@ export const EstiloEfectosVisuales = {
   contenidoRelativo: {
     position: 'relative' as const,
     zIndex: 1,
+    border: 'none',
+    outline: 'none',
   },
 };

@@ -91,10 +91,15 @@ export const estiloGlobal = {
     minHeight: '100vh',
     display: 'flex',
     flexDirection: 'column' as const,
+    border: 'none',
+    outline: 'none',
   },
   dashboardContent: {
     flex: 1,
     padding: '2rem',
+    border: 'none',
+    outline: 'none',
+    boxShadow: 'none',
   },
   dashboardHeader: {
     marginBottom: '2rem',

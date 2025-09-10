@@ -64,51 +64,56 @@ export function useCatalogos() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const cargarCatalogos = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await getCatalogosUnificados();
+      setCatalogos({
+        dependencias: data.dependencias || [],
+        direcciones: data.direcciones || [],
+        dispositivos: data.dispositivos || [],
+        equipamientos: data.equipamientos || [],
+        tiposEquipo: data.tiposEquipo || [],
+        sistemasOperativos: data.sistemasOperativos || [],
+        marcas: data.marcas || [],
+        caracteristicas: data.caracteristicas || [],
+        ram: data.ram || [],
+        disco: data.disco || [],
+        office: data.office || [],
+        tipoConexion: data.tipoConexion || [],
+        programaAdicional: data.programaAdicional || []
+      });
+    } catch (err) {
+      const errorMessage = getErrorMessage(err);
+      setError(`Error al cargar catálogos: ${errorMessage}`);
+      setCatalogos({
+        dependencias: [],
+        direcciones: [],
+        dispositivos: [],
+        equipamientos: [],
+        tiposEquipo: [],
+        sistemasOperativos: [],
+        marcas: [],
+        caracteristicas: [],
+        ram: [],
+        disco: [],
+        office: [],
+        tipoConexion: [],
+        programaAdicional: []
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const cargarCatalogos = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const data = await getCatalogosUnificados();
-        setCatalogos({
-          dependencias: data.dependencias || [],
-          direcciones: data.direcciones || [],
-          dispositivos: data.dispositivos || [],
-          equipamientos: data.equipamientos || [],
-          tiposEquipo: data.tiposEquipo || [],
-          sistemasOperativos: data.sistemasOperativos || [],
-          marcas: data.marcas || [],
-          caracteristicas: data.caracteristicas || [],
-          ram: data.ram || [],
-          disco: data.disco || [],
-          office: data.office || [],
-          tipoConexion: data.tipoConexion || [],
-          programaAdicional: data.programaAdicional || []
-        });
-      } catch (err) {
-        const errorMessage = getErrorMessage(err);
-        setError(`Error al cargar catálogos: ${errorMessage}`);
-        setCatalogos({
-          dependencias: [],
-          direcciones: [],
-          dispositivos: [],
-          equipamientos: [],
-          tiposEquipo: [],
-          sistemasOperativos: [],
-          marcas: [],
-          caracteristicas: [],
-          ram: [],
-          disco: [],
-          office: [],
-          tipoConexion: [],
-          programaAdicional: []
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
     cargarCatalogos();
   }, []);
 
-  return { catalogos, isLoading, error };
+  const refreshCatalogos = async () => {
+    await cargarCatalogos();
+  };
+
+  return { catalogos, isLoading, error, refreshCatalogos };
 }
