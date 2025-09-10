@@ -172,8 +172,8 @@ export const getProgramasAdicionales = (): Promise<Array<{ id: number; nombre: s
 export const addDependencia = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
   api.post<{ id: number; nombre: string }>('/catalogos/dependencias', data);
 
-export const addDireccion = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
-  api.post<{ id: number; nombre: string }>('/catalogos/direcciones', data);
+export const addDireccion = (data: { nombre: string; dependencia_id: number }): Promise<{ id: number; nombre: string; dependencia_id: number }> =>
+  api.post<{ id: number; nombre: string; dependencia_id: number }>('/catalogos/direcciones', data);
 
 export const addDispositivo = (data: { nombre: string; campos?: string[] }): Promise<{ id: number; nombre: string; campos?: string[] }> =>
   api.post<{ id: number; nombre: string; campos?: string[] }>('/catalogos/dispositivos', data);

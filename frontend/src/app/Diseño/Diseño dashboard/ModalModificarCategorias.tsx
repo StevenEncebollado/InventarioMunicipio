@@ -7,6 +7,11 @@ import {
   FaMicrosoft, FaWifi, FaCode, FaSave, FaSpinner 
 } from 'react-icons/fa';
 import { useCatalogosContext, CategoriaType } from '../../dashboard/context/CatalogosContext';
+// Hook para cargar dependencias
+function useDependencias() {
+  const { catalogos } = useCatalogosContext();
+  return catalogos.dependencias || [];
+}
 
 // Campos disponibles para configurar en dispositivos
 const CAMPOS_DISPONIBLES = [
@@ -119,11 +124,14 @@ const categoriesConfig = {
 };
 
 export default function ModalModificarCategorias({ open, onClose }: ModalModificarCategoriasProps) {
+  const dependencias = useDependencias();
   const [selectedCategory, setSelectedCategory] = useState<CategoriaType | null>(null);
   const [newItem, setNewItem] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  // Para área/dirección
+  const [selectedDependenciaId, setSelectedDependenciaId] = useState<number | null>(null);
   
   // Estados para manejo de campos en dispositivos
   const [showCamposSelector, setShowCamposSelector] = useState(false);
@@ -196,7 +204,8 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
           newItemData = { nombre: newItem.trim() };
         }
         
-        await addItemToCategoria(selectedCategory, newItemData);
+  await addItemToCategoria(selectedCategory, newItemData);
+  setSelectedDependenciaId(null);
         setNewItem('');
         setShowCamposSelector(false);
         // Resetear campos seleccionados a los básicos
@@ -543,7 +552,32 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
                 background: '#f8fafc',
                 borderRadius: '12px',
                 border: '1px solid #e2e8f0',
+                flexWrap: 'wrap',
+                alignItems: 'center',
               }}>
+                {/* Select de dependencia solo para direcciones */}
+                {selectedCategory === 'direcciones' && (
+                  <select
+                    value={selectedDependenciaId ?? ''}
+                    onChange={e => setSelectedDependenciaId(Number(e.target.value) || null)}
+                    style={{
+                      minWidth: 180,
+                      padding: '12px 10px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '8px',
+                      fontSize: '0.95rem',
+                      outline: 'none',
+                      background: 'white',
+                      color: '#374151',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <option value="">Selecciona dependencia</option>
+                    {dependencias.map(dep => (
+                      <option key={dep.id} value={dep.id}>{dep.nombre}</option>
+                    ))}
+                  </select>
+                )}
                 <input
                   type="text"
                   placeholder={`Nuevo ${categoriesConfig[selectedCategory].label.toLowerCase()}`}

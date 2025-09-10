@@ -1,3 +1,9 @@
+// Tipo para Dirección/Área con dependencia_id
+export interface DireccionArea {
+  id: number | string;
+  nombre: string;
+  dependencia_id: number | string;
+}
 // Tipos principales del sistema de inventario
 
 export interface Usuario {

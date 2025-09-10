@@ -8,7 +8,7 @@ import Navbar from '../../Diseño/Diseño dashboard/Navbar';
 import { useAgregarEquipo } from '../hooks/useAgregarEquipo';
 import MultiSelectTags from '../componentes/MultiSelectTags';
 import { APP_CONFIG } from '@/services/api';
-import type { Usuario } from '@/types';
+import type { Usuario, DireccionArea } from '@/types';
 import Swal from 'sweetalert2';
 
 export default function AgregarEquipoPage() {
@@ -495,7 +495,11 @@ export default function AgregarEquipoPage() {
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar dirección</option>
-                    {catalogos.direcciones.map(dir => <option key={dir.id} value={dir.id}>{dir.nombre}</option>)}
+                    {(catalogos.direcciones as DireccionArea[])
+                      .filter(dir => !agregarEquipo.dependencia || String(dir.dependencia_id) === String(agregarEquipo.dependencia))
+                      .map(dir => (
+                        <option key={dir.id} value={dir.id}>{dir.nombre}</option>
+                      ))}
                   </select>
                 </div>
                 )}
