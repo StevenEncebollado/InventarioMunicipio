@@ -4,6 +4,21 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useCatalogos as useCatalogosHook } from '../hooks/useCatalogos';
+import { 
+  addDependencia,
+  addDireccion,
+  addDispositivo,
+  addEquipamiento,
+  addTipoEquipo,
+  addSistemaOperativo,
+  addCaracteristica,
+  addMarca,
+  addRam,
+  addDisco,
+  addOffice,
+  addTipoConexion,
+  addProgramaAdicional
+} from '../../../services/api';
 
 // Tipo para las categorías disponibles
 export type CategoriaType = 
@@ -59,10 +74,53 @@ export const CatalogosProvider = ({ children }: { children: ReactNode }) => {
   const addItemToCategoria = async (categoria: CategoriaType, item: any) => {
     try {
       console.log(`Agregando item a ${categoria}:`, item);
-      // Aquí deberías hacer la llamada a tu API
-      // await addItemToCategoriaAPI(categoria, item);
       
-      alert(`Item agregado a ${categoria} correctamente`);
+      // Llamadas reales a la API según la categoría
+      switch (categoria) {
+        case 'dependencias':
+          await addDependencia({ nombre: item.nombre });
+          break;
+        case 'direcciones':
+          await addDireccion({ nombre: item.nombre });
+          break;
+        case 'dispositivos':
+          await addDispositivo({ nombre: item.nombre });
+          break;
+        case 'equipamientos':
+          await addEquipamiento({ nombre: item.nombre });
+          break;
+        case 'tiposEquipo':
+          await addTipoEquipo({ nombre: item.nombre });
+          break;
+        case 'tiposSistemaOperativo':
+          await addSistemaOperativo({ nombre: item.nombre });
+          break;
+        case 'caracteristicas':
+          await addCaracteristica({ descripcion: item.descripcion });
+          break;
+        case 'marcas':
+          await addMarca({ nombre: item.nombre });
+          break;
+        case 'rams':
+          await addRam({ capacidad: item.capacidad });
+          break;
+        case 'discos':
+          await addDisco({ capacidad: item.capacidad });
+          break;
+        case 'offices':
+          await addOffice({ version: item.version });
+          break;
+        case 'tiposConexion':
+          await addTipoConexion({ nombre: item.nombre });
+          break;
+        case 'programasAdicionales':
+          await addProgramaAdicional({ nombre: item.nombre });
+          break;
+        default:
+          throw new Error(`Categoría ${categoria} no soportada`);
+      }
+      
+      console.log(`Item agregado a ${categoria} correctamente`);
       await refreshCatalogos();
     } catch (err) {
       console.error(`Error al agregar item a ${categoria}:`, err);

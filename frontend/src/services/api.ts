@@ -165,8 +165,48 @@ export const getOffice = (): Promise<Array<{ id: number; version: string }>> =>
   api.get<Array<{ id: number; version: string }>>('/catalogos/office');
 export const getTipoConexion = (): Promise<Array<{ id: number; nombre: string }>> =>
   api.get<Array<{ id: number; nombre: string }>>('/catalogos/tipo_conexion');
-export const getProgramaAdicional = (): Promise<Array<{ id: number; nombre: string }>> =>
+export const getProgramasAdicionales = (): Promise<Array<{ id: number; nombre: string }>> =>
   api.get<Array<{ id: number; nombre: string }>>('/catalogos/programas_adicionales');
+
+// Funciones POST para agregar elementos a los catálogos
+export const addDependencia = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
+  api.post<{ id: number; nombre: string }>('/catalogos/dependencias', data);
+
+export const addDireccion = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
+  api.post<{ id: number; nombre: string }>('/catalogos/direcciones', data);
+
+export const addDispositivo = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
+  api.post<{ id: number; nombre: string }>('/catalogos/dispositivos', data);
+
+export const addEquipamiento = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
+  api.post<{ id: number; nombre: string }>('/catalogos/equipamientos', data);
+
+export const addTipoEquipo = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
+  api.post<{ id: number; nombre: string }>('/catalogos/tipo_equipo', data);
+
+export const addSistemaOperativo = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
+  api.post<{ id: number; nombre: string }>('/catalogos/tipo_sistema_operativo', data);
+
+export const addCaracteristica = (data: { descripcion: string }): Promise<{ id: number; descripcion: string }> =>
+  api.post<{ id: number; descripcion: string }>('/catalogos/caracteristicas', data);
+
+export const addMarca = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
+  api.post<{ id: number; nombre: string }>('/catalogos/marca', data);
+
+export const addRam = (data: { capacidad: string }): Promise<{ id: number; capacidad: string }> =>
+  api.post<{ id: number; capacidad: string }>('/catalogos/ram', data);
+
+export const addDisco = (data: { capacidad: string }): Promise<{ id: number; capacidad: string }> =>
+  api.post<{ id: number; capacidad: string }>('/catalogos/disco', data);
+
+export const addOffice = (data: { version: string }): Promise<{ id: number; version: string }> =>
+  api.post<{ id: number; version: string }>('/catalogos/office', data);
+
+export const addTipoConexion = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
+  api.post<{ id: number; nombre: string }>('/catalogos/tipo_conexion', data);
+
+export const addProgramaAdicional = (data: { nombre: string }): Promise<{ id: number; nombre: string }> =>
+  api.post<{ id: number; nombre: string }>('/catalogos/programas_adicionales', data);
 
 // Catálogos unificados
 export const getCatalogosUnificados = (): Promise<any> =>
