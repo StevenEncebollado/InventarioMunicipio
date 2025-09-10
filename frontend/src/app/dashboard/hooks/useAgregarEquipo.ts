@@ -65,7 +65,28 @@ export function useAgregarEquipo(usuarioId?: number) {
       });
       return false;
     }
-    // Todos los campos son opcionales, así que siempre retorna true
+    
+    // Solo validar los 4 campos esenciales
+    const camposObligatorios = [
+      { valor: codigoInventario, nombre: "Código de Inventario" },
+      { valor: nombrePc, nombre: "Nombre del Equipo" },
+      { valor: funcionario, nombre: "Funcionario" },
+      { valor: estado, nombre: "Estado" }
+    ];
+    
+    const camposFaltantes = camposObligatorios.filter(campo => !campo.valor || campo.valor.trim() === "");
+    
+    if (camposFaltantes.length > 0) {
+      const nombresCampos = camposFaltantes.map(campo => campo.nombre).join(", ");
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Campos requeridos',
+        text: `Los siguientes campos son obligatorios: ${nombresCampos}`,
+        confirmButtonColor: '#f59e0b'
+      });
+      return false;
+    }
+    
     return true;
   };
 

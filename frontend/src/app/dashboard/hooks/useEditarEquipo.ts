@@ -131,20 +131,15 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
       return false;
     }
     
-    // Validar campos obligatorios
+    // Solo validar los 4 campos esenciales
     const camposObligatorios = [
-      { valor: ip, nombre: "Dirección IP" },
-      { valor: mac, nombre: "Dirección MAC" },
       { valor: codigoInventario, nombre: "Código de Inventario" },
-      { valor: nombrePc, nombre: "Nombre PC" },
+      { valor: nombrePc, nombre: "Nombre del Equipo" },
       { valor: funcionario, nombre: "Funcionario" },
-      { valor: tipoEquipo, nombre: "Tipo de Equipo" },
-      { valor: marca, nombre: "Marca" },
-      { valor: ram, nombre: "RAM" },
-      { valor: disco, nombre: "Disco" },
-      { valor: dependencia, nombre: "Dependencia" },
       { valor: estado, nombre: "Estado" }
-    ];    const camposFaltantes = camposObligatorios.filter(campo => !campo.valor || campo.valor.trim() === "");
+    ];
+    
+    const camposFaltantes = camposObligatorios.filter(campo => !campo.valor || campo.valor.trim() === "");
     
     if (camposFaltantes.length > 0) {
       const nombresCampos = camposFaltantes.map(campo => campo.nombre).join(", ");

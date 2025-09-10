@@ -2,6 +2,7 @@
 Rutas para la gestión del inventario municipal.
 Incluye endpoints CRUD y lógica relacionada.
 """
+import json
 from flask import Blueprint, request, jsonify
 from ..db import get_db_connection
 
@@ -116,9 +117,26 @@ def create_inventario():
             'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado'
         ]
         
-        # Solo usuario_id es obligatorio
+        # Validar usuario_id
         if not data.get('usuario_id'):
             return jsonify({'error': 'usuario_id es obligatorio'}), 400
+            
+        # Validar solo los 4 campos esenciales
+        campos_obligatorios = {
+            'codigo_inventario': 'Código de Inventario',
+            'nombre_pc': 'Nombre del Equipo', 
+            'nombres_funcionario': 'Funcionario',
+            'estado': 'Estado'
+        }
+        
+        campos_faltantes = []
+        for campo, nombre in campos_obligatorios.items():
+            valor = data.get(campo)
+            if not valor or str(valor).strip() == '':
+                campos_faltantes.append(nombre)
+        
+        if campos_faltantes:
+            return jsonify({'error': f'Los siguientes campos son obligatorios: {", ".join(campos_faltantes)}'}), 400
         
         # Convertir string vacío a None para todos los campos
         def limpiar_valor(valor):
@@ -132,26 +150,28 @@ def create_inventario():
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # Validar unicidad de codigo_inventario
-        cur.execute('SELECT id FROM inventario WHERE codigo_inventario = %s', (data.get('codigo_inventario'),))
-        if cur.fetchone():
-            return jsonify({'error': 'El código de inventario ya existe. Por favor, use un código diferente.'}), 400
+        # Validar unicidad de codigo_inventario (siempre requerido)
+        codigo_inventario = data.get('codigo_inventario')
+        if codigo_inventario:
+            cur.execute('SELECT id FROM inventario WHERE codigo_inventario = %s', (codigo_inventario,))
+            if cur.fetchone():
+                return jsonify({'error': 'El código de inventario ya existe. Por favor, use un código diferente.'}), 400
         
-        # Validar unicidad de direccion_ip
+        # Validar unicidad de direccion_ip (solo si se proporciona)
         direccion_ip = data.get('direccion_ip')
-        if direccion_ip:
+        if direccion_ip and direccion_ip.strip():
             cur.execute('SELECT id FROM inventario WHERE direccion_ip = %s', (direccion_ip,))
             if cur.fetchone():
                 return jsonify({'error': f'La dirección IP {direccion_ip} ya está en uso. Por favor, use una IP diferente.'}), 400
         
-        # Validar unicidad de direccion_mac
+        # Validar unicidad de direccion_mac (solo si se proporciona)
         direccion_mac = data.get('direccion_mac')
-        if direccion_mac:
+        if direccion_mac and direccion_mac.strip():
             cur.execute('SELECT id FROM inventario WHERE direccion_mac = %s', (direccion_mac,))
             if cur.fetchone():
                 return jsonify({'error': f'La dirección MAC {direccion_mac} ya está en uso. Por favor, use una MAC diferente.'}), 400
         
-        # Validar unicidad de nombre_pc
+        # Validar unicidad de nombre_pc (siempre requerido)
         nombre_pc = data.get('nombre_pc')
         if nombre_pc:
             cur.execute('SELECT id FROM inventario WHERE nombre_pc = %s', (nombre_pc,))
@@ -206,17 +226,74 @@ def create_inventario():
 def update_inventario(item_id):
     """Actualiza un registro del inventario por su ID."""
     data = request.json
+    
+    # Validar que se recibieron datos
+    if not data:
+        return jsonify({'error': 'No se recibieron datos'}), 400
+    
+    # Validar solo los 4 campos esenciales
+    campos_obligatorios = {
+        'codigo_inventario': 'Código de Inventario',
+        'nombre_pc': 'Nombre del Equipo', 
+        'nombres_funcionario': 'Funcionario',
+        'estado': 'Estado'
+    }
+    
+    campos_faltantes = []
+    for campo, nombre in campos_obligatorios.items():
+        valor = data.get(campo)
+        if not valor or str(valor).strip() == '':
+            campos_faltantes.append(nombre)
+    
+    if campos_faltantes:
+        return jsonify({'error': f'Los siguientes campos son obligatorios: {", ".join(campos_faltantes)}'}), 400
+    
     campos = [
         'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
         'direccion_mac', 'nombre_pc', 'nombres_funcionario', 'equipamiento_id', 'tipo_equipo_id',
         'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id', 'office_id',
         'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado', 'fecha_eliminacion'
     ]
-    valores = [data.get(campo) for campo in campos]
+    
+    # Convertir string vacío a None para todos los campos
+    def limpiar_valor(valor):
+        if valor == '' or valor is None:
+            return None
+        return valor
+
+    valores = [limpiar_valor(data.get(campo)) for campo in campos]
     set_clause = ', '.join([f"{campo} = %s" for campo in campos])
     conn = get_db_connection()
     cur = conn.cursor()
     try:
+        # Validar unicidad de campos únicos (excluyendo el registro actual)
+        codigo_inventario = data.get('codigo_inventario')
+        if codigo_inventario:
+            cur.execute('SELECT id FROM inventario WHERE codigo_inventario = %s AND id != %s', (codigo_inventario, item_id))
+            if cur.fetchone():
+                return jsonify({'error': 'El código de inventario ya existe. Por favor, use un código diferente.'}), 400
+        
+        # Validar unicidad de direccion_ip (solo si se proporciona)
+        direccion_ip = data.get('direccion_ip')
+        if direccion_ip and direccion_ip.strip():
+            cur.execute('SELECT id FROM inventario WHERE direccion_ip = %s AND id != %s', (direccion_ip, item_id))
+            if cur.fetchone():
+                return jsonify({'error': f'La dirección IP {direccion_ip} ya está en uso. Por favor, use una IP diferente.'}), 400
+        
+        # Validar unicidad de direccion_mac (solo si se proporciona)
+        direccion_mac = data.get('direccion_mac')
+        if direccion_mac and direccion_mac.strip():
+            cur.execute('SELECT id FROM inventario WHERE direccion_mac = %s AND id != %s', (direccion_mac, item_id))
+            if cur.fetchone():
+                return jsonify({'error': f'La dirección MAC {direccion_mac} ya está en uso. Por favor, use una MAC diferente.'}), 400
+        
+        # Validar unicidad de nombre_pc
+        nombre_pc = data.get('nombre_pc')
+        if nombre_pc:
+            cur.execute('SELECT id FROM inventario WHERE nombre_pc = %s AND id != %s', (nombre_pc, item_id))
+            if cur.fetchone():
+                return jsonify({'error': f'El nombre de PC "{nombre_pc}" ya está en uso. Por favor, use un nombre diferente.'}), 400
+        
         cur.execute(f'''
             UPDATE inventario SET {set_clause} WHERE id = %s
         ''', valores + [item_id])
@@ -224,7 +301,13 @@ def update_inventario(item_id):
         return jsonify({'msg': 'Actualizado correctamente'})
     except Exception as e:
         conn.rollback()
-        return jsonify({'error': str(e)}), 500
+        error_msg = str(e)
+        if 'duplicate key' in error_msg.lower():
+            return jsonify({'error': 'Ya existe un registro con esos datos. Verifique que no haya duplicados.'}), 400
+        elif 'foreign key' in error_msg.lower():
+            return jsonify({'error': 'Uno o más valores seleccionados no son válidos. Verifique los catálogos.'}), 400
+        else:
+            return jsonify({'error': f'Error al actualizar: {str(e)}'}), 500
     finally:
         cur.close()
         conn.close()
