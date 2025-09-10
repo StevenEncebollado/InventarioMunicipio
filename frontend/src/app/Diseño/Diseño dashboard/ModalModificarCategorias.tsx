@@ -131,7 +131,7 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
   const [editingValue, setEditingValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   // Para área/dirección
-  const [selectedDependenciaId, setSelectedDependenciaId] = useState<number | null>(null);
+  const [selectedDependenciaId, setSelectedDependenciaId] = useState<string>("");
   
   // Estados para manejo de campos en dispositivos
   const [showCamposSelector, setShowCamposSelector] = useState(false);
@@ -184,12 +184,21 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
         setShowCamposSelector(true);
         return;
       }
-      
+
       try {
         // Crear objeto según el tipo de categoría
         let newItemData;
-        
-        if (selectedCategory === 'dispositivos') {
+
+        if (selectedCategory === 'direcciones') {
+          if (!selectedDependenciaId) {
+            alert('Debes seleccionar una dependencia para el área.');
+            return;
+          }
+          newItemData = {
+            nombre: newItem.trim(),
+            dependencia_id: Number(selectedDependenciaId)
+          };
+        } else if (selectedCategory === 'dispositivos') {
           newItemData = { 
             nombre: newItem.trim(),
             campos: camposSeleccionados 
@@ -203,9 +212,9 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
         } else {
           newItemData = { nombre: newItem.trim() };
         }
-        
-  await addItemToCategoria(selectedCategory, newItemData);
-  setSelectedDependenciaId(null);
+
+        await addItemToCategoria(selectedCategory, newItemData);
+  setSelectedDependenciaId("");
         setNewItem('');
         setShowCamposSelector(false);
         // Resetear campos seleccionados a los básicos
@@ -558,8 +567,8 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
                 {/* Select de dependencia solo para direcciones */}
                 {selectedCategory === 'direcciones' && (
                   <select
-                    value={selectedDependenciaId ?? ''}
-                    onChange={e => setSelectedDependenciaId(Number(e.target.value) || null)}
+                    value={selectedDependenciaId}
+                    onChange={e => setSelectedDependenciaId(e.target.value)}
                     style={{
                       minWidth: 180,
                       padding: '12px 10px',
@@ -574,7 +583,7 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
                   >
                     <option value="">Selecciona dependencia</option>
                     {dependencias.map(dep => (
-                      <option key={dep.id} value={dep.id}>{dep.nombre}</option>
+                      <option key={dep.id} value={dep.id.toString()}>{dep.nombre}</option>
                     ))}
                   </select>
                 )}

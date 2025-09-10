@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { getCatalogosUnificados, getErrorMessage } from '@/services/api';
+import type { DireccionArea } from '@/types';
 
 interface CaracteristicaItem {
   id: number;
@@ -32,7 +33,7 @@ interface OfficeItem {
 
 interface Catalogos {
   dependencias: CatalogoItem[];
-  direcciones: CatalogoItem[];
+  direcciones: DireccionArea[];
   dispositivos: CatalogoItem[];
   equipamientos: CatalogoItem[];
   tiposEquipo: CatalogoItem[];
@@ -70,6 +71,8 @@ export function useCatalogos() {
       setIsLoading(true);
       setError(null);
       const data = await getCatalogosUnificados();
+      // DEBUG: Mostrar direcciones crudas recibidas
+      console.log('Direcciones recibidas del backend:', data.direcciones);
       setCatalogos({
         dependencias: data.dependencias || [],
         direcciones: data.direcciones || [],

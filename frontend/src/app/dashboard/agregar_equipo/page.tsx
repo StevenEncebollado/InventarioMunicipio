@@ -474,12 +474,14 @@ export default function AgregarEquipoPage() {
                     Dependencia
                   </label>
                   <select 
-                    value={agregarEquipo.dependencia} 
-                    onChange={e => agregarEquipo.setDependencia(e.target.value)} 
+                    value={agregarEquipo.dependencia}
+                    onChange={e => agregarEquipo.setDependencia(e.target.value.toString())}
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar dependencia</option>
-                    {catalogos.dependencias.map(dep => <option key={dep.id} value={dep.id}>{dep.nombre}</option>)}
+                    {catalogos.dependencias.map(dep => (
+                      <option key={dep.id} value={dep.id.toString()}>{dep.nombre}</option>
+                    ))}
                   </select>
                 </div>
                 )}
@@ -495,11 +497,20 @@ export default function AgregarEquipoPage() {
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   >
                     <option value="">Seleccionar dirección</option>
-                    {(catalogos.direcciones as DireccionArea[])
-                      .filter(dir => !agregarEquipo.dependencia || String(dir.dependencia_id) === String(agregarEquipo.dependencia))
-                      .map(dir => (
-                        <option key={dir.id} value={dir.id}>{dir.nombre}</option>
-                      ))}
+                    {(() => {
+                      // DEBUG: Mostrar en consola los datos para depuración
+                      console.log('Direcciones:', catalogos.direcciones);
+                      console.log('Dependencia seleccionada:', agregarEquipo.dependencia);
+                      return (catalogos.direcciones as DireccionArea[])
+                        .filter(dir => {
+                          // Mostrar cada comparación
+                          console.log('Comparando', dir.nombre, 'dep_id:', dir.dependencia_id, 'con', agregarEquipo.dependencia);
+                          return !agregarEquipo.dependencia || dir.dependencia_id?.toString() === agregarEquipo.dependencia;
+                        })
+                        .map(dir => (
+                          <option key={dir.id} value={dir.id}>{dir.nombre}</option>
+                        ));
+                    })()}
                   </select>
                 </div>
                 )}

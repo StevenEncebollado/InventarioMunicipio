@@ -147,8 +147,10 @@ export const getMarcas = (): Promise<Array<{ id: number; nombre: string }>> =>
   api.get<Array<{ id: number; nombre: string }>>('/catalogos/marca');
 export const getDependencias = (): Promise<Array<{ id: number; nombre: string }>> =>
   api.get<Array<{ id: number; nombre: string }>>('/catalogos/dependencias');
-export const getDirecciones = (): Promise<Array<{ id: number; nombre: string }>> =>
-  api.get<Array<{ id: number; nombre: string }>>('/catalogos/direcciones');
+import type { DireccionArea } from '../types';
+
+export const getDirecciones = (): Promise<DireccionArea[]> =>
+  api.get<DireccionArea[]>('/catalogos/direcciones');
 export const getDispositivos = (): Promise<Array<{ id: number; nombre: string }>> =>
   api.get<Array<{ id: number; nombre: string }>>('/catalogos/dispositivos');
 export const getEquipamientos = (): Promise<Array<{ id: number; nombre: string }>> =>

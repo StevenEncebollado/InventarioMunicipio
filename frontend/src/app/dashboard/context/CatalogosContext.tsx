@@ -74,14 +74,14 @@ export const CatalogosProvider = ({ children }: { children: ReactNode }) => {
   const addItemToCategoria = async (categoria: CategoriaType, item: any) => {
     try {
       console.log(`Agregando item a ${categoria}:`, item);
-      
       // Llamadas reales a la API según la categoría
       switch (categoria) {
         case 'dependencias':
           await addDependencia({ nombre: item.nombre });
           break;
         case 'direcciones':
-          await addDireccion({ nombre: item.nombre, dependencia_id: item.dependencia_id });
+          await addDireccion({ nombre: item.nombre, dependencia_id: Number(item.dependencia_id) });
+          await refreshCatalogos(); // Refresca catálogos tras agregar área
           break;
         case 'dispositivos':
           await addDispositivo({ nombre: item.nombre, campos: item.campos });
@@ -119,9 +119,8 @@ export const CatalogosProvider = ({ children }: { children: ReactNode }) => {
         default:
           throw new Error(`Categoría ${categoria} no soportada`);
       }
-      
       console.log(`Item agregado a ${categoria} correctamente`);
-      await refreshCatalogos();
+      if (categoria !== 'direcciones') await refreshCatalogos();
     } catch (err) {
       console.error(`Error al agregar item a ${categoria}:`, err);
       throw new Error(`Error al agregar el item a ${categoria}`);

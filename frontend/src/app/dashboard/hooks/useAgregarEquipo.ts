@@ -20,7 +20,9 @@ export function useAgregarEquipo(usuarioId?: number) {
   const [office, setOffice] = useState("");
   const [tipoConexion, setTipoConexion] = useState("");
   const [programaAdicional, setProgramaAdicional] = useState<number[]>([]);
-  const [dependencia, setDependencia] = useState("");
+  // Siempre guardar como string
+  const [dependencia, setDependencia] = useState<string>("");
+  const setDependenciaString = (val: string | number) => setDependencia(val ? val.toString() : "");
   const [direccion, setDireccion] = useState("");
   const [equipamiento, setEquipamiento] = useState("");
   const [caracteristica, setCaracteristica] = useState("");
@@ -94,10 +96,9 @@ export function useAgregarEquipo(usuarioId?: number) {
     if (!usuarioId) {
       throw new Error('Usuario no autenticado');
     }
-    
     return {
       usuario_id: usuarioId,
-      dependencia_id: dependencia,
+      dependencia_id: dependencia ? Number(dependencia) : null,
       direccion_area_id: direccion || null,
       direccion_ip: ip,
       direccion_mac: mac,
@@ -136,7 +137,7 @@ export function useAgregarEquipo(usuarioId?: number) {
     office, setOffice,
     tipoConexion, setTipoConexion,
     programaAdicional, setProgramaAdicional,
-    dependencia, setDependencia,
+  dependencia, setDependencia: setDependenciaString,
     direccion, setDireccion,
     equipamiento, setEquipamiento,
     caracteristica, setCaracteristica,
