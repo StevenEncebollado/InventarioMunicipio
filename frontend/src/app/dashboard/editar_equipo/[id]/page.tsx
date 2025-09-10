@@ -9,6 +9,7 @@ import { useEditarEquipo } from '../../hooks/useEditarEquipo';
 import MultiSelectTags from '../../componentes/MultiSelectTags';
 import { APP_CONFIG } from '@/services/api';
 import type { Usuario } from '@/types';
+import Swal from 'sweetalert2';
 
 export default function EditarEquipoPage() {
   const router = useRouter();
@@ -37,12 +38,31 @@ export default function EditarEquipoPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     editarEquipo.setEditError("");
-    editarEquipo.setEditLoading(true);
     
-    if (!editarEquipo.validarCampos()) {
-      editarEquipo.setEditLoading(false);
+    if (!(await editarEquipo.validarCampos())) {
       return;
     }
+    
+    // Mostrar confirmación antes de proceder
+    const result = await Swal.fire({
+      title: '¿Confirmar cambios?',
+      text: '¿Estás seguro de que deseas actualizar este equipo con los cambios realizados?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, actualizar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#2563eb',
+      cancelButtonColor: '#6b7280',
+      backdrop: true,
+      reverseButtons: true
+    });
+
+    // Si el usuario cancela, no hacer nada
+    if (!result.isConfirmed) {
+      return;
+    }
+    
+    editarEquipo.setEditLoading(true);
     
     try {
       const response = await fetch(`http://localhost:5000/inventario/${equipoId}`, {
@@ -52,22 +72,48 @@ export default function EditarEquipoPage() {
       });
       
       if (response.ok) {
-        // Mostrar mensaje de éxito brevemente antes de redirigir
-        alert('Equipo actualizado correctamente');
+        // Mostrar SweetAlert de éxito
+        await Swal.fire({
+          title: '¡Éxito!',
+          text: 'El equipo ha sido actualizado correctamente',
+          icon: 'success',
+          confirmButtonText: 'Continuar',
+          confirmButtonColor: '#2563eb',
+          backdrop: true,
+          allowOutsideClick: false
+        });
+        
         router.push('/dashboard'); // Regresar al dashboard
       } else {
         // Intentar obtener el mensaje de error del backend
         let errorMessage = 'Error al actualizar equipo';
         try {
           const errorData = await response.json();
-          errorMessage = errorData.message || errorData.error || errorMessage;
+          
+          // Verificación segura de las propiedades del error
+          if (errorData && typeof errorData === 'object') {
+            if ('message' in errorData && typeof errorData.message === 'string') {
+              errorMessage = errorData.message;
+            } else if ('error' in errorData && typeof errorData.error === 'string') {
+              errorMessage = errorData.error;
+            }
+          }
         } catch {
           errorMessage = `Error del servidor: ${response.status} ${response.statusText}`;
         }
         throw new Error(errorMessage);
       }
     } catch (err: any) {
-      console.error('Error al actualizar equipo:', err);
+      // Mostrar SweetAlert de error
+      await Swal.fire({
+        title: 'Error',
+        text: `Error al actualizar equipo: ${err.message || 'Error desconocido'}`,
+        icon: 'error',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#dc2626',
+        backdrop: true
+      });
+      
       editarEquipo.setEditError("Error al actualizar equipo: " + (err.message || 'Error desconocido'));
     } finally {
       editarEquipo.setEditLoading(false);
@@ -212,7 +258,7 @@ export default function EditarEquipoPage() {
                   <input 
                     value={editarEquipo.ip} 
                     onChange={e => editarEquipo.setIp(e.target.value)} 
-                    placeholder="192.168.1.100"
+                    placeholder="Ej: 192.168.1.100"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -224,7 +270,19 @@ export default function EditarEquipoPage() {
                   <input 
                     value={editarEquipo.mac} 
                     onChange={e => editarEquipo.setMac(e.target.value)} 
-                    placeholder="00:1B:63:84:45:E6"
+                    placeholder="Ej: 00:1B:63:84:45:E6"
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Código de Inventario *
+                  </label>
+                  <input 
+                    value={editarEquipo.codigoInventario} 
+                    onChange={e => editarEquipo.setCodigoInventario(e.target.value)} 
+                    placeholder="Ej: INV-001"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -236,7 +294,7 @@ export default function EditarEquipoPage() {
                   <input 
                     value={editarEquipo.nombrePc} 
                     onChange={e => editarEquipo.setNombrePc(e.target.value)} 
-                    placeholder="PC-OFICINA-01"
+                    placeholder="Ej: PC-OFICINA-01"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -248,7 +306,7 @@ export default function EditarEquipoPage() {
                   <input 
                     value={editarEquipo.funcionario} 
                     onChange={e => editarEquipo.setFuncionario(e.target.value)} 
-                    placeholder="Juan Pérez"
+                    placeholder="Ej: Juan Pérez"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -260,26 +318,8 @@ export default function EditarEquipoPage() {
                   <input 
                     value={editarEquipo.anydesk} 
                     onChange={e => editarEquipo.setAnydesk(e.target.value)} 
-                    placeholder="123456789"
+                    placeholder="Ej: 123456789"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
-                    Observaciones
-                  </label>
-                  <textarea 
-                    value={editarEquipo.observaciones} 
-                    onChange={e => editarEquipo.setObservaciones(e.target.value)} 
-                    placeholder="Observaciones adicionales..."
-                    rows={3}
-                    style={{ 
-                      ...EstiloDashboardEspecifico.catalogos.selectStyle, 
-                      width: '100%',
-                      resize: 'vertical',
-                      minHeight: '80px'
-                    }}
                   />
                 </div>
 
@@ -296,7 +336,6 @@ export default function EditarEquipoPage() {
                     <option value="">Seleccionar estado</option>
                     <option value="Activo">Activo</option>
                     <option value="Mantenimiento">Mantenimiento</option>
-                    <option value="Inactivo">Inactivo</option>
                   </select>
                 </div>
 

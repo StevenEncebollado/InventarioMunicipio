@@ -170,35 +170,39 @@ export default function Filtros({
       </div>
       {/* Menú de agregar filtro */}
       {showMenu && (
-        <div style={{ 
-          position: 'fixed', 
-          top: '50%', 
-          left: '50%', 
+        <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
           transform: 'translate(-50%, -50%)',
-          zIndex: 1000, 
-          background: '#fff', 
-          border: '1px solid #e5e7eb', 
-          borderRadius: 12, 
-          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)', 
-          padding: '20px', 
-          minWidth: 300, 
-          maxWidth: '90vw',
+          zIndex: 1000,
+          background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)',
+          border: '1px solid #e0e7ef',
+          borderRadius: 18,
+          boxShadow: '0 16px 40px 0 rgba(37,99,235,0.10)',
+          padding: '32px 28px 28px 28px',
+          minWidth: 340,
+          maxWidth: 420,
+          width: '90vw',
           maxHeight: '80vh',
-          overflowY: 'auto'
+          overflowY: 'auto',
+          scrollbarWidth: 'thin',
         }}>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            marginBottom: 16, 
-            paddingBottom: 12, 
-            borderBottom: '1px solid #e5e7eb' 
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 24,
+            paddingBottom: 16,
+            borderBottom: '1.5px solid #dbeafe',
           }}>
-            <h3 style={{ 
-              fontWeight: 700, 
-              margin: 0, 
-              color: '#1f2937', 
-              fontSize: '18px' 
+            <h3 style={{
+              fontWeight: 800,
+              margin: 0,
+              color: '#2563eb',
+              fontSize: '1.35rem',
+              letterSpacing: '0.5px',
+              textShadow: '0 2px 8px #e0e7ff',
             }}>
               Agregar Filtro
             </h3>
@@ -207,42 +211,49 @@ export default function Filtros({
               style={{
                 background: 'none',
                 border: 'none',
-                fontSize: '20px',
+                fontSize: '22px',
                 cursor: 'pointer',
-                color: '#6b7280',
-                padding: '4px'
+                color: '#64748b',
+                padding: '4px',
+                borderRadius: '50%',
+                transition: 'background 0.2s',
               }}
+              onMouseEnter={e => e.currentTarget.style.background = '#e0e7ff'}
+              onMouseLeave={e => e.currentTarget.style.background = 'none'}
             >
               <FaTimes />
             </button>
           </div>
-          <div style={{ display: 'grid', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {filtroOptions.filter(opt => !filtrosActivos.includes(opt.key)).map(opt => (
               <button
                 key={opt.key}
-                style={{ 
-                  width: '100%', 
-                  textAlign: 'left', 
-                  padding: '12px 16px', 
-                  border: '1px solid #e5e7eb', 
-                  background: '#fff', 
-                  color: '#374151', 
-                  fontWeight: 500, 
-                  borderRadius: 8, 
-                  cursor: 'pointer', 
-                  transition: 'all 0.2s ease',
-                  fontSize: '14px'
+                style={{
+                  width: '100%',
+                  textAlign: 'left',
+                  padding: '16px 20px',
+                  border: 'none',
+                  background: '#fff',
+                  color: '#000000ff',
+                  fontWeight: 700,
+                  borderRadius: 12,
+                  cursor: 'pointer',
+                  fontSize: '1.08rem',
+                  boxShadow: '0 2px 8px rgba(37,99,235,0.07)',
+                  transition: 'all 0.18s',
+                  outline: 'none',
+                  letterSpacing: '0.2px',
                 }}
                 onClick={() => agregarFiltro(opt.key)}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.background = '#f3f4f6';
-                  e.currentTarget.style.borderColor = '#2563eb';
-                  e.currentTarget.style.color = '#2563eb';
+                onMouseOver={e => {
+                  e.currentTarget.style.background = '#e0e7ff';
+                  e.currentTarget.style.color = '#1e40af';
+                  e.currentTarget.style.boxShadow = '0 4px 16px #c7d2fe';
                 }}
-                onMouseOut={(e) => {
+                onMouseOut={e => {
                   e.currentTarget.style.background = '#fff';
-                  e.currentTarget.style.borderColor = '#e5e7eb';
-                  e.currentTarget.style.color = '#374151';
+                  e.currentTarget.style.color = '#2563eb';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(37,99,235,0.07)';
                 }}
               >
                 {opt.label}

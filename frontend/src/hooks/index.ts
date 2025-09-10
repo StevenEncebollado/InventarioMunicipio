@@ -168,7 +168,6 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       const item = jsonStorage.get<T>(key);
       return item !== null ? item : initialValue;
     } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error);
       return initialValue;
     }
   });
@@ -180,7 +179,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
       setStoredValue(valueToStore);
       jsonStorage.set(key, valueToStore);
     } catch (error) {
-      console.error(`Error setting localStorage key "${key}":`, error);
+      // Error silenciado
     }
   };
 

@@ -132,3 +132,20 @@ export interface ConfiguracionApp {
   items_por_pagina: number;
   auto_logout_minutos: number;
 }
+
+// Tipo extendido del equipo con nombres de catálogos
+export interface EquipoExtendido extends Equipo {
+  dependencia_nombre?: string;
+  direccion_area_nombre?: string;
+  dispositivo_nombre?: string;
+  equipamiento_nombre?: string;
+  tipo_equipo_nombre?: string;
+  tipo_sistema_operativo_nombre?: string;
+  marca_nombre?: string;
+  caracteristicas_descripcion?: string;
+  ram_capacidad?: string;
+  disco_capacidad?: string;
+  office_version?: string;
+  tipo_conexion_nombre?: string;
+  programas_adicionales_nombres?: string[];
+}

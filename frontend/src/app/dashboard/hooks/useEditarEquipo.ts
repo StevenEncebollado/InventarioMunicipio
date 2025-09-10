@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import type { Equipo } from '@/types';
+import Swal from 'sweetalert2';
 
 export function useEditarEquipo(equipoId: string, usuarioId?: number) {
   // Campos de texto
   const [ip, setIp] = useState("");
   const [mac, setMac] = useState("");
+  const [codigoInventario, setCodigoInventario] = useState("");
   const [nombrePc, setNombrePc] = useState("");
   const [funcionario, setFuncionario] = useState("");
   const [anydesk, setAnydesk] = useState("");
@@ -48,7 +50,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
         setLoadingEquipo(true);
         setEditError(""); // Limpiar errores previos
         
-        const response = await fetch(`http://localhost:5000/inventario/inventario/${equipoId}`);
+        const response = await fetch(`http://localhost:5000/inventario/${equipoId}`);
         
         if (!response.ok) {
           if (response.status === 404) {
@@ -64,6 +66,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
         // Llenar los campos con los datos existentes (con valores por defecto seguros)
         setIp(equipoData.direccion_ip || "");
         setMac(equipoData.direccion_mac || "");
+        setCodigoInventario(equipoData.codigo_inventario || "");
         setNombrePc(equipoData.nombre_pc || "");
         setFuncionario(equipoData.nombres_funcionario || "");
         setAnydesk(equipoData.anydesk || "");
@@ -95,6 +98,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
   const limpiarCampos = () => {
     setIp("");
     setMac("");
+    setCodigoInventario("");
     setNombrePc("");
     setFuncionario("");
     setAnydesk("");
@@ -114,63 +118,43 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
     setEstado("");
   };
 
-  const validarCampos = (): boolean => {
+  const validarCampos = async (): Promise<boolean> => {
     setEditError(""); // Limpiar errores previos
     
     if (!usuarioId) {
-      setEditError("Usuario no autenticado. Por favor, inicie sesión nuevamente.");
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Usuario no autenticado',
+        text: 'Por favor, inicie sesión nuevamente.',
+        confirmButtonColor: '#f59e0b'
+      });
       return false;
     }
     
     // Validar campos obligatorios
     const camposObligatorios = [
-      { valor: nombrePc, nombre: "Nombre de PC" },
-      { valor: funcionario, nombre: "Funcionario Responsable" },
+      { valor: ip, nombre: "Dirección IP" },
+      { valor: mac, nombre: "Dirección MAC" },
+      { valor: codigoInventario, nombre: "Código de Inventario" },
+      { valor: nombrePc, nombre: "Nombre PC" },
+      { valor: funcionario, nombre: "Funcionario" },
       { valor: tipoEquipo, nombre: "Tipo de Equipo" },
       { valor: marca, nombre: "Marca" },
       { valor: ram, nombre: "RAM" },
-      { valor: disco, nombre: "Disco Duro" },
+      { valor: disco, nombre: "Disco" },
       { valor: dependencia, nombre: "Dependencia" },
       { valor: estado, nombre: "Estado" }
-    ];
-    
-    const camposFaltantes = camposObligatorios.filter(campo => !campo.valor || campo.valor.trim() === "");
+    ];    const camposFaltantes = camposObligatorios.filter(campo => !campo.valor || campo.valor.trim() === "");
     
     if (camposFaltantes.length > 0) {
       const nombresCampos = camposFaltantes.map(campo => campo.nombre).join(", ");
-      setEditError(`Los siguientes campos son obligatorios: ${nombresCampos}`);
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Campos requeridos',
+        text: `Los siguientes campos son obligatorios: ${nombresCampos}`,
+        confirmButtonColor: '#f59e0b'
+      });
       return false;
-    }
-    
-    // Validar formato de IP (más flexible)
-    const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-    if (ip && !ipRegex.test(ip)) {
-      // Validar que cada octeto esté en el rango 0-255
-      const octetos = ip.split('.');
-      if (octetos.length === 4) {
-        const octetosValidos = octetos.every(octeto => {
-          const num = parseInt(octeto, 10);
-          return !isNaN(num) && num >= 0 && num <= 255;
-        });
-        if (!octetosValidos) {
-          setEditError("La dirección IP debe tener octetos válidos (0-255). Ejemplo: 192.168.1.100");
-          return false;
-        }
-      } else {
-        setEditError("La dirección IP debe tener 4 octetos separados por puntos. Ejemplo: 192.168.1.100");
-        return false;
-      }
-    }
-    
-    // Validar formato de MAC (más flexible)
-    if (mac) {
-      const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
-      const macSinSeparadores = /^[0-9A-Fa-f]{12}$/; // MAC sin separadores
-      
-      if (!macRegex.test(mac) && !macSinSeparadores.test(mac.replace(/[:-]/g, ''))) {
-        setEditError("La dirección MAC no tiene un formato válido. Use formato: 00:1B:63:84:45:E6 o 00-1B-63-84-45-E6");
-        return false;
-      }
     }
     
     return true;
@@ -209,7 +193,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
       disco_id: disco || null,
       office_id: office || null,
       marca_id: marca || null,
-      codigo_inventario: limpiarString(mac),
+      codigo_inventario: limpiarString(codigoInventario),
       tipo_conexion_id: tipoConexion || null,
       anydesk: limpiarString(anydesk) || null,
       estado: estado || 'Activo',
@@ -223,6 +207,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
     // Campos de texto
     ip, setIp,
     mac, setMac,
+    codigoInventario, setCodigoInventario,
     nombrePc, setNombrePc,
     funcionario, setFuncionario,
     anydesk, setAnydesk,

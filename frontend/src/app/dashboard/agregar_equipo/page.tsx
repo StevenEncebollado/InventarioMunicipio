@@ -9,6 +9,7 @@ import { useAgregarEquipo } from '../hooks/useAgregarEquipo';
 import MultiSelectTags from '../componentes/MultiSelectTags';
 import { APP_CONFIG } from '@/services/api';
 import type { Usuario } from '@/types';
+import Swal from 'sweetalert2';
 
 export default function AgregarEquipoPage() {
   const router = useRouter();
@@ -37,26 +38,71 @@ export default function AgregarEquipoPage() {
     agregarEquipo.setAddError("");
     agregarEquipo.setAddLoading(true);
     
-    if (!agregarEquipo.validarCampos()) {
+    if (!(await agregarEquipo.validarCampos())) {
       agregarEquipo.setAddLoading(false);
       return;
     }
     
     try {
+      const formData = agregarEquipo.getFormData();
+      
       const response = await fetch('http://localhost:5000/inventario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(agregarEquipo.getFormData())
+        body: JSON.stringify(formData)
       });
       
       if (response.ok) {
+        const data = await response.json();
+        
+        // Mostrar mensaje de éxito con SweetAlert2
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Equipo creado exitosamente!',
+          text: `El equipo ha sido agregado correctamente al inventario.`,
+          confirmButtonColor: '#28a745',
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: true
+        });
+        
         agregarEquipo.limpiarCampos();
         router.push('/dashboard'); // Regresar al dashboard
       } else {
-        throw new Error('Error al crear equipo');
+        let errorMessage = 'No se pudo crear el equipo. Verifica los datos ingresados.';
+        
+        try {
+          const errorData = await response.json();
+          
+          // Verificación segura de las propiedades del error
+          if (errorData && typeof errorData === 'object') {
+            if ('error' in errorData && typeof errorData.error === 'string') {
+              errorMessage = errorData.error;
+            } else if ('message' in errorData && typeof errorData.message === 'string') {
+              errorMessage = errorData.message;
+            }
+          }
+        } catch (parseError) {
+          errorMessage = `Error del servidor (${response.status}): ${response.statusText}`;
+        }
+        
+        // Mostrar error con SweetAlert2 con más detalles
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error al crear equipo',
+          text: errorMessage,
+          confirmButtonColor: '#dc3545',
+          footer: `Código de error: ${response.status}`
+        });
       }
     } catch (err: any) {
-      agregarEquipo.setAddError("Error al crear equipo: " + (err.message || 'Error desconocido'));
+      // Mostrar error de conexión con SweetAlert2
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error de conexión',
+        text: 'No se pudo conectar con el servidor. Verifica tu conexión e intenta nuevamente.',
+        confirmButtonColor: '#dc3545'
+      });
     } finally {
       agregarEquipo.setAddLoading(false);
     }
@@ -145,7 +191,7 @@ export default function AgregarEquipoPage() {
                   <input 
                     value={agregarEquipo.ip} 
                     onChange={e => agregarEquipo.setIp(e.target.value)} 
-                    placeholder="192.168.1.100"
+                    placeholder="Ej: 192.168.1.100"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -157,7 +203,19 @@ export default function AgregarEquipoPage() {
                   <input 
                     value={agregarEquipo.mac} 
                     onChange={e => agregarEquipo.setMac(e.target.value)} 
-                    placeholder="00:1B:63:84:45:E6"
+                    placeholder="Ej: 00:1B:63:84:45:E6"
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Código de Inventario *
+                  </label>
+                  <input 
+                    value={agregarEquipo.codigoInventario} 
+                    onChange={e => agregarEquipo.setCodigoInventario(e.target.value)} 
+                    placeholder="Ej: INV-001"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -169,7 +227,7 @@ export default function AgregarEquipoPage() {
                   <input 
                     value={agregarEquipo.nombrePc} 
                     onChange={e => agregarEquipo.setNombrePc(e.target.value)} 
-                    placeholder="PC-OFICINA-01"
+                    placeholder="Ej: PC-OFICINA-01"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -181,7 +239,7 @@ export default function AgregarEquipoPage() {
                   <input 
                     value={agregarEquipo.funcionario} 
                     onChange={e => agregarEquipo.setFuncionario(e.target.value)} 
-                    placeholder="Juan Pérez"
+                    placeholder="Ej: Juan Pérez"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -193,7 +251,7 @@ export default function AgregarEquipoPage() {
                   <input 
                     value={agregarEquipo.anydesk} 
                     onChange={e => agregarEquipo.setAnydesk(e.target.value)} 
-                    placeholder="123456789"
+                    placeholder="Ej: 123456789"
                     style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
                   />
                 </div>
@@ -211,7 +269,6 @@ export default function AgregarEquipoPage() {
                     <option value="">Seleccionar estado</option>
                     <option value="Activo">Activo</option>
                     <option value="Mantenimiento">Mantenimiento</option>
-                    <option value="Inactivo">Inactivo</option>
                   </select>
                 </div>
 

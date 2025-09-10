@@ -1,11 +1,13 @@
   //Este hook gestiona el estado y la lógica de un formulario para agregar un equipo.
 
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 
 export function useAgregarEquipo(usuarioId?: number) {
   // Campos de texto
   const [ip, setIp] = useState("");
   const [mac, setMac] = useState("");
+  const [codigoInventario, setCodigoInventario] = useState("");
   const [nombrePc, setNombrePc] = useState("");
   const [funcionario, setFuncionario] = useState("");
   const [anydesk, setAnydesk] = useState("");
@@ -34,6 +36,7 @@ export function useAgregarEquipo(usuarioId?: number) {
   const limpiarCampos = () => {
     setIp("");
     setMac("");
+    setCodigoInventario("");
     setNombrePc("");
     setFuncionario("");
     setAnydesk("");
@@ -52,16 +55,26 @@ export function useAgregarEquipo(usuarioId?: number) {
   setEstado("");
   };
 
-  const validarCampos = (): boolean => {
+  const validarCampos = async (): Promise<boolean> => {
     if (!usuarioId) {
-      setAddError("Usuario no autenticado. Por favor, inicie sesión nuevamente.");
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Usuario no autenticado',
+        text: 'Por favor, inicie sesión nuevamente.',
+        confirmButtonColor: '#f59e0b'
+      });
       return false;
     }
     
-    if (!ip || !mac || !nombrePc || !funcionario || 
+    if (!ip || !mac || !codigoInventario || !nombrePc || !funcionario || 
         !tipoEquipo || !marca || !ram || !disco || 
         !dependencia || !estado) {
-      setAddError("Los campos marcados con * son obligatorios");
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Campos requeridos',
+        text: 'Los campos marcados con * son obligatorios. Por favor, completa todos los campos.',
+        confirmButtonColor: '#f59e0b'
+      });
       return false;
     }
     return true;
@@ -88,7 +101,7 @@ export function useAgregarEquipo(usuarioId?: number) {
       disco_id: disco,
       office_id: office || null,
       marca_id: marca,
-      codigo_inventario: mac,
+      codigo_inventario: codigoInventario,
       tipo_conexion_id: tipoConexion || null,
       anydesk: anydesk || null,
       estado: estado,
@@ -100,6 +113,7 @@ export function useAgregarEquipo(usuarioId?: number) {
     // Campos de texto
     ip, setIp,
     mac, setMac,
+    codigoInventario, setCodigoInventario,
     nombrePc, setNombrePc,
     funcionario, setFuncionario,
     anydesk, setAnydesk,
