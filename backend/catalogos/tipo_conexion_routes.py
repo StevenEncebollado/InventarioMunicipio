@@ -21,13 +21,18 @@ def actualizar_tipo_conexion(id):
 @tipo_conexion_bp.route('/tipo_conexion/<int:id>', methods=['DELETE'])
 def eliminar_tipo_conexion(id):
     """Elimina un tipo de conexión por su ID."""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('DELETE FROM tipo_conexion WHERE id = %s', (id,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'msg': 'Tipo de conexión eliminado correctamente'})
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM tipo_conexion WHERE id = %s', (id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return '', 204
+    except Exception as e:
+        if 'foreign key constraint' in str(e).lower() or 'violates foreign key' in str(e).lower():
+            return jsonify({'error': 'No se puede eliminar el tipo de conexión porque tiene equipos asociados.'}), 400
+        return jsonify({'error': 'Error al eliminar el tipo de conexión.'}), 500
 """
 Rutas para la gestión de tipo de conexión (LAN, WIFI, USB WIRELESS).
 Permite crear, listar, actualizar y eliminar tipos de conexión.

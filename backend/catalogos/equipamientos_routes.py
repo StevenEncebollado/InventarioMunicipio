@@ -54,10 +54,15 @@ def actualizar_equipamiento(id):
 @equipamientos_bp.route('/equipamientos/<int:id>', methods=['DELETE'])
 def eliminar_equipamiento(id):
     """Elimina un equipamiento por su ID."""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('DELETE FROM equipamiento WHERE id = %s', (id,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'msg': 'Equipamiento eliminado correctamente'})
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM equipamiento WHERE id = %s', (id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return '', 204
+    except Exception as e:
+        if 'foreign key constraint' in str(e).lower() or 'violates foreign key' in str(e).lower():
+            return jsonify({'error': 'No se puede eliminar el equipamiento porque tiene equipos asociados.'}), 400
+        return jsonify({'error': 'Error al eliminar el equipamiento.'}), 500

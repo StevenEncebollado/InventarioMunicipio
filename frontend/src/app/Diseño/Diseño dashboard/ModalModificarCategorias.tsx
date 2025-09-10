@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import { 
   FaTimes, FaPlus, FaTrash, FaEdit, FaCheck, FaBuilding, 
   FaMapMarkerAlt, FaDesktop, FaTools, FaLaptop, 
@@ -228,13 +229,53 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
 
   const handleDeleteItem = async (index: number) => {
     if (selectedCategory) {
-      try {
-        const item = items[index];
-        const itemId = getItemId(item);
-        await removeItemFromCategoria(selectedCategory, itemId);
-      } catch (error) {
-        console.error('Error al eliminar item:', error);
-        alert('Error al eliminar el item');
+      const item = items[index];
+      const itemText = getItemText(item);
+      
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: `¿Deseas eliminar "${itemText}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        backdrop: true,
+        allowOutsideClick: false,
+        customClass: {
+          container: 'swal-container-above-modal'
+        }
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const itemId = getItemId(item);
+          await removeItemFromCategoria(selectedCategory, itemId);
+          
+          Swal.fire({
+            title: 'Eliminado',
+            text: 'El elemento ha sido eliminado correctamente.',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false,
+            customClass: {
+              container: 'swal-container-above-modal'
+            }
+          });
+        } catch (error: any) {
+          const errorMessage = error?.response?.data?.error || 'Error al eliminar el item';
+          
+          Swal.fire({
+            title: 'Error',
+            text: errorMessage,
+            icon: 'error',
+            confirmButtonText: 'Entendido',
+            customClass: {
+              container: 'swal-container-above-modal'
+            }
+          });
+        }
       }
     }
   };

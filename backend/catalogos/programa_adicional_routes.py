@@ -21,13 +21,18 @@ def actualizar_programa_adicional(id):
 @programa_adicional_bp.route('/programas_adicionales/<int:id>', methods=['DELETE'])
 def eliminar_programa_adicional(id):
     """Elimina un programa adicional por su ID."""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('DELETE FROM programa_adicional WHERE id = %s', (id,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'msg': 'Programa adicional eliminado correctamente'})
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM programa_adicional WHERE id = %s', (id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return '', 204
+    except Exception as e:
+        if 'foreign key constraint' in str(e).lower() or 'violates foreign key' in str(e).lower():
+            return jsonify({'error': 'No se puede eliminar el programa adicional porque tiene equipos asociados.'}), 400
+        return jsonify({'error': 'Error al eliminar el programa adicional.'}), 500
 """
 Rutas para la gestión de programas adicionales (multi-select en inventario).
 Permite crear, listar, actualizar y eliminar programas adicionales.

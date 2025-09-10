@@ -17,7 +17,20 @@ import {
   addDisco,
   addOffice,
   addTipoConexion,
-  addProgramaAdicional
+  addProgramaAdicional,
+  deleteDependencia,
+  deleteDireccion,
+  deleteDispositivo,
+  deleteEquipamiento,
+  deleteTipoEquipo,
+  deleteSistemaOperativo,
+  deleteCaracteristica,
+  deleteMarca,
+  deleteRam,
+  deleteDisco,
+  deleteOffice,
+  deleteTipoConexion,
+  deleteProgramaAdicional
 } from '../../../services/api';
 
 // Tipo para las categorías disponibles
@@ -56,7 +69,6 @@ export const CatalogosProvider = ({ children }: { children: ReactNode }) => {
   // Funciones para modificar categorías (aquí deberás implementar las llamadas a tu API)
   const updateCategoria = async (categoria: CategoriaType, items: any[]) => {
     try {
-      console.log(`Actualizando categoría ${categoria}:`, items);
       // Aquí deberías hacer la llamada a tu API
       // await updateCategoriaAPI(categoria, items);
       
@@ -66,14 +78,12 @@ export const CatalogosProvider = ({ children }: { children: ReactNode }) => {
       // Refrescar catálogos después de la actualización
       await refreshCatalogos();
     } catch (err) {
-      console.error(`Error al actualizar categoría ${categoria}:`, err);
       throw new Error(`Error al actualizar la categoría ${categoria}`);
     }
   };
 
   const addItemToCategoria = async (categoria: CategoriaType, item: any) => {
     try {
-      console.log(`Agregando item a ${categoria}:`, item);
       // Llamadas reales a la API según la categoría
       switch (categoria) {
         case 'dependencias':
@@ -119,38 +129,71 @@ export const CatalogosProvider = ({ children }: { children: ReactNode }) => {
         default:
           throw new Error(`Categoría ${categoria} no soportada`);
       }
-      console.log(`Item agregado a ${categoria} correctamente`);
       if (categoria !== 'direcciones') await refreshCatalogos();
     } catch (err) {
-      console.error(`Error al agregar item a ${categoria}:`, err);
       throw new Error(`Error al agregar el item a ${categoria}`);
     }
   };
 
   const removeItemFromCategoria = async (categoria: CategoriaType, itemId: string | number) => {
     try {
-      console.log(`Eliminando item ${itemId} de ${categoria}`);
-      // Aquí deberías hacer la llamada a tu API
-      // await removeItemFromCategoriaAPI(categoria, itemId);
-      
-      alert(`Item eliminado de ${categoria} correctamente`);
+      switch (categoria) {
+        case 'dependencias':
+          await deleteDependencia(Number(itemId));
+          break;
+        case 'direcciones':
+          await deleteDireccion(Number(itemId));
+          break;
+        case 'dispositivos':
+          await deleteDispositivo(Number(itemId));
+          break;
+        case 'equipamientos':
+          await deleteEquipamiento(Number(itemId));
+          break;
+        case 'tiposEquipo':
+          await deleteTipoEquipo(Number(itemId));
+          break;
+        case 'tiposSistemaOperativo':
+          await deleteSistemaOperativo(Number(itemId));
+          break;
+        case 'caracteristicas':
+          await deleteCaracteristica(Number(itemId));
+          break;
+        case 'marcas':
+          await deleteMarca(Number(itemId));
+          break;
+        case 'rams':
+          await deleteRam(Number(itemId));
+          break;
+        case 'discos':
+          await deleteDisco(Number(itemId));
+          break;
+        case 'offices':
+          await deleteOffice(Number(itemId));
+          break;
+        case 'tiposConexion':
+          await deleteTipoConexion(Number(itemId));
+          break;
+        case 'programasAdicionales':
+          await deleteProgramaAdicional(Number(itemId));
+          break;
+        default:
+          throw new Error(`Eliminación no implementada para la categoría: ${categoria}`);
+      }
       await refreshCatalogos();
     } catch (err) {
-      console.error(`Error al eliminar item de ${categoria}:`, err);
       throw new Error(`Error al eliminar el item de ${categoria}`);
     }
   };
 
   const editItemInCategoria = async (categoria: CategoriaType, itemId: string | number, newData: any) => {
     try {
-      console.log(`Editando item ${itemId} en ${categoria}:`, newData);
       // Aquí deberías hacer la llamada a tu API
       // await editItemInCategoriaAPI(categoria, itemId, newData);
       
       alert(`Item editado en ${categoria} correctamente`);
       await refreshCatalogos();
     } catch (err) {
-      console.error(`Error al editar item en ${categoria}:`, err);
       throw new Error(`Error al editar el item en ${categoria}`);
     }
   };

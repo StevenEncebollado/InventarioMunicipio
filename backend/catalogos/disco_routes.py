@@ -21,13 +21,18 @@ def actualizar_disco(id):
 @disco_bp.route('/disco/<int:id>', methods=['DELETE'])
 def eliminar_disco(id):
     """Elimina una opción de disco por su ID."""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('DELETE FROM disco WHERE id = %s', (id,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'msg': 'Disco eliminado correctamente'})
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM disco WHERE id = %s', (id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return '', 204
+    except Exception as e:
+        if 'foreign key constraint' in str(e).lower() or 'violates foreign key' in str(e).lower():
+            return jsonify({'error': 'No se puede eliminar el disco porque tiene equipos asociados.'}), 400
+        return jsonify({'error': 'Error al eliminar el disco.'}), 500
 """
 Rutas para la gestión de discos duros.
 Permite crear, listar, actualizar y eliminar opciones de disco.

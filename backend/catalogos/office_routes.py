@@ -21,13 +21,18 @@ def actualizar_office(id):
 @office_bp.route('/office/<int:id>', methods=['DELETE'])
 def eliminar_office(id):
     """Elimina una versión de Office por su ID."""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('DELETE FROM office WHERE id = %s', (id,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'msg': 'Office eliminado correctamente'})
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM office WHERE id = %s', (id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return '', 204
+    except Exception as e:
+        if 'foreign key constraint' in str(e).lower() or 'violates foreign key' in str(e).lower():
+            return jsonify({'error': 'No se puede eliminar la versión de Office porque tiene equipos asociados.'}), 400
+        return jsonify({'error': 'Error al eliminar la versión de Office.'}), 500
 """
 Rutas para la gestión de versiones de Office.
 Permite crear, listar, actualizar y eliminar versiones de Office.

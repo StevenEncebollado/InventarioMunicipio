@@ -21,13 +21,18 @@ def actualizar_caracteristica(id):
 @caracteristicas_bp.route('/caracteristicas/<int:id>', methods=['DELETE'])
 def eliminar_caracteristica(id):
     """Elimina una característica por su ID."""
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('DELETE FROM caracteristicas WHERE id = %s', (id,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'msg': 'Característica eliminada correctamente'})
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM caracteristicas WHERE id = %s', (id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return '', 204
+    except Exception as e:
+        if 'foreign key constraint' in str(e).lower() or 'violates foreign key' in str(e).lower():
+            return jsonify({'error': 'No se puede eliminar la característica porque tiene equipos asociados.'}), 400
+        return jsonify({'error': 'Error al eliminar la característica.'}), 500
 """
 Rutas para la gestión de características de hardware (ej: procesador).
 Permite crear, listar, actualizar y eliminar características.

@@ -1,3 +1,4 @@
+
 """
 Rutas para la gestión de direcciones (ubicaciones físicas).
 Permite crear, listar, actualizar y eliminar direcciones.
@@ -41,3 +42,20 @@ def agregar_direccion():
     cur.close()
     conn.close()
     return jsonify({'id': nueva_id, 'nombre': nombre, 'dependencia_id': dependencia_id}), 201
+
+
+@direcciones_bp.route('/direcciones/<int:direccion_id>', methods=['DELETE'])
+def eliminar_direccion(direccion_id):
+    """Elimina una dirección/área por su ID."""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM direccion_area WHERE id = %s', (direccion_id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return '', 204
+    except Exception as e:
+        if 'foreign key constraint' in str(e).lower() or 'violates foreign key' in str(e).lower():
+            return jsonify({'error': 'No se puede eliminar la dirección/área porque tiene equipos asociados.'}), 400
+        return jsonify({'error': 'Error al eliminar la dirección/área.'}), 500

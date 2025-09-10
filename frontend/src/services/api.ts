@@ -1,3 +1,8 @@
+export const deleteDependencia = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/dependencias/${id}`);
+
+export const deleteDireccion = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/direcciones/${id}`);
 import type { 
   Usuario, 
   Equipo, 
@@ -43,7 +48,6 @@ class ApiClient {
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_CONFIG.BASE_URL}${endpoint}`;
-    
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT);
@@ -59,12 +63,19 @@ class ApiClient {
       });
 
       clearTimeout(timeoutId);
-      
       if (!response.ok) {
         throw new ApiError(`Error ${response.status}: ${response.statusText}`, response.status);
       }
-
-      return response.json();
+      // Si la respuesta es 204 No Content, retorna undefined
+      if (response.status === 204) {
+        return undefined as T;
+      }
+      // Si la respuesta está vacía, retorna undefined
+      const text = await response.text();
+      if (!text) {
+        return undefined as T;
+      }
+      return JSON.parse(text);
     } catch (error) {
       if (error instanceof ApiError) throw error;
       if (error instanceof DOMException && error.name === 'AbortError') {
@@ -231,3 +242,37 @@ export const getErrorMessage = (error: unknown): string => {
   if (error instanceof Error) return error.message;
   return 'Error desconocido';
 };
+
+// Nuevas funciones delete* para todos los catálogos
+export const deleteDispositivo = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/dispositivos/${id}`);
+
+export const deleteEquipamiento = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/equipamientos/${id}`);
+
+export const deleteTipoEquipo = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/tipo_equipo/${id}`);
+
+export const deleteSistemaOperativo = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/tipo_sistema_operativo/${id}`);
+
+export const deleteCaracteristica = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/caracteristicas/${id}`);
+
+export const deleteMarca = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/marca/${id}`);
+
+export const deleteRam = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/ram/${id}`);
+
+export const deleteDisco = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/disco/${id}`);
+
+export const deleteOffice = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/office/${id}`);
+
+export const deleteTipoConexion = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/tipo_conexion/${id}`);
+
+export const deleteProgramaAdicional = (id: number): Promise<void> =>
+  api.delete<void>(`/catalogos/programas_adicionales/${id}`);

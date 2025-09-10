@@ -34,6 +34,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
             outline: none;
             box-shadow: none;
           }
+          .swal-container-above-modal {
+            z-index: 10000 !important;
+          }
+          .swal2-container {
+            z-index: 10000 !important;
+          }
         `}</style>
       </head>
       <body>
