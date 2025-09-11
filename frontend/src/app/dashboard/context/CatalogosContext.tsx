@@ -30,7 +30,20 @@ import {
   deleteDisco,
   deleteOffice,
   deleteTipoConexion,
-  deleteProgramaAdicional
+  deleteProgramaAdicional,
+  updateDependencia,
+  updateDireccion,
+  updateDispositivo,
+  updateEquipamiento,
+  updateTipoEquipo,
+  updateSistemaOperativo,
+  updateCaracteristica,
+  updateMarca,
+  updateRam,
+  updateDisco,
+  updateOffice,
+  updateTipoConexion,
+  updateProgramaAdicional,
 } from '../../../services/api';
 
 // Tipo para las categorías disponibles
@@ -188,10 +201,51 @@ export const CatalogosProvider = ({ children }: { children: ReactNode }) => {
 
   const editItemInCategoria = async (categoria: CategoriaType, itemId: string | number, newData: any) => {
     try {
-      // Aquí deberías hacer la llamada a tu API
-      // await editItemInCategoriaAPI(categoria, itemId, newData);
+      // Llamadas reales a la API según la categoría
+      switch (categoria) {
+        case 'dependencias':
+          await updateDependencia(Number(itemId), newData);
+          break;
+        case 'direcciones':
+          await updateDireccion(Number(itemId), newData);
+          break;
+        case 'dispositivos':
+          await updateDispositivo(Number(itemId), newData);
+          break;
+        case 'equipamientos':
+          await updateEquipamiento(Number(itemId), newData);
+          break;
+        case 'tiposEquipo':
+          await updateTipoEquipo(Number(itemId), newData);
+          break;
+        case 'tiposSistemaOperativo':
+          await updateSistemaOperativo(Number(itemId), newData);
+          break;
+        case 'caracteristicas':
+          await updateCaracteristica(Number(itemId), newData);
+          break;
+        case 'marcas':
+          await updateMarca(Number(itemId), newData);
+          break;
+        case 'rams':
+          await updateRam(Number(itemId), newData);
+          break;
+        case 'discos':
+          await updateDisco(Number(itemId), newData);
+          break;
+        case 'offices':
+          await updateOffice(Number(itemId), newData);
+          break;
+        case 'tiposConexion':
+          await updateTipoConexion(Number(itemId), newData);
+          break;
+        case 'programasAdicionales':
+          await updateProgramaAdicional(Number(itemId), newData);
+          break;
+        default:
+          throw new Error(`Edición no implementada para la categoría: ${categoria}`);
+      }
       
-      alert(`Item editado en ${categoria} correctamente`);
       await refreshCatalogos();
     } catch (err) {
       throw new Error(`Error al editar el item en ${categoria}`);

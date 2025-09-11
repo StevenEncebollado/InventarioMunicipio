@@ -394,7 +394,7 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
           if (selectedCategory === 'dispositivos') {
             updatedData = { 
               nombre: editingValue.trim(),
-              campos: editingDeviceFields ? editingDeviceCampos : undefined
+              campos: editingDeviceCampos // Siempre enviar los campos seleccionados
             };
           } else if (selectedCategory === 'caracteristicas') {
             updatedData = { descripcion: editingValue.trim() };

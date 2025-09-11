@@ -276,3 +276,44 @@ export const deleteTipoConexion = (id: number): Promise<void> =>
 
 export const deleteProgramaAdicional = (id: number): Promise<void> =>
   api.delete<void>(`/catalogos/programas_adicionales/${id}`);
+
+// ===== FUNCIONES DE ACTUALIZACIÓN DE CATÁLOGOS =====
+
+export const updateDependencia = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/dependencias/${id}`, data);
+
+export const updateDireccion = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/direcciones/${id}`, data);
+
+export const updateDispositivo = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/dispositivos/${id}`, data);
+
+export const updateEquipamiento = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/equipamientos/${id}`, data);
+
+export const updateTipoEquipo = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/tipo_equipo/${id}`, data);
+
+export const updateSistemaOperativo = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/tipo_sistema_operativo/${id}`, data);
+
+export const updateCaracteristica = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/caracteristicas/${id}`, data);
+
+export const updateMarca = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/marca/${id}`, data);
+
+export const updateRam = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/ram/${id}`, data);
+
+export const updateDisco = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/disco/${id}`, data);
+
+export const updateOffice = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/office/${id}`, data);
+
+export const updateTipoConexion = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/tipo_conexion/${id}`, data);
+
+export const updateProgramaAdicional = (id: number, data: any): Promise<any> =>
+  api.put<any>(`/catalogos/programas_adicionales/${id}`, data);

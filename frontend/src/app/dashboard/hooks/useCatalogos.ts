@@ -71,8 +71,6 @@ export function useCatalogos() {
       setIsLoading(true);
       setError(null);
       const data = await getCatalogosUnificados();
-      // DEBUG: Mostrar direcciones crudas recibidas
-      console.log('Direcciones recibidas del backend:', data.direcciones);
       setCatalogos({
         dependencias: data.dependencias || [],
         direcciones: data.direcciones || [],
