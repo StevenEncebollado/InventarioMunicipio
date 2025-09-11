@@ -8,6 +8,19 @@ import {
   FaMicrosoft, FaWifi, FaCode, FaSave, FaSpinner 
 } from 'react-icons/fa';
 import { useCatalogosContext, CategoriaType } from '../../dashboard/context/CatalogosContext';
+
+// Configuración global de SweetAlert2
+const swalConfig = {
+  customClass: {
+    container: 'swal-container-above-modal'
+  },
+  backdrop: true,
+  allowOutsideClick: false,
+  heightAuto: false
+};
+
+// Helper para SweetAlert con configuración
+const swalFire = (options: any) => Swal.fire({ ...swalConfig, ...options });
 // Hook para cargar dependencias
 function useDependencias() {
   const { catalogos } = useCatalogosContext();
@@ -481,14 +494,42 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
   const handleSaveCategory = async () => {
     if (!selectedCategory) return;
     
+    // Mostrar confirmación antes de guardar
+    const result = await swalFire({
+      title: '¿Confirmar cambios?',
+      text: `¿Deseas guardar todos los cambios realizados en ${categoriesConfig[selectedCategory].label}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: categoriesConfig[selectedCategory].color,
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, guardar cambios',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (!result.isConfirmed) return;
+    
     setIsSaving(true);
     
     try {
       await updateCategoria(selectedCategory, items);
-      alert('Categoría actualizada correctamente');
+      
+      // Mostrar éxito
+      await swalFire({
+        icon: 'success',
+        title: '¡Guardado exitosamente!',
+        text: `Los cambios en ${categoriesConfig[selectedCategory].label} se han guardado correctamente`,
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
     } catch (error: any) {
-      console.error('Error al guardar:', error);
-      alert('Error al guardar los cambios');
+      // Mostrar error
+      await swalFire({
+        icon: 'error',
+        title: 'Error al guardar',
+        text: 'Ocurrió un error al intentar guardar los cambios. Por favor, inténtalo de nuevo.',
+        confirmButtonColor: '#ef4444'
+      });
     } finally {
       setIsSaving(false);
     }

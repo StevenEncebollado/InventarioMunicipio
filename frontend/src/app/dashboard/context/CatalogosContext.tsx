@@ -85,9 +85,6 @@ export const CatalogosProvider = ({ children }: { children: ReactNode }) => {
       // Aquí deberías hacer la llamada a tu API
       // await updateCategoriaAPI(categoria, items);
       
-      // Por ahora solo mostramos en consola
-      alert(`Categoría ${categoria} actualizada correctamente`);
-      
       // Refrescar catálogos después de la actualización
       await refreshCatalogos();
     } catch (err) {

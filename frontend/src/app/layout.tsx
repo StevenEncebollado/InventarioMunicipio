@@ -40,6 +40,15 @@ export default function RootLayout({ children }: RootLayoutProps) {
           .swal2-container {
             z-index: 10000 !important;
           }
+          /* Ocultar el texto "localhost dice" de SweetAlert2 */
+          .swal2-title::before,
+          .swal2-html-container::before {
+            content: '';
+            display: none;
+          }
+          .swal2-popup {
+            font-family: inherit !important;
+          }
         `}</style>
       </head>
       <body>
