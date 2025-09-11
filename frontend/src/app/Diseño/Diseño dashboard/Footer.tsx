@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaCog, FaPlus, FaDatabase, FaEdit } from 'react-icons/fa';
 
 interface FooterProps {
@@ -8,11 +8,27 @@ interface FooterProps {
 
 export default function Footer({ onModificarCategorias }: FooterProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = document.documentElement.scrollTop;
+      const clientHeight = document.documentElement.clientHeight;
+      
+      // Mostrar footer solo cuando el usuario hace scroll hacia abajo (más del 10% de la página)
+      const scrollPercentage = (scrollTop / (scrollHeight - clientHeight)) * 100;
+      setIsVisible(scrollPercentage > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const footerStyles = {
     footer: {
       position: 'fixed' as const,
-      bottom: 0,
+      bottom: isVisible ? 0 : '-80px',
       left: 0,
       right: 0,
       height: '70px',
@@ -25,6 +41,7 @@ export default function Footer({ onModificarCategorias }: FooterProps) {
       padding: '0 20px',
       zIndex: 1000,
       boxShadow: '0 -4px 20px rgba(30,64,175,0.15), 0 -1px 3px rgba(0,0,0,0.1)',
+      transition: 'bottom 0.3s ease-in-out',
     },
     container: {
       display: 'flex',

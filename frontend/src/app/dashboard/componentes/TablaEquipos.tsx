@@ -138,108 +138,104 @@ export default function TablaEquipos({
 
       {equiposAMostrar.length > 0 ? (
         <div style={{ 
-          overflowX: mostrarSoloRecientes ? 'visible' : 'auto',
-          overflowY: 'visible',
+          overflowX: 'auto',
           borderRadius: '12px',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
           border: '1px solid #e5e7eb',
-          width: mostrarSoloRecientes ? '100%' : 'auto',
-          maxWidth: mostrarSoloRecientes ? '100%' : 'none'
+          width: '100%'
         }}>
           <table style={{ 
-            width: mostrarSoloRecientes ? '100%' : '100%', 
+            width: '100%', 
             borderCollapse: 'collapse',
             fontSize: '14px',
-            tableLayout: mostrarSoloRecientes ? 'auto' : 'fixed',
-            minWidth: mostrarSoloRecientes ? 'auto' : (mostrarColumnaAnyDesk ? '1150px' : '950px'),
-            maxWidth: mostrarSoloRecientes ? '100%' : 'none',
-            background: '#fff'
+            background: '#fff',
+            minWidth: '800px' // Asegurar un ancho mínimo para scroll horizontal
           }}>
             <thead>
               <tr style={{ background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' }}>
                 <th style={{ 
                   textAlign: 'left', 
-                  padding: '16px 20px', 
+                  padding: '12px 16px', 
                   color: '#fff', 
                   fontWeight: 700, 
-                  fontSize: '13px', 
+                  fontSize: '12px', 
                   whiteSpace: 'nowrap', 
-                  width: mostrarSoloRecientes ? 'auto' : '200px',
+                  minWidth: '150px',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'
                 }}>
-                  <FaUser style={{ marginRight: 8, fontSize: '12px' }} /> Funcionario
+                  <FaUser style={{ marginRight: 6, fontSize: '11px' }} /> Funcionario
                 </th>
                 <th style={{ 
                   textAlign: 'left', 
-                  padding: '16px 20px', 
+                  padding: '12px 16px', 
                   color: '#fff', 
                   fontWeight: 700, 
-                  fontSize: '13px', 
+                  fontSize: '12px', 
                   whiteSpace: 'nowrap', 
-                  width: mostrarSoloRecientes ? 'auto' : '150px',
+                  minWidth: '120px',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'
                 }}>
-                  <FaBarcode style={{ marginRight: 8, fontSize: '12px' }} /> Código
+                  <FaBarcode style={{ marginRight: 6, fontSize: '11px' }} /> Código
                 </th>
                 <th style={{ 
                   textAlign: 'left', 
-                  padding: '16px 20px', 
+                  padding: '12px 16px', 
                   color: '#fff', 
                   fontWeight: 700, 
-                  fontSize: '13px', 
+                  fontSize: '12px', 
                   whiteSpace: 'nowrap', 
-                  width: mostrarSoloRecientes ? 'auto' : '120px',
+                  minWidth: '100px',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'
                 }}>
-                  <FaCircle style={{ marginRight: 8, fontSize: '10px' }} /> Estado
+                  <FaCircle style={{ marginRight: 6, fontSize: '10px' }} /> Estado
                 </th>
                 <th style={{ 
                   textAlign: 'left', 
-                  padding: '16px 20px', 
+                  padding: '12px 16px', 
                   color: '#fff', 
                   fontWeight: 700, 
-                  fontSize: '13px', 
+                  fontSize: '12px', 
                   whiteSpace: 'nowrap', 
-                  width: mostrarSoloRecientes ? 'auto' : '160px',
+                  minWidth: '140px',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'
                 }}>
-                  <FaDesktop style={{ marginRight: 8, fontSize: '12px' }} /> Nombre PC
+                  <FaDesktop style={{ marginRight: 6, fontSize: '11px' }} /> Nombre PC
                 </th>
                 <th style={{ 
                   textAlign: 'left', 
-                  padding: '16px 20px', 
+                  padding: '12px 16px', 
                   color: '#fff', 
                   fontWeight: 700, 
-                  fontSize: '13px', 
+                  fontSize: '12px', 
                   whiteSpace: 'nowrap', 
-                  width: mostrarSoloRecientes ? 'auto' : '140px',
+                  minWidth: '130px',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'
                 }}>
-                  <FaNetworkWired style={{ marginRight: 8, fontSize: '12px' }} /> Dirección IP
+                  <FaNetworkWired style={{ marginRight: 6, fontSize: '11px' }} /> Dirección IP
                 </th>
                 <th style={{ 
                   textAlign: 'left', 
-                  padding: '16px 20px', 
+                  padding: '12px 16px', 
                   color: '#fff', 
                   fontWeight: 700, 
-                  fontSize: '13px', 
+                  fontSize: '12px', 
                   whiteSpace: 'nowrap', 
-                  width: mostrarSoloRecientes ? 'auto' : '150px',
+                  minWidth: '140px',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'
                 }}>
-                  <FaNetworkWired style={{ marginRight: 8, fontSize: '12px' }} /> Dirección MAC
+                  <FaNetworkWired style={{ marginRight: 6, fontSize: '11px' }} /> Dirección MAC
                 </th>
                 {mostrarColumnaAnyDesk && (
                   <th style={{ 
@@ -563,6 +559,53 @@ export default function TablaEquipos({
           <p style={{ margin: 0 }}>No hay equipos registrados en el sistema.</p>
         </div>
       )}
+      
+      {/* CSS Responsivo */}
+      <style jsx>{`
+        @media (max-width: 768px) {
+          table {
+            font-size: 12px !important;
+          }
+          
+          th, td {
+            padding: 8px 12px !important;
+            min-width: 100px !important;
+          }
+          
+          .funcionario-cell {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          
+          .codigo-cell {
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          table {
+            font-size: 11px !important;
+          }
+          
+          th, td {
+            padding: 6px 8px !important;
+            min-width: 80px !important;
+          }
+          
+          .button-group {
+            flex-direction: column;
+            gap: 4px;
+          }
+          
+          .action-button {
+            padding: 4px 8px !important;
+            font-size: 10px !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }
