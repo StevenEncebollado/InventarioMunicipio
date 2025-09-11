@@ -5,7 +5,7 @@
 // === FORMATEO ===
 
 /**
- * Formatea fechas para mostrar en la UI
+ * Formatea fechas para mostrar en la UI (zona horaria de Ecuador)
  */
 export const formatDate = (date: string | Date): string => {
   try {
@@ -14,6 +14,7 @@ export const formatDate = (date: string | Date): string => {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
+      timeZone: 'America/Guayaquil', // Zona horaria de Ecuador (UTC-5)
     }).format(dateObj);
   } catch {
     return 'Fecha inválida';
@@ -21,7 +22,7 @@ export const formatDate = (date: string | Date): string => {
 };
 
 /**
- * Formatea fechas con hora
+ * Formatea fechas con hora (zona horaria de Ecuador)
  */
 export const formatDateTime = (date: string | Date): string => {
   try {
@@ -32,6 +33,8 @@ export const formatDateTime = (date: string | Date): string => {
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
+      second: '2-digit',
+      timeZone: 'America/Guayaquil', // Zona horaria de Ecuador (UTC-5)
     }).format(dateObj);
   } catch {
     return 'Fecha inválida';
