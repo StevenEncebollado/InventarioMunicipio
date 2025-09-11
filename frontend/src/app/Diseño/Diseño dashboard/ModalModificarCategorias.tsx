@@ -147,6 +147,23 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
   // Usar el contexto de catálogos
   const { catalogos, isLoading, error, updateCategoria, addItemToCategoria, removeItemFromCategoria, editItemInCategoria } = useCatalogosContext();
   
+  // Función para limpiar todos los estados de edición
+  const clearEditingStates = () => {
+    setEditingIndex(null);
+    setEditingValue('');
+    setEditingDeviceFields(false);
+    setEditingDeviceCampos([]);
+    setNewItem('');
+    setShowCamposSelector(false);
+    setSelectedDependenciaId("");
+    setCamposSeleccionados(['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion']);
+  };
+  
+  // Limpiar estados de edición cuando cambie la categoría
+  useEffect(() => {
+    clearEditingStates();
+  }, [selectedCategory]);
+  
   // Mapeo de categorías para acceder a los datos
   const getCategoryData = (categoria: CategoriaType) => {
     switch (categoria) {
