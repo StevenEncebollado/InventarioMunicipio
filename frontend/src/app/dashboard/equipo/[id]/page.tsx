@@ -40,7 +40,8 @@ const formatearFechaConHora = (fechaString?: string): string => {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      hour12: false
+      hour12: false,
+      timeZone: 'America/Guayaquil' // Zona horaria de Ecuador (UTC-5)
     });
   } catch (error) {
     return 'Fecha inválida';

@@ -12,3 +12,6 @@ load_dotenv()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:05092005sC@localhost:5432/Inventario')
 SQL_SCRIPT_PATH = os.path.join(BASE_DIR, 'SQL', 'Inventario.sql')
+
+# Configuración de zona horaria
+TIMEZONE = 'America/Guayaquil'  # Ecuador UTC-5

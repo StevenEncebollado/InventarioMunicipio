@@ -743,8 +743,8 @@ export default function EquiposLista() {
                     margin: 0
                   }}>
                     {equipoDetalle?.fecha_eliminacion
-                      ? new Date(equipoDetalle.fecha_eliminacion).toLocaleString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })
-                      : new Date(equipoDetalle?.fecha_registro ?? '').toLocaleString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                      ? new Date(equipoDetalle.fecha_eliminacion).toLocaleString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'America/Guayaquil' })
+                      : new Date(equipoDetalle?.fecha_registro ?? '').toLocaleString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'America/Guayaquil' })}
                   </p>
                 </div>
                 <div style={{
