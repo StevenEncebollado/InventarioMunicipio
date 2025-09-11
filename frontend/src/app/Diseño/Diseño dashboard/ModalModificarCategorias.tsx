@@ -140,6 +140,10 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
     'codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion'
   ]);
   
+  // Estados para edición de dispositivos con campos
+  const [editingDeviceFields, setEditingDeviceFields] = useState(false);
+  const [editingDeviceCampos, setEditingDeviceCampos] = useState<string[]>([]);
+  
   // Usar el contexto de catálogos
   const { catalogos, isLoading, error, updateCategoria, addItemToCategoria, removeItemFromCategoria, editItemInCategoria } = useCatalogosContext();
   
@@ -192,7 +196,16 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
 
         if (selectedCategory === 'direcciones') {
           if (!selectedDependenciaId) {
-            alert('Debes seleccionar una dependencia para el área.');
+            await Swal.fire({
+              icon: 'warning',
+              title: 'Dependencia requerida',
+              text: 'Debes seleccionar una dependencia para el área.',
+              confirmButtonColor: '#f59e0b',
+              backdrop: true,
+              customClass: {
+                container: 'swal-container-above-modal'
+              }
+            });
             return;
           }
           newItemData = {
@@ -214,15 +227,57 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
           newItemData = { nombre: newItem.trim() };
         }
 
-        await addItemToCategoria(selectedCategory, newItemData);
-  setSelectedDependenciaId("");
-        setNewItem('');
-        setShowCamposSelector(false);
-        // Resetear campos seleccionados a los básicos
-        setCamposSeleccionados(['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion']);
+        // Mostrar confirmación antes de crear
+        const result = await Swal.fire({
+          title: '¿Confirmar creación?',
+          text: `¿Deseas agregar "${newItem.trim()}" a ${categoriesConfig[selectedCategory].label}?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: categoriesConfig[selectedCategory].color,
+          cancelButtonColor: '#6b7280',
+          confirmButtonText: 'Sí, agregar',
+          cancelButtonText: 'Cancelar',
+          backdrop: true,
+          customClass: {
+            container: 'swal-container-above-modal'
+          }
+        });
+
+        if (result.isConfirmed) {
+          await addItemToCategoria(selectedCategory, newItemData);
+          
+          // Mostrar éxito
+          await Swal.fire({
+            icon: 'success',
+            title: '¡Agregado exitosamente!',
+            text: `"${newItem.trim()}" se ha agregado a ${categoriesConfig[selectedCategory].label}`,
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            backdrop: true,
+            customClass: {
+              container: 'swal-container-above-modal'
+            }
+          });
+
+          setSelectedDependenciaId("");
+          setNewItem('');
+          setShowCamposSelector(false);
+          // Resetear campos seleccionados a los básicos
+          setCamposSeleccionados(['codigoInventario', 'nombrePc', 'funcionario', 'estado', 'marca', 'dependencia', 'direccion']);
+        }
       } catch (error) {
         console.error('Error al agregar item:', error);
-        alert('Error al agregar el item');
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error al agregar',
+          text: 'Ocurrió un error al intentar agregar el elemento. Por favor, inténtalo de nuevo.',
+          confirmButtonColor: '#ef4444',
+          backdrop: true,
+          customClass: {
+            container: 'swal-container-above-modal'
+          }
+        });
       }
     }
   };
@@ -284,29 +339,89 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
     setEditingIndex(index);
     const item = items[index];
     setEditingValue(getItemText(item));
+    
+    // Si es un dispositivo, cargar campos existentes para edición
+    if (selectedCategory === 'dispositivos' && typeof item === 'object' && 'campos' in item) {
+      const itemCampos = (item as any).campos;
+      setEditingDeviceCampos(Array.isArray(itemCampos) ? itemCampos : []);
+      setEditingDeviceFields(true);
+    }
   };
 
   const handleSaveEdit = async () => {
     if (editingIndex !== null && editingValue.trim() && selectedCategory) {
-      try {
-        const item = items[editingIndex];
-        const itemId = getItemId(item);
-        
-        // Crear objeto actualizado según el tipo de categoría
-        const updatedData = selectedCategory === 'caracteristicas' 
-          ? { descripcion: editingValue.trim() }
-          : selectedCategory === 'rams' || selectedCategory === 'discos'
-          ? { capacidad: editingValue.trim() }
-          : selectedCategory === 'offices'
-          ? { version: editingValue.trim() }
-          : { nombre: editingValue.trim() };
-        
-        await editItemInCategoria(selectedCategory, itemId, updatedData);
-        setEditingIndex(null);
-        setEditingValue('');
-      } catch (error) {
-        console.error('Error al editar item:', error);
-        alert('Error al editar el item');
+      // Mostrar confirmación antes de editar
+      const result = await Swal.fire({
+        title: '¿Confirmar cambios?',
+        text: `¿Deseas actualizar "${getItemText(items[editingIndex])}" a "${editingValue.trim()}"?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: categoriesConfig[selectedCategory].color,
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Sí, actualizar',
+        cancelButtonText: 'Cancelar',
+        backdrop: true,
+        customClass: {
+          container: 'swal-container-above-modal'
+        }
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const item = items[editingIndex];
+          const itemId = getItemId(item);
+          
+          // Crear objeto actualizado según el tipo de categoría
+          let updatedData;
+          
+          if (selectedCategory === 'dispositivos') {
+            updatedData = { 
+              nombre: editingValue.trim(),
+              campos: editingDeviceFields ? editingDeviceCampos : undefined
+            };
+          } else if (selectedCategory === 'caracteristicas') {
+            updatedData = { descripcion: editingValue.trim() };
+          } else if (selectedCategory === 'rams' || selectedCategory === 'discos') {
+            updatedData = { capacidad: editingValue.trim() };
+          } else if (selectedCategory === 'offices') {
+            updatedData = { version: editingValue.trim() };
+          } else {
+            updatedData = { nombre: editingValue.trim() };
+          }
+          
+          await editItemInCategoria(selectedCategory, itemId, updatedData);
+          
+          // Mostrar éxito
+          await Swal.fire({
+            icon: 'success',
+            title: '¡Actualizado exitosamente!',
+            text: `"${editingValue.trim()}" se ha actualizado correctamente`,
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            backdrop: true,
+            customClass: {
+              container: 'swal-container-above-modal'
+            }
+          });
+
+          setEditingIndex(null);
+          setEditingValue('');
+          setEditingDeviceFields(false);
+          setEditingDeviceCampos([]);
+        } catch (error) {
+          console.error('Error al editar item:', error);
+          await Swal.fire({
+            icon: 'error',
+            title: 'Error al actualizar',
+            text: 'Ocurrió un error al intentar actualizar el elemento. Por favor, inténtalo de nuevo.',
+            confirmButtonColor: '#ef4444',
+            backdrop: true,
+            customClass: {
+              container: 'swal-container-above-modal'
+            }
+          });
+        }
       }
     }
   };
@@ -314,6 +429,8 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
   const handleCancelEdit = () => {
     setEditingIndex(null);
     setEditingValue('');
+    setEditingDeviceFields(false);
+    setEditingDeviceCampos([]);
   };
 
   // Función para manejar selección/deselección de campos
@@ -322,6 +439,20 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
     if (campo?.esencial) return; // No permitir deseleccionar campos esenciales
     
     setCamposSeleccionados(prev => {
+      if (prev.includes(campoKey)) {
+        return prev.filter(c => c !== campoKey);
+      } else {
+        return [...prev, campoKey];
+      }
+    });
+  };
+
+  // Función para editar campos de dispositivos
+  const toggleEditingCampo = (campoKey: string) => {
+    const campo = CAMPOS_DISPONIBLES.find(c => c.key === campoKey);
+    if (campo?.esencial) return; // No permitir deseleccionar campos esenciales
+    
+    setEditingDeviceCampos(prev => {
       if (prev.includes(campoKey)) {
         return prev.filter(c => c !== campoKey);
       } else {
@@ -847,55 +978,126 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
                         }}
                       >
                         {editingIndex === index ? (
-                          <>
-                            <input
-                              type="text"
-                              value={editingValue}
-                              onChange={(e) => setEditingValue(e.target.value)}
-                              onKeyPress={(e) => e.key === 'Enter' && handleSaveEdit()}
-                              style={{
-                                flex: 1,
-                                padding: '8px 12px',
-                                border: `2px solid ${categoriesConfig[selectedCategory].color}`,
-                                borderRadius: '6px',
-                                fontSize: '0.9rem',
-                                outline: 'none',
-                              }}
-                              autoFocus
-                            />
-                            <button
-                              onClick={handleSaveEdit}
-                              style={{
-                                background: '#10b981',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                padding: '8px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}
-                            >
-                              <FaCheck style={{ fontSize: '0.8rem' }} />
-                            </button>
-                            <button
-                              onClick={handleCancelEdit}
-                              style={{
-                                background: '#6b7280',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                padding: '8px',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}
-                            >
-                              <FaTimes style={{ fontSize: '0.8rem' }} />
-                            </button>
-                          </>
+                          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <input
+                                type="text"
+                                value={editingValue}
+                                onChange={(e) => setEditingValue(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && !editingDeviceFields && handleSaveEdit()}
+                                style={{
+                                  flex: 1,
+                                  padding: '8px 12px',
+                                  border: `2px solid ${categoriesConfig[selectedCategory].color}`,
+                                  borderRadius: '6px',
+                                  fontSize: '0.9rem',
+                                  outline: 'none',
+                                }}
+                                autoFocus
+                              />
+                              
+                              {/* Botón para mostrar/ocultar campos (solo para dispositivos) */}
+                              {selectedCategory === 'dispositivos' && (
+                                <button
+                                  onClick={() => setEditingDeviceFields(!editingDeviceFields)}
+                                  style={{
+                                    background: editingDeviceFields ? '#10b981' : '#6b7280',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    padding: '8px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem',
+                                  }}
+                                  title={editingDeviceFields ? "Ocultar campos" : "Editar campos"}
+                                >
+                                  <FaCog />
+                                </button>
+                              )}
+                              
+                              <button
+                                onClick={handleSaveEdit}
+                                style={{
+                                  background: '#10b981',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  padding: '8px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <FaCheck style={{ fontSize: '0.8rem' }} />
+                              </button>
+                              <button
+                                onClick={handleCancelEdit}
+                                style={{
+                                  background: '#6b7280',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  padding: '8px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <FaTimes style={{ fontSize: '0.8rem' }} />
+                              </button>
+                            </div>
+                            
+                            {/* Selector de campos para dispositivos en edición */}
+                            {selectedCategory === 'dispositivos' && editingDeviceFields && (
+                              <div style={{
+                                padding: '12px',
+                                background: '#f8fafc',
+                                borderRadius: '8px',
+                                border: '1px solid #e2e8f0',
+                              }}>
+                                <h5 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', color: '#374151' }}>
+                                  Campos del dispositivo:
+                                </h5>
+                                <div style={{
+                                  display: 'grid',
+                                  gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                                  gap: '8px',
+                                }}>
+                                  {CAMPOS_DISPONIBLES.map((campo) => (
+                                    <label
+                                      key={campo.key}
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        padding: '6px 8px',
+                                        background: 'white',
+                                        borderRadius: '6px',
+                                        border: '1px solid #d1d5db',
+                                        cursor: campo.esencial ? 'not-allowed' : 'pointer',
+                                        opacity: campo.esencial ? 0.7 : 1,
+                                        fontSize: '0.8rem',
+                                      }}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={editingDeviceCampos.includes(campo.key)}
+                                        onChange={() => toggleEditingCampo(campo.key)}
+                                        disabled={campo.esencial}
+                                        style={{ marginRight: '2px' }}
+                                      />
+                                      <span style={{ color: '#374151' }}>
+                                        {campo.label}
+                                        {campo.esencial && <span style={{ color: '#6b7280' }}> *</span>}
+                                      </span>
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <>
                             <span style={{
@@ -1069,6 +1271,17 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
         
         div::-webkit-scrollbar-thumb:hover {
           background: #94a3b8;
+        }
+      `}</style>
+      
+      {/* Estilos globales para SweetAlert */}
+      <style jsx global>{`
+        .swal-container-above-modal {
+          z-index: 15000 !important;
+        }
+        
+        .swal2-container.swal-container-above-modal {
+          z-index: 15000 !important;
         }
       `}</style>
     </div>
