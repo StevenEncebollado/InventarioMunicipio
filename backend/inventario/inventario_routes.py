@@ -89,11 +89,18 @@ def get_inventario_by_id(item_id):
     cur.execute('SELECT * FROM inventario WHERE id = %s', (item_id,))
     row = cur.fetchone()
     columns = [desc[0] for desc in cur.description]
-    cur.close()
-    conn.close()
+    
     if row:
-        return jsonify(dict(zip(columns, row)))
+        item = dict(zip(columns, row))
+        # Obtener los programas adicionales asociados a este inventario
+        cur.execute('SELECT programa_id FROM inventario_programa WHERE inventario_id = %s', (item_id,))
+        item['programa_adicional_ids'] = [r[0] for r in cur.fetchall()]
+        cur.close()
+        conn.close()
+        return jsonify(item)
     else:
+        cur.close()
+        conn.close()
         return jsonify({'error': 'No encontrado'}), 404
 
 
@@ -262,7 +269,9 @@ def update_inventario(item_id):
         return valor
 
     valores = [limpiar_valor(data.get(campo)) for campo in campos]
+    programas = data.get('programa_adicional_ids', [])  # Recibe los programas seleccionados
     set_clause = ', '.join([f"{campo} = %s" for campo in campos])
+    
     conn = get_db_connection()
     cur = conn.cursor()
     try:
@@ -294,9 +303,20 @@ def update_inventario(item_id):
             if cur.fetchone():
                 return jsonify({'error': f'El nombre de PC "{nombre_pc}" ya está en uso. Por favor, use un nombre diferente.'}), 400
         
+        # Actualizar el registro principal
         cur.execute(f'''
             UPDATE inventario SET {set_clause} WHERE id = %s
         ''', valores + [item_id])
+        
+        # Actualizar programas adicionales
+        # Primero eliminar todas las asociaciones existentes
+        cur.execute('DELETE FROM inventario_programa WHERE inventario_id = %s', (item_id,))
+        
+        # Luego insertar las nuevas asociaciones
+        for programa_id in programas:
+            if programa_id:  # Solo insertar si el programa_id no está vacío
+                cur.execute('INSERT INTO inventario_programa (inventario_id, programa_id) VALUES (%s, %s)', (item_id, programa_id))
+        
         conn.commit()
         return jsonify({'msg': 'Actualizado correctamente'})
     except Exception as e:
