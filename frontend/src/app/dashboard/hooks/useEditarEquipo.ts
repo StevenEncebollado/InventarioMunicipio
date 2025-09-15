@@ -175,13 +175,13 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
       usuario_id: usuarioId,
       dependencia_id: dependencia || null,
       direccion_area_id: direccion || null,
-      dispositivo_id: tipoEquipo || null, // Backend espera dispositivo_id no tipo_equipo_id
+      dispositivo_id: tipoEquipo || null, // Backend espera dispositivo_id para el tipo de dispositivo
       direccion_ip: limpiarString(ip),
       direccion_mac: limpiarString(mac),
       nombre_pc: limpiarString(nombrePc),
       nombres_funcionario: limpiarString(funcionario),
       equipamiento_id: equipamiento || null,
-      tipo_equipo_id: tipoEquipo || null,
+      tipo_equipo_id: null, // Mantener como null ya que ahora usamos dispositivo_id
       tipo_sistema_operativo_id: sistemaOperativo || null,
       caracteristicas_id: caracteristica || null,
       ram_id: ram || null,

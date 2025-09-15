@@ -284,9 +284,38 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={isLoading}
-          style={{ width: '100%', padding: '0.8rem', borderRadius: '8px', background: '#2563eb', color: '#fff', fontWeight: 700, fontSize: '1.1rem', border: 'none', boxShadow: '0 2px 8px #2563eb22', marginBottom: '0.5rem', cursor: isLoading ? 'not-allowed' : 'pointer', transition: 'background 0.2s' }}
+          style={{ 
+            width: '100%', 
+            padding: '0.8rem', 
+            borderRadius: '8px', 
+            background: isLoading ? '#6b7280' : '#2563eb', 
+            color: '#fff', 
+            fontWeight: 700, 
+            fontSize: '1.1rem', 
+            border: 'none', 
+            boxShadow: isLoading ? 'none' : '0 2px 8px #2563eb22', 
+            marginBottom: '0.5rem', 
+            cursor: isLoading ? 'not-allowed' : 'pointer', 
+            transition: 'all 0.2s ease',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+          }}
         >
-          {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+          {isLoading ? (
+            <>
+              <div style={{
+                width: '16px',
+                height: '16px',
+                border: '2px solid rgba(255,255,255,0.3)',
+                borderTop: '2px solid #ffffff',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }} />
+              Iniciando sesión...
+            </>
+          ) : 'Iniciar Sesión'}
         </button>
         
         <button
@@ -1014,11 +1043,13 @@ export default function LoginPage() {
             
             {/* CSS para animaciones y estilos globales */}
             <style jsx global>{`
-              /* Animaciones del modal de registro */
+              /* Animación del spinner para carga */
               @keyframes spin {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
               }
+              
+              /* Animaciones del modal de registro */
               
               /* Estilos personalizados para SweetAlert2 */
               .error-notification-popup {

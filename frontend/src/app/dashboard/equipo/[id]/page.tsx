@@ -439,6 +439,11 @@ export default function DetalleEquipoPage() {
                 value={equipoExtendido.direccion_area_nombre} 
               />
               <InfoItem 
+                icon={<FaCogs />} 
+                label="Tipo de Dispositivo" 
+                value={equipoExtendido.dispositivo_nombre} 
+              />
+              <InfoItem 
                 icon={<FaBriefcase />} 
                 label="Marca" 
                 value={equipoExtendido.marca_nombre} 

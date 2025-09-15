@@ -20,7 +20,7 @@ import { estiloGlobal } from '../../Diseño/Estilos/EstiloGlobal';
 import { EstiloComponentesUI } from '../../Diseño/Estilos/EstiloComponentesUI';
 
 const TITULOS: Record<string, string> = {
-  total: 'Todos los Equipos',
+  total: 'Equipos Operativos (Activos + Mantenimiento)',
   active: 'Equipos Activos',
   maintenance: 'Equipos en Mantenimiento',
   inactive: 'Equipos Inactivos',
@@ -30,6 +30,7 @@ export default function EquiposLista() {
   const router = useRouter();
   const params = useSearchParams();
   const tipo = params.get('tipo') || 'total';
+  const searchTerm = params.get('search') || '';
   const [equipos, setEquipos] = useState<Equipo[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<Usuario | null>(null);
@@ -68,7 +69,12 @@ export default function EquiposLista() {
   };
 
   const handleEditar = (equipo: Equipo) => {
-    router.push(`/dashboard/editar_equipo/${equipo.id}`);
+    // Construir URL con parámetros para indicar origen
+    let url = `/dashboard/editar_equipo/${equipo.id}?from=detalle_estados&tipo=${tipo}`;
+    if (searchTerm) {
+      url += `&search=${encodeURIComponent(searchTerm)}`;
+    }
+    router.push(url);
   };
 
   const handleEliminar = async (equipo: Equipo) => {
@@ -206,12 +212,68 @@ export default function EquiposLista() {
       });
   }, [dependenciaSeleccionada, direccionSeleccionada, dispositivoSeleccionado, equipamientoSeleccionado, tipoEquipoSeleccionado, tipoSistemaOperativoSeleccionado, marcaSeleccionada, caracteristicaSeleccionada, ramSeleccionada, discoSeleccionado, officeSeleccionado, tipoConexionSeleccionada]);
 
+  // Función para normalizar y buscar en equipos
+  const buscarEnEquipos = (equipos: Equipo[], termino: string): Equipo[] => {
+    if (!termino.trim()) return equipos;
+    
+    const terminoNormalizado = termino.toLowerCase().trim();
+    
+    // Función para normalizar IP (remover ceros a la izquierda)
+    const normalizarIP = (ip: string): string => {
+      if (!ip) return '';
+      try {
+        return ip.split('.').map(part => parseInt(part, 10).toString()).join('.');
+      } catch {
+        return ip;
+      }
+    };
+    
+    // Función para normalizar MAC (formato canónico)
+    const normalizarMAC = (mac: string): string => {
+      if (!mac) return '';
+      return mac.replace(/[:-]/g, '').toLowerCase();
+    };
+    
+    // Detectar si es IP o MAC
+    const esIP = /^\d{1,3}\.?\d{0,3}\.?\d{0,3}\.?\d{0,3}$/.test(terminoNormalizado);
+    const esMAC = /^[a-f0-9]{2}[:-]?[a-f0-9]{2}[:-]?[a-f0-9]{2}[:-]?[a-f0-9]{2}[:-]?[a-f0-9]{2}[:-]?[a-f0-9]{2}$/i.test(terminoNormalizado);
+    
+    return equipos.filter(equipo => {
+      // Búsqueda por IP (prioridad si detecta patrón de IP)
+      if (esIP && equipo.direccion_ip) {
+        const ipNormalizada = normalizarIP(equipo.direccion_ip);
+        const terminoIPNormalizado = normalizarIP(terminoNormalizado);
+        if (ipNormalizada.includes(terminoIPNormalizado)) return true;
+      }
+      
+      // Búsqueda por MAC (prioridad si detecta patrón de MAC)
+      if (esMAC && equipo.direccion_mac) {
+        const macNormalizada = normalizarMAC(equipo.direccion_mac);
+        const terminoMACNormalizado = normalizarMAC(terminoNormalizado);
+        if (macNormalizada.includes(terminoMACNormalizado)) return true;
+      }
+      
+      // Búsqueda de texto general (campos de texto disponibles)
+      const campos = [
+        equipo.nombre_pc,
+        equipo.nombres_funcionario,
+        equipo.codigo_inventario,
+        equipo.anydesk,
+        equipo.direccion_ip,
+        equipo.direccion_mac
+      ].filter(Boolean).map(campo => (campo as string).toLowerCase());
+      
+      return campos.some(campo => campo.includes(terminoNormalizado));
+    });
+  };
+
 
   // Unificar todos los filtros en un objeto, pero si no hay filtros avanzados, solo filtra por tipo
   let estadoFiltro: '' | 'Activo' | 'Mantenimiento' | 'Inactivo' | undefined = '';
   if (tipo === 'active') estadoFiltro = 'Activo';
   else if (tipo === 'maintenance') estadoFiltro = 'Mantenimiento';
   else if (tipo === 'inactive') estadoFiltro = 'Inactivo';
+  // Para 'total' no asignamos estadoFiltro específico, se manejará después
 
   const filtros = {
     dependenciaSeleccionada,
@@ -247,23 +309,48 @@ export default function EquiposLista() {
     programaAdicionalSeleccionado.length > 0
   ].some(Boolean);
 
-  const equiposFiltrados = hayFiltrosAvanzados
-    ? filtrarEquipos(equipos, filtros)
-    : filtrarEquipos(equipos, { estado: estadoFiltro });
+  // Aplicar filtros según el tipo y filtros avanzados
+  let equiposFiltrados: Equipo[];
+  
+  if (tipo === 'total') {
+    // Para "total", mostrar solo activos + mantenimiento (total operativo)
+    if (hayFiltrosAvanzados) {
+      // Aplicar filtros avanzados y luego filtrar para excluir inactivos
+      const equiposConFiltrosAvanzados = filtrarEquipos(equipos, filtros);
+      equiposFiltrados = equiposConFiltrosAvanzados.filter(e => e.estado === 'Activo' || e.estado === 'Mantenimiento');
+    } else {
+      // Solo mostrar activos + mantenimiento
+      equiposFiltrados = equipos.filter(e => e.estado === 'Activo' || e.estado === 'Mantenimiento');
+    }
+  } else {
+    // Para otros tipos (active, maintenance, inactive), usar la lógica original
+    equiposFiltrados = hayFiltrosAvanzados
+      ? filtrarEquipos(equipos, filtros)
+      : filtrarEquipos(equipos, { estado: estadoFiltro });
+  }
+
+  // Aplicar búsqueda global después del filtrado por estado/filtros
+  const equiposConBusqueda = searchTerm 
+    ? buscarEnEquipos(equiposFiltrados, searchTerm)
+    : equiposFiltrados;
 
   // Estadísticas para PanelControl
+  const activeCount = filtrarEquipos(equipos, { ...filtros, estado: 'Activo' }).length;
+  const maintenanceCount = filtrarEquipos(equipos, { ...filtros, estado: 'Mantenimiento' }).length;
+  const inactiveCount = filtrarEquipos(equipos, { ...filtros, estado: 'Inactivo' }).length;
+  
   const stats = {
-    total: filtrarEquipos(equipos, { ...filtros, estado: '' }).length,
-    active: filtrarEquipos(equipos, { ...filtros, estado: 'Activo' }).length,
-    maintenance: filtrarEquipos(equipos, { ...filtros, estado: 'Mantenimiento' }).length,
-    inactive: filtrarEquipos(equipos, { ...filtros, estado: 'Inactivo' }).length,
+    total: activeCount + maintenanceCount, // Total operativo: activos + mantenimiento (excluye inactivos)
+    active: activeCount,
+    maintenance: maintenanceCount,
+    inactive: inactiveCount,
   };
 
   // Calcular datos de paginación
-  const totalPages = Math.ceil(equiposFiltrados.length / itemsPerPage);
+  const totalPages = Math.ceil(equiposConBusqueda.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const equiposPaginados = equiposFiltrados.slice(startIndex, endIndex);
+  const equiposPaginados = equiposConBusqueda.slice(startIndex, endIndex);
 
   // Resetear página al cambiar filtros
   useEffect(() => {
@@ -325,6 +412,90 @@ export default function EquiposLista() {
           programaAdicionalSeleccionado={programaAdicionalSeleccionado}
           setProgramaAdicionalSeleccionado={setProgramaAdicionalSeleccionado}
         />
+        
+        {/* Indicador de búsqueda activa con botón para limpiar */}
+        {searchTerm && (
+          <div style={{
+            background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+            border: '2px solid #3b82f6',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            margin: '16px auto 24px auto',
+            maxWidth: '1400px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+            flexWrap: 'wrap'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              flex: '1',
+              minWidth: '0'
+            }}>
+              <span style={{
+                fontSize: '18px',
+                color: '#1e40af'
+              }}>🔍</span>
+              <div>
+                <p style={{
+                  margin: 0,
+                  fontWeight: 600,
+                  fontSize: '1rem',
+                  color: '#1e40af'
+                }}>
+                  Búsqueda activa: "{searchTerm}"
+                </p>
+                <p style={{
+                  margin: 0,
+                  fontSize: '0.9rem',
+                  color: '#3730a3',
+                  opacity: 0.8
+                }}>
+                  {equiposConBusqueda.length} resultado{equiposConBusqueda.length !== 1 ? 's' : ''} encontrado{equiposConBusqueda.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                // Limpiar búsqueda manteniendo otros parámetros
+                const newParams = new URLSearchParams(window.location.search);
+                newParams.delete('search');
+                router.push(`/dashboard/detalle_estados?${newParams.toString()}`);
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                flexShrink: 0
+              }}
+              onMouseEnter={e => {
+                const target = e.target as HTMLButtonElement;
+                target.style.transform = 'scale(1.05)';
+                target.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.4)';
+              }}
+              onMouseLeave={e => {
+                const target = e.target as HTMLButtonElement;
+                target.style.transform = 'scale(1)';
+                target.style.boxShadow = 'none';
+              }}
+            >
+              ✕ Limpiar búsqueda
+            </button>
+          </div>
+        )}
+        
         <PanelControl
           total={stats.total}
           active={stats.active}
@@ -337,7 +508,11 @@ export default function EquiposLista() {
         {/* Usar el componente TablaEquipos reutilizable */}
         <TablaEquipos
           equipos={equiposPaginados}
-          titulo={TITULOS[tipo] || 'Equipos'}
+          titulo={
+            searchTerm 
+              ? `${TITULOS[tipo] || 'Equipos'} - Búsqueda: "${searchTerm}" (${equiposConBusqueda.length} resultado${equiposConBusqueda.length !== 1 ? 's' : ''})`
+              : TITULOS[tipo] || 'Equipos'
+          }
           icono={
             tipo === 'active' ? <FaCircle style={{ color: '#10b981', fontSize: '1.5rem' }} /> :
             tipo === 'maintenance' ? <FaCogs style={{ color: '#f59e0b', fontSize: '1.5rem' }} /> :
@@ -355,6 +530,32 @@ export default function EquiposLista() {
             padding: '24px'
           }}
         />
+        
+        {/* Nota informativa para el total operativo */}
+        {tipo === 'total' && !searchTerm && (
+          <div style={{
+            background: 'linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%)',
+            border: '1px solid #0277bd',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            margin: '16px auto 0 auto',
+            maxWidth: '1400px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <span style={{ fontSize: '18px', color: '#0277bd' }}>ℹ️</span>
+            <p style={{
+              margin: 0,
+              fontSize: '0.95rem',
+              color: '#0277bd',
+              fontWeight: 500
+            }}>
+              <strong>Nota:</strong> El total operativo incluye únicamente equipos activos y en mantenimiento. 
+              Los equipos inactivos se muestran por separado para facilitar la gestión del inventario.
+            </p>
+          </div>
+        )}
         
         {/* Paginación modernizada */}
         {totalPages > 1 && (

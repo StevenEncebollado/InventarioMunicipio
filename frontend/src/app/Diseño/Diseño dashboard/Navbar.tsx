@@ -3,7 +3,9 @@
 import { FaCity, FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
 import type { Usuario } from '@/types';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { EstiloDashboardEspecifico } from '../Estilos/EstiloDashboardEspecifico';
+import BarraDeBusqueda from './BarraDeBusqueda';
 
 interface NavbarProps {
   user: Usuario | null;
@@ -11,14 +13,12 @@ interface NavbarProps {
 }
 
 // Animación simple para el ícono (solo en cliente)
-import { useEffect } from 'react';
-
 function useSpinKeyframes() {
   useEffect(() => {
-    if (typeof document !== 'undefined' && !document.getElementById('spin-keyframes')) {
+    if (typeof document !== 'undefined' && !document.getElementById('navbar-spin-keyframes')) {
       const style = document.createElement('style');
-      style.id = 'spin-keyframes';
-      style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
+      style.id = 'navbar-spin-keyframes';
+      style.innerHTML = `@keyframes navbarSpin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
       document.head.appendChild(style);
     }
   }, []);
@@ -27,6 +27,7 @@ function useSpinKeyframes() {
 export default function Navbar({ user, onLogout }: NavbarProps) {
   useSpinKeyframes();
   const router = useRouter();
+  
   const handleGoHome = () => {
     router.push('/dashboard');
   };
@@ -35,9 +36,10 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
     <nav className="navbar-container" style={{
       ...EstiloDashboardEspecifico.navbar.navbar,
       position: 'relative',
-      overflow: 'hidden',
+      overflow: 'visible',
       backdropFilter: 'blur(10px)',
       borderBottom: '1px solid rgba(255,255,255,0.1)',
+      zIndex: 100,
     }}>
       {/* Efecto de ondas de fondo mejorado */}
       <div style={{
@@ -67,7 +69,7 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
         <FaCity style={{ 
           fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', 
           color: '#fff', 
-          animation: 'spin 3s linear infinite',
+          animation: 'navbarSpin 3s linear infinite',
           filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.4))',
           flexShrink: 0,
         }} />
@@ -108,6 +110,10 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
           <span className="short-title" style={{ display: 'none' }}>Inventario</span>
         </button>
       </div>
+      
+      {/* Búsqueda Global con Sugerencias */}
+      <BarraDeBusqueda />
+      
       
       <div className="navbar-user" style={{ 
         ...EstiloDashboardEspecifico.navbar.navUser, 
@@ -205,11 +211,69 @@ export default function Navbar({ user, onLogout }: NavbarProps) {
         zIndex: 0,
       }} />
       
-      {/* Animaciones CSS */}
+      {/* Animaciones CSS mejoradas */}
       <style>{`
         @keyframes navShine {
           0% { left: -100%; }
           100% { left: 100%; }
+        }
+        
+        /* Mejoras de animación */
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+        
+        /* Responsive para navbar */
+        @media (max-width: 768px) {
+          .navbar-container {
+            padding: 12px 16px !important;
+            gap: 12px !important;
+          }
+        }
+        
+        @media (max-width: 640px) {
+          .full-title {
+            display: none;
+          }
+          
+          .short-title {
+            display: inline !important;
+          }
+          
+          .welcome-full {
+            display: none;
+          }
+          
+          .logout-text {
+            display: none;
+          }
+          
+          .logout-text-short {
+            display: inline !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .navbar-container {
+            padding: 10px 12px !important;
+            flex-wrap: wrap !important;
+            min-height: 60px !important;
+          }
+          
+          .navbar-brand {
+            order: 1;
+            flex: 1 !important;
+            min-width: 0 !important;
+          }
+          
+          .navbar-user {
+            order: 2;
+            flex: none !important;
+          }
         }
       `}</style>
     </nav>

@@ -62,12 +62,18 @@ export default function Dashboard() {
     router.push('/');
   };
 
-  const getStats = () => ({
-    total: equipos.length,
-    active: equipos.filter(e => e.estado === 'Activo').length,
-    maintenance: equipos.filter(e => e.estado === 'Mantenimiento').length,
-    inactive: equipos.filter(e => e.estado === 'Inactivo').length,
-  });
+  const getStats = () => {
+    const active = equipos.filter(e => e.estado === 'Activo').length;
+    const maintenance = equipos.filter(e => e.estado === 'Mantenimiento').length;
+    const inactive = equipos.filter(e => e.estado === 'Inactivo').length;
+    
+    return {
+      total: active + maintenance, // Total operativo: solo activos + mantenimiento (excluye inactivos)
+      active,
+      maintenance,
+      inactive,
+    };
+  };
 
   if (error && !user) {
     return (

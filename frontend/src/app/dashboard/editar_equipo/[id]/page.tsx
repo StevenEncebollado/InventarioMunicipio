@@ -18,6 +18,27 @@ export default function EditarEquipoPage() {
   const equipoId = params.id as string;
   const [user, setUser] = useState<Usuario | null>(null);
   const { catalogos, isLoading: catalogosLoading, error: catalogosError } = useCatalogosContext();
+  
+  // Obtener parámetros de URL para saber de dónde viene el usuario
+  const [returnUrl, setReturnUrl] = useState('/dashboard');
+  
+  useEffect(() => {
+    // Verificar si hay parámetros en localStorage o URL que indiquen el origen
+    const urlParams = new URLSearchParams(window.location.search);
+    const from = urlParams.get('from');
+    const tipo = urlParams.get('tipo');
+    const search = urlParams.get('search');
+    
+    if (from === 'detalle_estados') {
+      let url = '/dashboard/detalle_estados?tipo=' + (tipo || 'total');
+      if (search) {
+        url += `&search=${encodeURIComponent(search)}`;
+      }
+      setReturnUrl(url);
+    } else {
+      setReturnUrl('/dashboard');
+    }
+  }, []);
 
   const editarEquipo = useEditarEquipo(equipoId, user?.id);
 
@@ -125,7 +146,7 @@ export default function EditarEquipoPage() {
           allowOutsideClick: false
         });
         
-        router.push('/dashboard'); // Regresar al dashboard
+        router.push(returnUrl); // Regresar al lugar de origen
       } else {
         // Intentar obtener el mensaje de error del backend
         let errorMessage = 'Error al actualizar equipo';
@@ -184,7 +205,7 @@ export default function EditarEquipoPage() {
             Error: {catalogosError || editarEquipo.editError}
           </p>
           <button 
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push(returnUrl)}
             style={{
               background: '#2563eb',
               color: '#fff',
@@ -629,7 +650,7 @@ export default function EditarEquipoPage() {
               }}>
                 <button
                   type="button"
-                  onClick={() => router.push('/dashboard')}
+                  onClick={() => router.push(returnUrl)}
                   className="cancel-button"
                   style={{
                     background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
