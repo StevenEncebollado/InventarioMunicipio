@@ -606,6 +606,43 @@ export default function AgregarEquipoPage() {
                 marginBottom: 'clamp(24px, 4vw, 32px)'
               }}>
                 {/* Campos de texto */}
+                {campoVisible('contraseña') && (
+                <div>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: 'clamp(6px, 1.5vw, 10px)', 
+                    fontWeight: 600, 
+                    color: '#374151',
+                    fontSize: 'clamp(0.9rem, 2vw, 1rem)'
+                  }}>
+                    🔒 Contraseña
+                  </label>
+                  <input 
+                    type="text"
+                    value={agregarEquipo.contrasena} 
+                    onChange={e => agregarEquipo.setContrasena(e.target.value)} 
+                    placeholder="Contraseña del equipo"
+                    style={{ 
+                      width: '100%',
+                      padding: 'clamp(10px, 2vw, 14px)',
+                      borderRadius: '10px',
+                      border: '2px solid #e2e8f0',
+                      fontSize: 'clamp(0.85rem, 2vw, 0.95rem)',
+                      transition: 'all 0.2s ease',
+                      outline: 'none',
+                      background: '#ffffff'
+                    }}
+                    onFocus={e => {
+                      e.target.style.borderColor = '#2563eb';
+                      e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+                    }}
+                    onBlur={e => {
+                      e.target.style.borderColor = '#e2e8f0';
+                      e.target.style.boxShadow = 'none';
+                    }}
+                  />
+                </div>
+                )}
                 {campoVisible('ip') && (
                 <div>
                   <label style={{ 
@@ -726,7 +763,7 @@ export default function AgregarEquipoPage() {
                     color: '#374151',
                     fontSize: 'clamp(0.9rem, 2vw, 1rem)'
                   }}>
-                    💻 Nombre de PC
+                    💻 Nombre de Equipo
                   </label>
                   <input 
                     value={agregarEquipo.nombrePc} 

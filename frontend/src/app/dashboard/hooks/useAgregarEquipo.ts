@@ -11,6 +11,8 @@ export function useAgregarEquipo(usuarioId?: number) {
   const [nombrePc, setNombrePc] = useState("");
   const [funcionario, setFuncionario] = useState("");
   const [anydesk, setAnydesk] = useState("");
+  // Contraseña
+  const [contrasena, setContrasena] = useState("");
   
   // Campos select
   const [tipoEquipo, setTipoEquipo] = useState("");
@@ -42,6 +44,7 @@ export function useAgregarEquipo(usuarioId?: number) {
     setNombrePc("");
     setFuncionario("");
     setAnydesk("");
+    setContrasena("");
     setTipoEquipo("");
     setMarca("");
     setRam("");
@@ -53,8 +56,8 @@ export function useAgregarEquipo(usuarioId?: number) {
     setDireccion("");
     setEquipamiento("");
     setCaracteristica("");
-  setSistemaOperativo("");
-  setEstado("");
+    setSistemaOperativo("");
+    setEstado("");
   };
 
   const validarCampos = async (): Promise<boolean> => {
@@ -115,6 +118,7 @@ export function useAgregarEquipo(usuarioId?: number) {
       codigo_inventario: codigoInventario,
       tipo_conexion_id: tipoConexion || null,
       anydesk: anydesk || null,
+      contrasena: contrasena || null,
       estado: estado,
       programa_adicional_ids: programaAdicional,
     };
@@ -128,7 +132,7 @@ export function useAgregarEquipo(usuarioId?: number) {
     nombrePc, setNombrePc,
     funcionario, setFuncionario,
     anydesk, setAnydesk,
-    
+    contrasena, setContrasena,
     // Campos select
     tipoEquipo, setTipoEquipo,
     marca, setMarca,
@@ -137,18 +141,16 @@ export function useAgregarEquipo(usuarioId?: number) {
     office, setOffice,
     tipoConexion, setTipoConexion,
     programaAdicional, setProgramaAdicional,
-  dependencia, setDependencia: setDependenciaString,
+    dependencia, setDependencia: setDependenciaString,
     direccion, setDireccion,
     equipamiento, setEquipamiento,
     caracteristica, setCaracteristica,
     sistemaOperativo, setSistemaOperativo,
-    
-  // Estado del equipo
-  estado, setEstado,
-  // Estados de validación
-  addLoading, setAddLoading,
-  addError, setAddError,
-    
+    // Estado del equipo
+    estado, setEstado,
+    // Estados de validación
+    addLoading, setAddLoading,
+    addError, setAddError,
     // Funciones utilitarias
     limpiarCampos,
     validarCampos,

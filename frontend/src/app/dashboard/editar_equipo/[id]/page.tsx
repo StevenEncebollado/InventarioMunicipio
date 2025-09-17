@@ -319,6 +319,20 @@ export default function EditarEquipoPage() {
                 marginBottom: 'clamp(20px, 3vw, 32px)'
               }}>
                 {/* Campos de texto */}
+                {campoVisible('contraseña') && (
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>
+                    Contraseña
+                  </label>
+                  <input 
+                    type="text"
+                    value={editarEquipo.contrasena} 
+                    onChange={e => editarEquipo.setContrasena(e.target.value)} 
+                    placeholder="Contraseña del equipo"
+                    style={{ ...EstiloDashboardEspecifico.catalogos.selectStyle, width: '100%' }}
+                  />
+                </div>
+                )}
                 {campoVisible('ip') && (
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: 600, color: '#374151' }}>

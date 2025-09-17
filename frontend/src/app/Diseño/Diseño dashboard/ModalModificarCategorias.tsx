@@ -56,6 +56,7 @@ const CAMPOS_DISPONIBLES = [
   { key: 'nombrePc', label: 'Nombre de PC', esencial: true },
   { key: 'funcionario', label: 'Funcionario', esencial: true },
   { key: 'estado', label: 'Estado', esencial: true },
+  { key: 'contraseña', label: 'Contraseña', esencial: false },
   { key: 'marca', label: 'Marca', esencial: false },
   { key: 'dependencia', label: 'Dependencia', esencial: false },
   { key: 'direccion', label: 'Dirección', esencial: false },
