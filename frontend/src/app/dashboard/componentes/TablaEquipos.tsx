@@ -116,26 +116,22 @@ export default function TablaEquipos({
             {equipo.codigo_inventario || 'Sin código'}
           </div>
         </td>
-        <td style={{ padding: '16px 20px' }}>
-          <span style={{
-            background: equipo.estado === 'Activo' ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 
-                      equipo.estado === 'Mantenimiento' ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : 
-                      'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-            color: '#fff',
-            padding: '6px 12px',
-            borderRadius: '20px',
-            fontSize: '11px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            <FaCircle style={{ fontSize: '6px' }} />
-            {equipo.estado}
-          </span>
+        <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+          <div 
+            style={{
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              background: equipo.estado === 'Activo' ? '#10b981' : 
+                         equipo.estado === 'Mantenimiento' ? '#f59e0b' : 
+                         '#ef4444',
+              display: 'inline-block',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+              border: '2px solid #fff',
+              cursor: 'help'
+            }}
+            title={`Estado: ${equipo.estado}`}
+          />
         </td>
         <td style={{ 
           padding: '16px 20px', 
@@ -384,6 +380,30 @@ export default function TablaEquipos({
         }}>
           {icono}
           {titulo}
+          {/* Leyenda de estados */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '12px', 
+            marginLeft: '20px',
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            color: '#6b7280'
+          }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 600 }}>Estados:</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#10b981' }}></div>
+              <span>Activo</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#f59e0b' }}></div>
+              <span>Mantenimiento</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#ef4444' }}></div>
+              <span>Inactivo</span>
+            </div>
+          </div>
         </h2>
         <div style={{ 
           display: 'flex', 
@@ -486,13 +506,13 @@ export default function TablaEquipos({
                   <FaBarcode style={{ marginRight: 6, fontSize: '11px' }} /> Código
                 </th>
                 <th style={{ 
-                  textAlign: 'left', 
+                  textAlign: 'center', 
                   padding: '12px 16px', 
                   color: '#fff', 
                   fontWeight: 700, 
                   fontSize: '12px', 
                   whiteSpace: 'nowrap', 
-                  minWidth: '100px',
+                  minWidth: '60px',
                   letterSpacing: '0.5px',
                   textTransform: 'uppercase',
                   borderBottom: 'none'
