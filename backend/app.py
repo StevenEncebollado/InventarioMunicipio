@@ -48,7 +48,7 @@ def create_app():
         app,
         resources={r"/*": {"origins": ["http://localhost:3000"]}},
         supports_credentials=True,
-        allow_headers=["Content-Type", "Authorization"],
+        allow_headers="*",
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     )
     app.register_blueprint(catalogos_unificados_bp)
