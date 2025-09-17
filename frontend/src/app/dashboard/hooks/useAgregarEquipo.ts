@@ -95,7 +95,7 @@ export function useAgregarEquipo(usuarioId?: number) {
     return true;
   };
 
-  const getFormData = () => {
+  const getFormData = (dispositivoId?: string) => {
     if (!usuarioId) {
       throw new Error('Usuario no autenticado');
     }
@@ -103,13 +103,13 @@ export function useAgregarEquipo(usuarioId?: number) {
       usuario_id: usuarioId,
       dependencia_id: dependencia ? Number(dependencia) : null,
       direccion_area_id: direccion || null,
-      dispositivo_id: tipoEquipo || null, // Cambiar de tipo_equipo_id a dispositivo_id
+      dispositivo_id: dispositivoId ? Number(dispositivoId) : null, // Dispositivo seleccionado
       direccion_ip: ip,
       direccion_mac: mac,
       nombre_pc: nombrePc,
       nombres_funcionario: funcionario,
       equipamiento_id: equipamiento || null,
-      tipo_equipo_id: null, // Mantener como null ya que ahora usamos dispositivo_id
+      tipo_equipo_id: tipoEquipo || null, // Aquí va el tipo de equipo real
       tipo_sistema_operativo_id: sistemaOperativo || null,
       caracteristicas_id: caracteristica || null,
       ram_id: ram,

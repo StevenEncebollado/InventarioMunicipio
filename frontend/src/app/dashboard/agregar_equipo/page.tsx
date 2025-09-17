@@ -75,7 +75,10 @@ export default function AgregarEquipoPage() {
   const handleEquipamientoChange = useCallback((value: string) => agregarEquipo.setEquipamiento(value), [agregarEquipo.setEquipamiento]);
   const handleCaracteristicaChange = useCallback((value: string) => agregarEquipo.setCaracteristica(value), [agregarEquipo.setCaracteristica]);
   const handleSistemaOperativoChange = useCallback((value: string) => agregarEquipo.setSistemaOperativo(value), [agregarEquipo.setSistemaOperativo]);
-  const handleDispositivoChange = useCallback((value: string) => setDispositivoIdSeleccionado(value), []);
+  const handleDispositivoChange = useCallback((value: string) => {
+    setDispositivoIdSeleccionado(value);
+    // Ya no sincronizamos con tipoEquipo - son campos diferentes
+  }, []);
 
   // Componente de campo de entrada optimizado
   const InputField = ({ 
@@ -226,7 +229,15 @@ export default function AgregarEquipoPage() {
         return;
       }
       
-      const formData = agregarEquipo.getFormData();
+      const formData = agregarEquipo.getFormData(dispositivoIdSeleccionado);
+      
+      // DEBUG: Log para identificar el problema
+      console.log('🔍 DEBUG - Datos a enviar:', {
+        dispositivoIdSeleccionado,
+        dispositivoSeleccionado,
+        tipoEquipo: agregarEquipo.tipoEquipo,
+        formData: formData
+      });
       
       const response = await fetch('http://localhost:5000/inventario', {
         method: 'POST',
