@@ -1,3 +1,4 @@
+
 from flask import Blueprint, request, jsonify
 from ..db import get_db_connection
 
@@ -33,14 +34,6 @@ def eliminar_marca(id):
         if 'foreign key constraint' in str(e).lower() or 'violates foreign key' in str(e).lower():
             return jsonify({'error': 'No se puede eliminar la marca porque tiene equipos asociados.'}), 400
         return jsonify({'error': 'Error al eliminar la marca.'}), 500
-"""
-Rutas para la gestión de marcas de equipos.
-Permite crear, listar, actualizar y eliminar marcas.
-"""
-from flask import Blueprint, request, jsonify
-from ..db import get_db_connection
-
-marca_bp = Blueprint('marca', __name__)
 
 @marca_bp.route('/marca', methods=['GET'])
 def listar_marca():

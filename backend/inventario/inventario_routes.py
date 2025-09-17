@@ -121,7 +121,7 @@ def create_inventario():
             'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
             'direccion_mac', 'nombre_pc', 'nombres_funcionario', 'equipamiento_id', 'tipo_equipo_id',
             'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id', 'office_id',
-            'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado'
+            'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado', 'contraseña'
         ]
         
         # Validar usuario_id
@@ -259,7 +259,7 @@ def update_inventario(item_id):
         'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
         'direccion_mac', 'nombre_pc', 'nombres_funcionario', 'equipamiento_id', 'tipo_equipo_id',
         'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id', 'office_id',
-        'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado', 'fecha_eliminacion'
+        'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado', 'contraseña', 'fecha_eliminacion'
     ]
     
     # Convertir string vacío a None para todos los campos

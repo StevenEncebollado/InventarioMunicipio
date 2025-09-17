@@ -1,3 +1,26 @@
+// ...existing code...
+// Tipos para los items de cada categoría
+interface CatalogoItem {
+  id: number;
+  nombre: string;
+}
+
+interface DireccionArea extends CatalogoItem {
+  dependencia_id: number;
+}
+
+interface CaracteristicaItem extends CatalogoItem {
+  descripcion: string;
+}
+
+interface RamItem extends CatalogoItem {
+  capacidad: string;
+}
+
+interface OfficeItem extends CatalogoItem {
+  version: string;
+}
+// ...existing code...
 'use client';
 import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
@@ -33,6 +56,7 @@ const CAMPOS_DISPONIBLES = [
   { key: 'nombrePc', label: 'Nombre de PC', esencial: true },
   { key: 'funcionario', label: 'Funcionario', esencial: true },
   { key: 'estado', label: 'Estado', esencial: true },
+  { key: 'contraseña', label: 'Contraseña', esencial: false },
   { key: 'marca', label: 'Marca', esencial: false },
   { key: 'dependencia', label: 'Dependencia', esencial: false },
   { key: 'direccion', label: 'Dirección', esencial: false },
@@ -403,8 +427,14 @@ export default function ModalModificarCategorias({ open, onClose }: ModalModific
           
           // Crear objeto actualizado según el tipo de categoría
           let updatedData;
-          
-          if (selectedCategory === 'dispositivos') {
+          if (selectedCategory === 'direcciones') {
+            // Tomar el dependencia_id del item original (no editable en UI actual)
+            const dependencia_id = (item as DireccionArea).dependencia_id ?? undefined;
+            updatedData = {
+              nombre: editingValue.trim(),
+              dependencia_id
+            };
+          } else if (selectedCategory === 'dispositivos') {
             updatedData = { 
               nombre: editingValue.trim(),
               campos: editingDeviceCampos // Siempre enviar los campos seleccionados

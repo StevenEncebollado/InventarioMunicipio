@@ -33,14 +33,6 @@ def eliminar_tipo_conexion(id):
         if 'foreign key constraint' in str(e).lower() or 'violates foreign key' in str(e).lower():
             return jsonify({'error': 'No se puede eliminar el tipo de conexión porque tiene equipos asociados.'}), 400
         return jsonify({'error': 'Error al eliminar el tipo de conexión.'}), 500
-"""
-Rutas para la gestión de tipo de conexión (LAN, WIFI, USB WIRELESS).
-Permite crear, listar, actualizar y eliminar tipos de conexión.
-"""
-from flask import Blueprint, request, jsonify
-from ..db import get_db_connection
-
-tipo_conexion_bp = Blueprint('tipo_conexion', __name__)
 
 @tipo_conexion_bp.route('/tipo_conexion', methods=['GET'])
 def listar_tipo_conexion():

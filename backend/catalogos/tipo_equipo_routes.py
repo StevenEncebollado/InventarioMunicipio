@@ -47,3 +47,18 @@ def eliminar_tipo_equipo(id):
         if 'foreign key constraint' in str(e).lower() or 'violates foreign key' in str(e).lower():
             return jsonify({'error': 'No se puede eliminar el tipo de equipo porque tiene equipos asociados.'}), 400
         return jsonify({'error': 'Error al eliminar el tipo de equipo.'}), 500
+
+
+@tipo_equipo_bp.route('/tipo_equipo/<int:id>', methods=['PUT'])
+def actualizar_tipo_equipo(id):
+    data = request.json
+    nombre = data.get('nombre')
+    if not nombre:
+        return jsonify({'error': 'El nombre es obligatorio'}), 400
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('UPDATE tipo_equipo SET nombre = %s WHERE id = %s', (nombre, id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'id': id, 'nombre': nombre})

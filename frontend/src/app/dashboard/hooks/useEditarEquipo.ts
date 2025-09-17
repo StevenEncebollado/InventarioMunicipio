@@ -12,6 +12,8 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
   const [nombrePc, setNombrePc] = useState("");
   const [funcionario, setFuncionario] = useState("");
   const [anydesk, setAnydesk] = useState("");
+  // Contraseña
+  const [contrasena, setContrasena] = useState("");
   
   // Campos select
   const [tipoEquipo, setTipoEquipo] = useState("");
@@ -70,7 +72,8 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
         setNombrePc(equipoData.nombre_pc || "");
         setFuncionario(equipoData.nombres_funcionario || "");
         setAnydesk(equipoData.anydesk || "");
-        setTipoEquipo(equipoData.dispositivo_id?.toString() || equipoData.tipo_equipo_id?.toString() || "");
+  setTipoEquipo(equipoData.dispositivo_id?.toString() || equipoData.tipo_equipo_id?.toString() || "");
+  setContrasena(equipoData.contrasena || "");
         setMarca(equipoData.marca_id?.toString() || "");
         setRam(equipoData.ram_id?.toString() || "");
         setDisco(equipoData.disco_id?.toString() || "");
@@ -103,19 +106,20 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
     setFuncionario("");
     setAnydesk("");
     setObservaciones("");
-    setTipoEquipo("");
-    setMarca("");
-    setRam("");
-    setDisco("");
-    setOffice("");
-    setTipoConexion("");
-    setProgramaAdicional([]);
-    setDependencia("");
-    setDireccion("");
-    setEquipamiento("");
-    setCaracteristica("");
-    setSistemaOperativo("");
-    setEstado("");
+  setTipoEquipo("");
+  setMarca("");
+  setRam("");
+  setDisco("");
+  setOffice("");
+  setTipoConexion("");
+  setProgramaAdicional([]);
+  setDependencia("");
+  setDireccion("");
+  setEquipamiento("");
+  setCaracteristica("");
+  setSistemaOperativo("");
+  setEstado("");
+  setContrasena("");
   };
 
   const validarCampos = async (): Promise<boolean> => {
@@ -191,6 +195,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
       codigo_inventario: limpiarString(codigoInventario),
       tipo_conexion_id: tipoConexion || null,
       anydesk: limpiarString(anydesk) || null,
+      contrasena: limpiarString(contrasena) || null,
       estado: estado || 'Activo',
       fecha_eliminacion: null, // Campo requerido por el backend
       programa_adicional_ids: procesarArrayIds(programaAdicional),
@@ -206,8 +211,8 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
     nombrePc, setNombrePc,
     funcionario, setFuncionario,
     anydesk, setAnydesk,
+    contrasena, setContrasena,
     observaciones, setObservaciones,
-    
     // Campos select
     tipoEquipo, setTipoEquipo,
     marca, setMarca,
@@ -221,16 +226,13 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
     equipamiento, setEquipamiento,
     caracteristica, setCaracteristica,
     sistemaOperativo, setSistemaOperativo,
-    
     // Estado del equipo
     estado, setEstado,
-    
     // Estados de validación
     editLoading, setEditLoading,
     editError, setEditError,
     loadingEquipo,
     equipo,
-    
     // Funciones utilitarias
     limpiarCampos,
     validarCampos,

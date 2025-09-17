@@ -47,3 +47,18 @@ def eliminar_tipo_so(id):
         if 'foreign key constraint' in str(e).lower() or 'violates foreign key' in str(e).lower():
             return jsonify({'error': 'No se puede eliminar el tipo de sistema operativo porque tiene equipos asociados.'}), 400
         return jsonify({'error': 'Error al eliminar el tipo de sistema operativo.'}), 500
+
+
+@tipo_so_bp.route('/tipo_sistema_operativo/<int:id>', methods=['PUT'])
+def actualizar_tipo_so(id):
+    data = request.json
+    nombre = data.get('nombre')
+    if not nombre:
+        return jsonify({'error': 'El nombre es obligatorio'}), 400
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute('UPDATE tipo_sistema_operativo SET nombre = %s WHERE id = %s', (nombre, id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'id': id, 'nombre': nombre})
