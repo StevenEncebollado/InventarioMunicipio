@@ -5,6 +5,7 @@ Incluye endpoints CRUD y lógica relacionada.
 import json
 from flask import Blueprint, request, jsonify
 from ..db import get_db_connection
+from ..auditoria.auditoria_routes import registrar_accion_automatica
 
 inventario_bp = Blueprint('inventario', __name__)
 
@@ -275,6 +276,15 @@ def update_inventario(item_id):
     conn = get_db_connection()
     cur = conn.cursor()
     try:
+        # Obtener datos anteriores para auditoría
+        cur.execute('SELECT * FROM inventario WHERE id = %s', (item_id,))
+        registro_anterior = cur.fetchone()
+        if not registro_anterior:
+            return jsonify({'error': 'Registro no encontrado'}), 404
+        
+        columns = [desc[0] for desc in cur.description]
+        datos_anteriores = dict(zip(columns, registro_anterior))
+        
         # Validar unicidad de campos únicos (excluyendo el registro actual)
         codigo_inventario = data.get('codigo_inventario')
         if codigo_inventario:
@@ -317,6 +327,15 @@ def update_inventario(item_id):
             if programa_id:  # Solo insertar si el programa_id no está vacío
                 cur.execute('INSERT INTO inventario_programa (inventario_id, programa_id) VALUES (%s, %s)', (item_id, programa_id))
         
+        # Registrar en historial (acción: modificado)
+        registrar_accion_automatica(
+            inventario_id=item_id,
+            usuario_id=data.get('usuario_id'),
+            accion='modificado',
+            datos_anteriores=datos_anteriores,
+            datos_nuevos=data
+        )
+        
         conn.commit()
         return jsonify({'msg': 'Actualizado correctamente'})
     except Exception as e:
@@ -338,10 +357,39 @@ def update_inventario(item_id):
 @inventario_bp.route('/<int:item_id>', methods=['DELETE'])
 def delete_inventario(item_id):
     """Elimina un registro del inventario por su ID."""
+    data = request.get_json() or {}
+    
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('DELETE FROM inventario WHERE id = %s', (item_id,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return jsonify({'msg': 'Eliminado correctamente'})
+    
+    try:
+        # Obtener datos antes de eliminar para auditoría
+        cur.execute('SELECT * FROM inventario WHERE id = %s', (item_id,))
+        registro_anterior = cur.fetchone()
+        if not registro_anterior:
+            return jsonify({'error': 'Registro no encontrado'}), 404
+        
+        columns = [desc[0] for desc in cur.description]
+        datos_anteriores = dict(zip(columns, registro_anterior))
+        
+        # Eliminar el registro
+        cur.execute('DELETE FROM inventario WHERE id = %s', (item_id,))
+        
+        # Registrar en historial (acción: eliminado)
+        registrar_accion_automatica(
+            inventario_id=item_id,
+            usuario_id=data.get('usuario_id'),  # Debe enviarse desde el frontend
+            accion='eliminado',
+            datos_anteriores=datos_anteriores,
+            datos_nuevos=None
+        )
+        
+        conn.commit()
+        return jsonify({'msg': 'Eliminado correctamente'})
+        
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': f'Error al eliminar: {str(e)}'}), 500
+    finally:
+        cur.close()
+        conn.close()

@@ -75,6 +75,79 @@ export interface HistorialEquipo {
   fecha: string;
 }
 
+// Tipos para el sistema de auditoría
+export interface HistorialAuditoria {
+  id: number;
+  inventario_id: number;
+  usuario_id: number;
+  accion: 'agregado' | 'modificado' | 'eliminado';
+  fecha: string;
+  datos_anteriores?: any;
+  datos_nuevos?: any;
+  usuario_nombre?: string;
+  usuario_apellido?: string;
+  nombre_equipo?: string;
+  numero_serie?: string;
+}
+
+export interface EstadisticasAuditoria {
+  totalAcciones: number;
+  accionesPorTipo: {
+    agregado?: number;
+    modificado?: number;
+    eliminado?: number;
+  };
+  actividadPorDia: Record<string, number>;
+  actividadPorUsuario: Array<{
+    usuario: string;
+    acciones: number;
+  }>;
+}
+
+export interface LogAuditoria extends HistorialAuditoria {
+  usuario_completo?: string;
+  usuario_email?: string;
+  ip_address?: string;
+  nivel: 'INFO' | 'WARNING' | 'ERROR';
+  tiempo_transcurrido?: string;
+  segundos_transcurridos?: number;
+}
+
+export interface FiltrosAuditoria {
+  fechaInicio?: string;
+  fechaFin?: string;
+  usuarioId?: number;
+  accion?: 'agregado' | 'modificado' | 'eliminado';
+  equipoId?: number;
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginacionAuditoria {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
+export interface RespuestaHistorial {
+  historial: HistorialAuditoria[];
+  pagination: PaginacionAuditoria;
+}
+
+export interface ExportarAuditoriaRequest {
+  filtros: FiltrosAuditoria;
+  formato: 'csv' | 'excel';
+}
+
+export interface RegistrarAccionRequest {
+  inventario_id: number;
+  usuario_id: number;
+  accion: 'agregado' | 'modificado' | 'eliminado';
+  datos_anteriores?: any;
+  datos_nuevos?: any;
+}
+
 // Tipos para formularios
 export interface EquipoFormData extends Omit<Equipo, 'id'> {
   id?: number;

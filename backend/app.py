@@ -40,6 +40,7 @@ from backend.inventario.inventario_programa_routes import inventario_programa_bp
 from backend.inventario.inventario_routes import inventario_bp
 from backend.usuarios.usuarios_routes import usuarios_bp
 from backend.reportes.reportes_routes import reportes_bp
+from backend.auditoria.auditoria_routes import auditoria_bp
 
 
 def create_app():
@@ -83,6 +84,7 @@ def create_app():
     app.register_blueprint(inventario_bp, url_prefix='/inventario')
     app.register_blueprint(inventario_programa_bp, url_prefix='/inventario')
     app.register_blueprint(reportes_bp, url_prefix='/reportes')
+    app.register_blueprint(auditoria_bp, url_prefix='/auditoria')
     return app
 
 if __name__ == '__main__':

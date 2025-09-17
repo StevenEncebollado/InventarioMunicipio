@@ -1,14 +1,16 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { FaCog, FaPlus, FaDatabase, FaEdit } from 'react-icons/fa';
+import { FaCog, FaPlus, FaDatabase, FaEdit, FaChartBar } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 
 interface FooterProps {
   onModificarCategorias: () => void;
 }
 
 export default function Footer({ onModificarCategorias }: FooterProps) {
-  const [isHovered, setIsHovered] = useState(false);
+  const [isHovered, setIsHovered] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,27 +72,50 @@ export default function Footer({ onModificarCategorias }: FooterProps) {
     rightSection: {
       display: 'flex',
       alignItems: 'center',
+      gap: '12px',
     },
     button: {
       display: 'flex',
       alignItems: 'center',
-      gap: '10px',
-      padding: '12px 24px',
-      background: isHovered 
+      gap: '8px',
+      padding: '10px 20px',
+      background: isHovered === 'main'
         ? 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.15) 100%)'
         : 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%)',
       border: '1px solid rgba(255,255,255,0.2)',
       borderRadius: '50px',
       color: '#fff',
-      fontSize: '0.95rem',
+      fontSize: '0.9rem',
       fontWeight: 600,
       cursor: 'pointer',
       transition: 'all 0.3s ease',
       textDecoration: 'none',
-      boxShadow: isHovered 
+      boxShadow: isHovered === 'main'
         ? '0 8px 25px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)'
         : '0 4px 15px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)',
-      transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+      transform: isHovered === 'main' ? 'translateY(-2px)' : 'translateY(0)',
+      backdropFilter: 'blur(10px)',
+    },
+    auditButton: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '10px 20px',
+      background: isHovered === 'audit'
+        ? 'linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(34,197,94,0.15) 100%)'
+        : 'linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(34,197,94,0.05) 100%)',
+      border: '1px solid rgba(34,197,94,0.3)',
+      borderRadius: '50px',
+      color: '#fff',
+      fontSize: '0.9rem',
+      fontWeight: 600,
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      textDecoration: 'none',
+      boxShadow: isHovered === 'audit'
+        ? '0 8px 25px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.2)'
+        : '0 4px 15px rgba(34,197,94,0.1), inset 0 1px 0 rgba(255,255,255,0.1)',
+      transform: isHovered === 'audit' ? 'translateY(-2px)' : 'translateY(0)',
       backdropFilter: 'blur(10px)',
     },
     icon: {
@@ -148,18 +173,33 @@ export default function Footer({ onModificarCategorias }: FooterProps) {
             <span style={footerStyles.versionText}>v2.1.0</span>
           </div>
           
-          {/* Sección Derecha - Botón Principal */}
+          {/* Sección Derecha - Botones */}
           <div style={footerStyles.rightSection}>
+            {/* Botón de Auditoría */}
+            <button
+              style={footerStyles.auditButton}
+              onClick={() => router.push('/dashboard/auditoria')}
+              onMouseEnter={() => setIsHovered('audit')}
+              onMouseLeave={() => setIsHovered(null)}
+              type="button"
+              title="Sistema de Auditoría"
+            >
+              <FaChartBar style={footerStyles.icon} />
+              <span>Auditoría</span>
+            </button>
+            
+            {/* Botón Principal */}
             <button
               style={footerStyles.button}
               onClick={onModificarCategorias}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
+              onMouseEnter={() => setIsHovered('main')}
+              onMouseLeave={() => setIsHovered(null)}
               type="button"
+              title="Modificar Categorías del Sistema"
             >
               <FaCog style={footerStyles.icon} />
-              <span>Modificar Categorías</span>
-              <FaEdit style={{ fontSize: '0.9rem', opacity: 0.8 }} />
+              <span>Categorías</span>
+              <FaEdit style={{ fontSize: '0.8rem', opacity: 0.8 }} />
             </button>
           </div>
         </div>
@@ -207,10 +247,14 @@ export default function Footer({ onModificarCategorias }: FooterProps) {
             font-size: 0.8rem;
           }
           
+          footer div:first-child div:last-child {
+            gap: 8px;
+          }
+          
           footer div:first-child div:last-child button {
-            padding: 10px 16px;
-            font-size: 0.85rem;
-            gap: 6px;
+            padding: 8px 14px;
+            font-size: 0.8rem;
+            gap: 4px;
           }
           
           footer div:first-child div:last-child button span {
@@ -223,9 +267,14 @@ export default function Footer({ onModificarCategorias }: FooterProps) {
             padding: 0 12px;
           }
           
+          footer div:first-child div:last-child {
+            gap: 6px;
+          }
+          
           footer div:first-child div:last-child button {
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 40px;
+            min-width: 40px;
           }
         }
       `}</style>
