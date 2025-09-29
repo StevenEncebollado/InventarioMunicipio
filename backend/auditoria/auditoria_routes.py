@@ -40,7 +40,7 @@ def obtener_historial():
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # Construir query dinámicamente
+        # Construir query dinámicamente - MEJORADA para incluir todos los registros
         base_query = """
             SELECT 
                 h.id,
@@ -51,10 +51,20 @@ def obtener_historial():
                 h.datos_anteriores,
                 h.datos_nuevos,
                 u.username as usuario_nombre,
-                i.nombre_pc as nombre_equipo,
-                i.codigo_inventario as numero_serie
+                COALESCE(i.nombre_pc, 'N/A') as nombre_equipo,
+                COALESCE(i.codigo_inventario, 'N/A') as numero_serie,
+                CASE 
+                    WHEN h.inventario_id IS NULL THEN 
+                        CASE 
+                            WHEN h.accion = 'usuario_registrado' THEN 'Registro de Usuario'
+                            WHEN h.accion = 'login' THEN 'Inicio de Sesión'
+                            WHEN h.accion = 'reporte_generado' THEN 'Generación de Reporte'
+                            ELSE 'Acción del Sistema'
+                        END
+                    ELSE i.nombre_pc 
+                END as descripcion_accion
             FROM historial_inventario h
-            LEFT JOIN usuario u ON h.usuario_id = u.id
+            INNER JOIN usuario u ON h.usuario_id = u.id
             LEFT JOIN inventario i ON h.inventario_id = i.id
             WHERE 1=1
         """
@@ -91,9 +101,17 @@ def obtener_historial():
         base_query += " ORDER BY h.fecha DESC LIMIT %s OFFSET %s"
         params.extend([limit, (page - 1) * limit])
         
+        # Debug: Log de la consulta final
+        print(f"DEBUG CONSULTA FINAL: {base_query}")
+        print(f"DEBUG PARAMS FINAL: {params}")
+        
         cur.execute(base_query, params)
         columns = [desc[0] for desc in cur.description]
         registros = [dict(zip(columns, row)) for row in cur.fetchall()]
+        
+        # Debug: Log de algunos registros
+        for i, registro in enumerate(registros[:3]):  # Solo los primeros 3
+            print(f"DEBUG REGISTRO {i}: usuario_id={registro.get('usuario_id')}, usuario_nombre={registro.get('usuario_nombre')}, accion={registro.get('accion')}")
         
         # Formatear datos para el frontend
         for registro in registros:
@@ -141,13 +159,35 @@ def obtener_estadisticas():
         cur.execute("SELECT COUNT(*) FROM historial_inventario")
         total_acciones = cur.fetchone()[0]
         
-        # Acciones por tipo
+        # Acciones por tipo (mejorado para contar cambios de estado a inactivo como eliminados)
         cur.execute("""
             SELECT accion, COUNT(*) as cantidad 
             FROM historial_inventario 
             GROUP BY accion
         """)
-        acciones_por_tipo = dict(cur.fetchall())
+        acciones_raw = dict(cur.fetchall())
+        
+        # Contar cambios a estado "Inactivo" como eliminados
+        cur.execute("""
+            SELECT COUNT(*) 
+            FROM historial_inventario 
+            WHERE accion = 'cambio_estado' 
+            AND (
+                datos_nuevos::text LIKE '%"estado": "Inactivo"%' 
+                OR datos_nuevos::text LIKE '%"estado":"Inactivo"%'
+            )
+        """)
+        equipos_inactivos = cur.fetchone()[0]
+        
+        # Estructurar acciones por tipo de manera más intuitiva
+        acciones_por_tipo = {
+            'agregado': acciones_raw.get('agregado', 0),
+            'modificado': acciones_raw.get('modificado', 0) + acciones_raw.get('cambio_estado', 0) - equipos_inactivos,
+            'eliminado': acciones_raw.get('eliminado', 0) + equipos_inactivos,  # Incluir cambios a inactivo
+            'cambio_estado': acciones_raw.get('cambio_estado', 0),
+            'login': acciones_raw.get('login', 0),
+            'registro': acciones_raw.get('registro', 0)
+        }
         
         # Actividad por día (últimos 30 días)
         fecha_limite = datetime.now() - timedelta(days=30)
@@ -359,7 +399,229 @@ def exportar_auditoria():
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 
-@auditoria_bp.route('/registrar-accion', methods=['POST'])
+@auditoria_bp.route('/reportes/inventario_general', methods=['GET'])
+def reporte_inventario_general():
+    """
+    Genera reporte general de inventario con filtros avanzados.
+    Unificado desde reportes_routes.py para centralizar en auditoría.
+    """
+    try:
+        usuario_id = request.args.get('usuario_id', type=int)
+        estado_filtro = request.args.get('estado')
+        dependencia_filtro = request.args.get('dependencia_id', type=int)
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Query con filtros opcionales
+        query = """
+            SELECT 
+                i.*,
+                d.nombre as dependencia_nombre,
+                da.nombre as direccion_area_nombre,
+                u.username as usuario_propietario
+            FROM inventario i
+            LEFT JOIN dependencia d ON i.dependencia_id = d.id
+            LEFT JOIN direccion_area da ON i.direccion_area_id = da.id
+            LEFT JOIN usuario u ON i.usuario_id = u.id
+            WHERE 1=1
+        """
+        params = []
+        
+        if estado_filtro:
+            query += " AND i.estado = %s"
+            params.append(estado_filtro)
+            
+        if dependencia_filtro:
+            query += " AND i.dependencia_id = %s"
+            params.append(dependencia_filtro)
+        
+        query += " ORDER BY i.fecha_registro DESC"
+        
+        cur.execute(query, params)
+        columns = [desc[0] for desc in cur.description]
+        equipos = [dict(zip(columns, row)) for row in cur.fetchall()]
+        
+        # Registrar generación de reporte en auditoría
+        if usuario_id:
+            registrar_accion_automatica(
+                inventario_id=None,
+                usuario_accion_id=usuario_id,
+                accion='reporte_generado',
+                datos_nuevos={
+                    'tipo_reporte': 'inventario_general',
+                    'filtros_aplicados': {
+                        'estado': estado_filtro,
+                        'dependencia_id': dependencia_filtro
+                    },
+                    'cantidad_registros': len(equipos),
+                    'accion_detalle': f'Generación de reporte general con {len(equipos)} equipos'
+                }
+            )
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify({
+            'equipos': equipos,
+            'total': len(equipos),
+            'filtros_aplicados': {
+                'estado': estado_filtro,
+                'dependencia_id': dependencia_filtro
+            },
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logging.error(f"Error al generar reporte de inventario: {str(e)}")
+        return jsonify({'error': 'Error interno del servidor'}), 500
+
+
+@auditoria_bp.route('/reportes/equipos_modificados', methods=['GET'])
+def reporte_equipos_modificados():
+    """
+    Reporte de equipos modificados en un período específico.
+    """
+    try:
+        usuario_id = request.args.get('usuario_id', type=int)
+        dias_atras = int(request.args.get('dias_atras', 30))
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Obtener equipos modificados en el período
+        cur.execute("""
+            SELECT 
+                h.inventario_id,
+                i.codigo_inventario,
+                i.nombre_pc,
+                i.nombres_funcionario,
+                d.nombre as dependencia_nombre,
+                COUNT(h.id) as modificaciones,
+                MAX(h.fecha) as ultima_modificacion,
+                u.username as ultimo_usuario
+            FROM historial_inventario h
+            INNER JOIN inventario i ON h.inventario_id = i.id
+            LEFT JOIN dependencia d ON i.dependencia_id = d.id
+            LEFT JOIN usuario u ON h.usuario_id = u.id
+            WHERE h.fecha >= NOW() - INTERVAL '%s days'
+                AND h.accion IN ('modificado', 'cambio_estado')
+            GROUP BY h.inventario_id, i.codigo_inventario, i.nombre_pc, 
+                     i.nombres_funcionario, d.nombre, u.username
+            ORDER BY COUNT(h.id) DESC, MAX(h.fecha) DESC
+        """, (dias_atras,))
+        
+        columns = [desc[0] for desc in cur.description]
+        equipos_modificados = [dict(zip(columns, row)) for row in cur.fetchall()]
+        
+        # Registrar generación de reporte
+        if usuario_id:
+            registrar_accion_automatica(
+                inventario_id=None,
+                usuario_accion_id=usuario_id,
+                accion='reporte_generado',
+                datos_nuevos={
+                    'tipo_reporte': 'equipos_modificados',
+                    'periodo_dias': dias_atras,
+                    'cantidad_registros': len(equipos_modificados),
+                    'accion_detalle': f'Reporte de equipos modificados en {dias_atras} días'
+                }
+            )
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify({
+            'equipos_modificados': equipos_modificados,
+            'periodo_dias': dias_atras,
+            'total_equipos_modificados': len(equipos_modificados),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logging.error(f"Error al generar reporte de equipos modificados: {str(e)}")
+        return jsonify({'error': 'Error interno del servidor'}), 500
+
+
+@auditoria_bp.route('/reportes/estadisticas_avanzadas', methods=['GET'])
+def estadisticas_avanzadas():
+    """
+    Estadísticas avanzadas del sistema para el dashboard de auditoría.
+    """
+    try:
+        usuario_id = request.args.get('usuario_id', type=int)
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Estadísticas generales
+        cur.execute("SELECT COUNT(*) FROM inventario")
+        total_equipos = cur.fetchone()[0]
+        
+        cur.execute("SELECT COUNT(*) FROM inventario WHERE estado = 'Activo'")
+        equipos_activos = cur.fetchone()[0]
+        
+        cur.execute("SELECT COUNT(*) FROM inventario WHERE estado = 'Inactivo'")
+        equipos_inactivos = cur.fetchone()[0]
+        
+        # Actividad por usuarios
+        cur.execute("""
+            SELECT 
+                u.username,
+                COUNT(h.id) as acciones_realizadas,
+                MAX(h.fecha) as ultima_actividad
+            FROM historial_inventario h
+            INNER JOIN usuario u ON h.usuario_id = u.id
+            WHERE h.fecha >= NOW() - INTERVAL '30 days'
+            GROUP BY u.username
+            ORDER BY COUNT(h.id) DESC
+            LIMIT 10
+        """)
+        columns = [desc[0] for desc in cur.description]
+        actividad_usuarios = [dict(zip(columns, row)) for row in cur.fetchall()]
+        
+        # Acciones por día (últimos 7 días)
+        cur.execute("""
+            SELECT 
+                DATE(h.fecha) as fecha,
+                h.accion,
+                COUNT(*) as cantidad
+            FROM historial_inventario h
+            WHERE h.fecha >= NOW() - INTERVAL '7 days'
+            GROUP BY DATE(h.fecha), h.accion
+            ORDER BY DATE(h.fecha) DESC, h.accion
+        """)
+        tendencias_semanales = [dict(zip(columns, row)) for row in cur.fetchall()]
+        
+        # Registrar generación de estadísticas
+        if usuario_id:
+            registrar_accion_automatica(
+                inventario_id=None,
+                usuario_accion_id=usuario_id,
+                accion='reporte_generado',
+                datos_nuevos={
+                    'tipo_reporte': 'estadisticas_avanzadas',
+                    'accion_detalle': 'Consulta de estadísticas avanzadas del sistema'
+                }
+            )
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify({
+            'estadisticas_generales': {
+                'total_equipos': total_equipos,
+                'equipos_activos': equipos_activos,
+                'equipos_inactivos': equipos_inactivos
+            },
+            'actividad_usuarios': actividad_usuarios,
+            'tendencias_semanales': tendencias_semanales,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logging.error(f"Error al generar estadísticas avanzadas: {str(e)}")
+        return jsonify({'error': 'Error interno del servidor'}), 500
 def registrar_accion():
     """
     Registra una acción manual en el historial.
@@ -407,21 +669,49 @@ def registrar_accion():
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 
-def registrar_accion_automatica(inventario_id, usuario_id, accion, datos_anteriores=None, datos_nuevos=None):
+def registrar_accion_automatica(inventario_id, usuario_accion_id, accion, datos_anteriores=None, datos_nuevos=None, usuario_propietario_id=None):
     """
     Función helper para registrar acciones automáticamente desde otros módulos.
+    
+    Args:
+        inventario_id: ID del equipo afectado (puede ser None para acciones de usuario)
+        usuario_accion_id: ID del usuario que REALIZA la acción (IMPORTANTE: este es quien aparecerá en auditoría)
+        accion: Tipo de acción ('agregado', 'modificado', 'eliminado', 'usuario_registrado', 'login', etc.)
+        datos_anteriores: Datos antes del cambio
+        datos_nuevos: Datos después del cambio
+        usuario_propietario_id: ID del usuario propietario del equipo (para referencia)
     """
     try:
+        # Debug: Log para verificar los datos de auditoría
+        print(f"🔍 DEBUG AUDITORIA: inventario_id={inventario_id}, usuario_accion_id={usuario_accion_id}, accion={accion}")
+        print(f"🔍 DEBUG AUDITORIA: usuario_propietario_id={usuario_propietario_id}")
+        
         conn = get_db_connection()
         cur = conn.cursor()
         
+        # Mejorar datos_nuevos con información adicional si es necesario
+        if datos_nuevos is None:
+            datos_nuevos = {}
+        
+        # Generar descripciones específicas según el tipo de acción
+        descripcion_accion = generar_descripcion_accion(accion, datos_anteriores, datos_nuevos)
+        
+        # Agregar metadatos útiles
+        if isinstance(datos_nuevos, dict):
+            datos_nuevos['timestamp'] = datetime.now().isoformat()
+            datos_nuevos['descripcion_accion'] = descripcion_accion
+            if usuario_propietario_id and usuario_propietario_id != usuario_accion_id:
+                datos_nuevos['usuario_propietario_id'] = usuario_propietario_id
+                datos_nuevos['nota'] = f'Acción realizada por usuario {usuario_accion_id} sobre equipo de usuario {usuario_propietario_id}'
+        
+        # IMPORTANTE: usar usuario_accion_id en la tabla para que aparezca correctamente en auditoría
         cur.execute("""
             INSERT INTO historial_inventario 
             (inventario_id, usuario_id, accion, datos_anteriores, datos_nuevos)
             VALUES (%s, %s, %s, %s, %s)
         """, (
             inventario_id,
-            usuario_id,
+            usuario_accion_id,  # 🔥 CAMBIO CRÍTICO: usuario que realiza la acción
             accion,
             json.dumps(datos_anteriores) if datos_anteriores else None,
             json.dumps(datos_nuevos) if datos_nuevos else None
@@ -430,8 +720,87 @@ def registrar_accion_automatica(inventario_id, usuario_id, accion, datos_anterio
         conn.commit()
         cur.close()
         conn.close()
+        
+        print(f"✅ AUDITORIA REGISTRADA: Usuario {usuario_accion_id} realizó '{accion}' en equipo {inventario_id}")
+        print(f"📝 DESCRIPCIÓN: {descripcion_accion}")
         return True
         
     except Exception as e:
         logging.error(f"Error en auto-logging: {str(e)}")
+        print(f"❌ DEBUG ERROR: {str(e)}")
         return False
+
+
+def generar_descripcion_accion(accion, datos_anteriores=None, datos_nuevos=None):
+    """
+    Genera descripciones específicas para cada tipo de acción.
+    """
+    try:
+        # Debug: Agregar logs para verificar los datos recibidos
+        print(f"🔍 DEBUG generar_descripcion_accion: accion={accion}")
+        print(f"🔍 DEBUG datos_anteriores: {datos_anteriores}")
+        print(f"🔍 DEBUG datos_nuevos: {datos_nuevos}")
+        
+        if accion == 'cambio_estado':
+            estado_anterior = datos_anteriores.get('estado', 'N/A') if datos_anteriores else 'N/A'
+            estado_nuevo = datos_nuevos.get('estado', 'N/A') if datos_nuevos else 'N/A'
+            equipo = datos_nuevos.get('equipo', 'N/A') if datos_nuevos else 'N/A'
+            
+            # Debug específico para cambio de estado
+            print(f"🔍 DEBUG cambio_estado: estado_anterior={estado_anterior}, estado_nuevo={estado_nuevo}, equipo={equipo}")
+            
+            return f"Cambio de estado de '{estado_anterior}' a '{estado_nuevo}'"
+        
+        elif accion == 'usuario_registrado':
+            username = datos_nuevos.get('username', 'N/A') if datos_nuevos else 'N/A'
+            return f"Nuevo usuario '{username}' registrado en el sistema"
+        
+        elif accion == 'login':
+            username = datos_nuevos.get('username', 'N/A') if datos_nuevos else 'N/A'
+            return f"Usuario '{username}' inició sesión"
+        
+        elif accion == 'logout':
+            username = datos_nuevos.get('username', 'N/A') if datos_nuevos else 'N/A'
+            return f"Usuario '{username}' cerró sesión"
+        
+        elif accion == 'agregado':
+            nombre_pc = datos_nuevos.get('nombre_pc', 'N/A') if datos_nuevos else 'N/A'
+            codigo = datos_nuevos.get('codigo_inventario', 'N/A') if datos_nuevos else 'N/A'
+            return f"Equipo '{nombre_pc}' (Código: {codigo}) agregado al inventario"
+        
+        elif accion == 'modificado':
+            nombre_pc = datos_nuevos.get('nombre_pc', 'N/A') if datos_nuevos else 'N/A'
+            # Detectar qué campos cambiaron
+            campos_cambiados = []
+            if datos_anteriores and datos_nuevos:
+                for campo in ['nombre_pc', 'nombres_funcionario', 'estado', 'direccion_ip']:
+                    if datos_anteriores.get(campo) != datos_nuevos.get(campo):
+                        campos_cambiados.append(campo.replace('_', ' ').title())
+            
+            if campos_cambiados:
+                return f"Equipo '{nombre_pc}' modificado: {', '.join(campos_cambiados)}"
+            else:
+                return f"Equipo '{nombre_pc}' modificado"
+        
+        elif accion == 'eliminado':
+            nombre_pc = datos_anteriores.get('nombre_pc', 'N/A') if datos_anteriores else 'N/A'
+            codigo = datos_anteriores.get('codigo_inventario', 'N/A') if datos_anteriores else 'N/A'
+            return f"Equipo '{nombre_pc}' (Código: {codigo}) eliminado del inventario"
+            
+        elif accion == 'inactivado':
+            nombre_pc = datos_anteriores.get('nombre_pc', 'N/A') if datos_anteriores else 'N/A'
+            codigo = datos_anteriores.get('codigo_inventario', 'N/A') if datos_anteriores else 'N/A'
+            return f"Equipo '{nombre_pc}' (Código: {codigo}) inactivado del sistema"
+        
+        elif accion == 'reporte_generado':
+            tipo_reporte = datos_nuevos.get('tipo_reporte', 'N/A') if datos_nuevos else 'N/A'
+            cantidad = datos_nuevos.get('cantidad_registros', 0) if datos_nuevos else 0
+            return f"Reporte '{tipo_reporte}' generado con {cantidad} registros"
+        
+        else:
+            # Descripción genérica para acciones no contempladas
+            return f"Acción '{accion}' realizada"
+            
+    except Exception as e:
+        logging.error(f"Error generando descripción de acción: {str(e)}")
+        return f"Acción '{accion}' realizada"

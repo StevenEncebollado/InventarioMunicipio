@@ -12,13 +12,14 @@ import FiltrosAuditoria from './components/FiltrosAuditoria';
 import TablaHistorial from './components/TablaHistorial';
 import EstadisticasAuditoria from './components/EstadisticasAuditoria';
 import TablaLogs from './components/TablaLogs';
+import ComponenteReportes from './components/ComponenteReportes';
 import { type FiltrosAuditoria as TipoFiltros, type Usuario } from '@/types';
 import { APP_CONFIG } from '@/services/api';
 import { estiloGlobal } from '../../Diseño/Estilos/EstiloGlobal';
 import Navbar from '../../Diseño/Diseño dashboard/Navbar';
-import { FaChartLine, FaHistory, FaCogs, FaFileExport, FaSync } from 'react-icons/fa';
+import { FaChartLine, FaHistory, FaCogs, FaFileExport, FaSync, FaDownload } from 'react-icons/fa';
 
-type PestanaActiva = 'historial' | 'estadisticas' | 'logs';
+type PestanaActiva = 'historial' | 'estadisticas' | 'logs' | 'reportes';
 
 const AuditoriaPage: React.FC = () => {
   const router = useRouter();
@@ -91,6 +92,7 @@ const AuditoriaPage: React.FC = () => {
       historial: <FaHistory />,
       estadisticas: <FaChartLine />,
       logs: <FaCogs />,
+      reportes: <FaFileExport />,
     };
     return iconos[pestana];
   };
@@ -319,6 +321,16 @@ const AuditoriaPage: React.FC = () => {
           </div>
         );
 
+      case 'reportes':
+        return (
+          <div style={{ marginTop: '2rem' }}>
+            <ComponenteReportes 
+              user={user}
+              usuarios={usuarios}
+            />
+          </div>
+        );
+
       default:
         return null;
     }
@@ -446,6 +458,7 @@ const AuditoriaPage: React.FC = () => {
               {([
                 { id: 'historial', nombre: 'Historial de Acciones', descripcion: 'Ver todas las acciones registradas' },
                 { id: 'estadisticas', nombre: 'Estadísticas', descripcion: 'Métricas y gráficos del sistema' },
+                { id: 'reportes', nombre: 'Reportes', descripcion: 'Generación de reportes avanzados' },
                 { id: 'logs', nombre: 'Logs Técnicos', descripcion: 'Información detallada para administradores' },
               ] as Array<{ id: PestanaActiva; nombre: string; descripcion: string }>).map((pestana) => (
                 <button

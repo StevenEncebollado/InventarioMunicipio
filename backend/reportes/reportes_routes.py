@@ -3,6 +3,7 @@ Rutas para reportes y consultas específicas del inventario.
 """
 from flask import Blueprint, request, jsonify
 from ..db import get_db_connection
+from ..auditoria.auditoria_routes import registrar_accion_automatica
 
 reportes_bp = Blueprint('reportes', __name__)
 
@@ -11,12 +12,28 @@ reportes_bp = Blueprint('reportes', __name__)
 @reportes_bp.route('/inventario_general', methods=['GET'])
 def reporte_inventario_general():
     # Devuelve todos los registros del inventario para reporte general
+    usuario_id = request.args.get('usuario_id', type=int)
+    
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute('SELECT * FROM inventario')
     data = cur.fetchall()
     cur.close()
     conn.close()
+    
+    # Registrar generación de reporte en auditoría
+    if usuario_id:
+        registrar_accion_automatica(
+            inventario_id=None,
+            usuario_id=usuario_id,
+            accion='reporte_generado',
+            datos_nuevos={
+                'tipo_reporte': 'inventario_general',
+                'accion_detalle': 'Generación de reporte general de inventario',
+                'cantidad_registros': len(data)
+            }
+        )
+    
     return jsonify(data)
 
 

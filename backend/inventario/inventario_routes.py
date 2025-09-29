@@ -199,11 +199,19 @@ def create_inventario():
             if programa_id:  # Solo insertar si el programa_id no está vacío
                 cur.execute('INSERT INTO inventario_programa (inventario_id, programa_id) VALUES (%s, %s)', (new_id, programa_id))
         
-        # Registrar en historial (acción: agregado)
-        cur.execute('''
-            INSERT INTO historial_inventario (inventario_id, usuario_id, accion, datos_nuevos)
-            VALUES (%s, %s, %s, %s)
-        ''', (new_id, data.get('usuario_id'), 'agregado', json.dumps(data)))
+        # Registrar en historial (acción: agregado) - CORREGIDO CON DEBUG
+        usuario_para_auditoria = data.get('usuario_id')
+        print(f"🔍 DEBUG CREATE: usuario_id recibido = {usuario_para_auditoria}")
+        print(f"🔍 DEBUG CREATE: datos completos = {data}")
+        
+        registrar_accion_automatica(
+            inventario_id=new_id,
+            usuario_accion_id=usuario_para_auditoria,  # Usuario que crea el equipo
+            accion='agregado',
+            datos_nuevos=data
+        )
+        
+        print(f"🔍 DEBUG CREATE: Auditoria registrada para equipo {new_id}")
         
         conn.commit()
         return jsonify({'id': new_id, 'message': 'Equipo creado exitosamente'}), 201
@@ -285,6 +293,16 @@ def update_inventario(item_id):
         columns = [desc[0] for desc in cur.description]
         datos_anteriores = dict(zip(columns, registro_anterior))
         
+        # Detectar si hubo cambio de estado para auditoría específica
+        estado_anterior = datos_anteriores.get('estado')
+        estado_nuevo = data.get('estado')
+        cambio_estado = estado_anterior != estado_nuevo
+        
+        # DEBUG: Log específico para cambios de estado
+        print(f"🔍 DEBUG CAMBIO ESTADO: estado_anterior='{estado_anterior}', estado_nuevo='{estado_nuevo}', cambio_estado={cambio_estado}")
+        print(f"🔍 DEBUG DATOS: datos_anteriores.keys()={list(datos_anteriores.keys()) if datos_anteriores else 'None'}")
+        print(f"🔍 DEBUG DATA: data.keys()={list(data.keys())}")
+        
         # Validar unicidad de campos únicos (excluyendo el registro actual)
         codigo_inventario = data.get('codigo_inventario')
         if codigo_inventario:
@@ -328,13 +346,36 @@ def update_inventario(item_id):
                 cur.execute('INSERT INTO inventario_programa (inventario_id, programa_id) VALUES (%s, %s)', (item_id, programa_id))
         
         # Registrar en historial (acción: modificado)
-        registrar_accion_automatica(
-            inventario_id=item_id,
-            usuario_id=data.get('usuario_id'),
-            accion='modificado',
-            datos_anteriores=datos_anteriores,
-            datos_nuevos=data
-        )
+        # Usar usuario_accion_id si está disponible, sino usar usuario_id
+        usuario_auditoria = data.get('usuario_accion_id') or data.get('usuario_id')
+        
+        # Debug: Log para verificar qué usuario se está usando para auditoría
+        print(f"DEBUG: usuario_accion_id={data.get('usuario_accion_id')}, usuario_id={data.get('usuario_id')}, usuario_auditoria={usuario_auditoria}")
+        
+        if cambio_estado:
+            # Auditoría específica para cambios de estado - CORREGIDO
+            registrar_accion_automatica(
+                inventario_id=item_id,
+                usuario_accion_id=usuario_auditoria,  # Usuario que realiza el cambio
+                accion='cambio_estado',
+                datos_anteriores={'estado': estado_anterior},
+                datos_nuevos={
+                    'estado': estado_nuevo,
+                    'equipo': datos_anteriores.get('nombre_pc', 'N/A'),
+                    'detalle': f'Estado cambiado de "{estado_anterior}" a "{estado_nuevo}"'
+                },
+                usuario_propietario_id=datos_anteriores.get('usuario_id')  # Usuario propietario del equipo
+            )
+        else:
+            # Auditoría general para modificaciones - CORREGIDO
+            registrar_accion_automatica(
+                inventario_id=item_id,
+                usuario_accion_id=usuario_auditoria,  # Usuario que realiza el cambio
+                accion='modificado',
+                datos_anteriores=datos_anteriores,
+                datos_nuevos=data,
+                usuario_propietario_id=datos_anteriores.get('usuario_id')  # Usuario propietario del equipo
+            )
         
         conn.commit()
         return jsonify({'msg': 'Actualizado correctamente'})
@@ -353,17 +394,17 @@ def update_inventario(item_id):
 
 
 
-# Endpoint: Eliminar un item del inventario
+# Endpoint: Eliminar un item del inventario (INACTIVAR)
 @inventario_bp.route('/<int:item_id>', methods=['DELETE'])
 def delete_inventario(item_id):
-    """Elimina un registro del inventario por su ID."""
+    """Inactiva un registro del inventario marcándolo como eliminado."""
     data = request.get_json() or {}
     
     conn = get_db_connection()
     cur = conn.cursor()
     
     try:
-        # Obtener datos antes de eliminar para auditoría
+        # Obtener datos antes de "eliminar" para auditoría
         cur.execute('SELECT * FROM inventario WHERE id = %s', (item_id,))
         registro_anterior = cur.fetchone()
         if not registro_anterior:
@@ -372,16 +413,21 @@ def delete_inventario(item_id):
         columns = [desc[0] for desc in cur.description]
         datos_anteriores = dict(zip(columns, registro_anterior))
         
-        # Eliminar el registro
-        cur.execute('DELETE FROM inventario WHERE id = %s', (item_id,))
+        # INACTIVAR en lugar de eliminar: marcar fecha_eliminacion
+        cur.execute('UPDATE inventario SET fecha_eliminacion = NOW() WHERE id = %s', (item_id,))
         
-        # Registrar en historial (acción: eliminado)
+        # Registrar en historial (acción: inactivado)
+        usuario_para_auditoria = data.get('usuario_accion_id') or data.get('usuario_id')
+        
         registrar_accion_automatica(
             inventario_id=item_id,
-            usuario_id=data.get('usuario_id'),  # Debe enviarse desde el frontend
-            accion='eliminado',
+            usuario_accion_id=usuario_para_auditoria,  # Usuario que inactiva
+            accion='inactivado',  # Cambiar de 'eliminado' a 'inactivado'
             datos_anteriores=datos_anteriores,
-            datos_nuevos=None
+            datos_nuevos={
+                'fecha_eliminacion': 'NOW()',
+                'accion_detalle': f'Equipo "{datos_anteriores.get("nombre_pc", "N/A")}" inactivado del sistema'
+            }
         )
         
         conn.commit()

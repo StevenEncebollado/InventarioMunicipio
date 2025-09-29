@@ -113,6 +113,7 @@ export default function EquiposLista() {
         const equipoActualizado = {
           estado: 'Inactivo' as const,
           fecha_eliminacion: fechaEliminacion,
+          usuario_accion_id: user?.id, // Incluir el ID del usuario que realiza la eliminación
           // Incluir todos los campos requeridos del equipo
           anydesk: equipo.anydesk,
           caracteristicas_id: equipo.caracteristicas_id,

@@ -11,7 +11,110 @@ import { HistorialAuditoria, PaginacionAuditoria } from '@/types';
 import auditoriaService from '@/services/auditoriaService';
 import { estiloGlobal } from '@/app/Diseño/Estilos/EstiloGlobal';
 import { estiloAnimaciones } from '@/app/Diseño/Estilos/EstiloAnimaciones';
-import { FaEye, FaHistory, FaTimes, FaChevronLeft, FaChevronRight, FaUser, FaDesktop, FaCalendarAlt, FaCog } from 'react-icons/fa';
+import { 
+  FaEye, 
+  FaHistory, 
+  FaTimes, 
+  FaChevronLeft, 
+  FaChevronRight, 
+  FaUser, 
+  FaDesktop, 
+  FaCalendarAlt, 
+  FaCog,
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaExchangeAlt,
+  FaSignInAlt,
+  FaSignOutAlt,
+  FaFileAlt
+} from 'react-icons/fa';
+
+// Funciones helper para auditoría
+const obtenerIconoAccion = (accion: string): React.ReactElement => {
+  const iconos: Record<string, React.ReactElement> = {
+    'agregado': <FaPlus />,
+    'modificado': <FaEdit />,
+    'eliminado': <FaTrash />,
+    'inactivado': <FaTrash />, // Mismo icono que eliminado
+    'cambio_estado': <FaExchangeAlt />,
+    'usuario_registrado': <FaUser />,
+    'login': <FaSignInAlt />,
+    'logout': <FaSignOutAlt />,
+    'reporte_generado': <FaFileAlt />,
+    'default': <FaCog />
+  };
+  return iconos[accion] || iconos['default'];
+};
+
+const obtenerColorAccion = (accion: string): string => {
+  const colores: Record<string, string> = {
+    'agregado': '#16a34a',
+    'modificado': '#2563eb',
+    'eliminado': '#dc2626',
+    'inactivado': '#dc2626', // Mismo color que eliminado
+    'cambio_estado': '#ea580c',
+    'usuario_registrado': '#7c3aed',
+    'login': '#059669',
+    'logout': '#64748b',
+    'reporte_generado': '#0891b2',
+    'default': '#6b7280'
+  };
+  return colores[accion] || colores['default'];
+};
+
+const obtenerDescripcionAccion = (registro: HistorialAuditoria): string => {
+  const { accion, datos_anteriores, datos_nuevos } = registro;
+
+  // Si hay una descripción personalizada en datos_nuevos, usarla
+  if (datos_nuevos?.descripcion_accion) {
+    return datos_nuevos.descripcion_accion;
+  }
+
+  // Generar descripción basada en la acción
+  switch (accion) {
+    case 'cambio_estado':
+      const estadoAnterior = datos_anteriores?.estado || 'N/A';
+      const estadoNuevo = datos_nuevos?.estado || 'N/A';
+      const equipo = datos_nuevos?.equipo || registro.nombre_equipo || 'N/A';
+      return `Cambio de estado de '${estadoAnterior}' a '${estadoNuevo}'`;
+
+    case 'usuario_registrado':
+      const username = datos_nuevos?.username || 'N/A';
+      return `Nuevo usuario '${username}' registrado`;
+
+    case 'login':
+      const loginUser = datos_nuevos?.username || 'N/A';
+      return `Usuario '${loginUser}' inició sesión`;
+
+    case 'logout':
+      const logoutUser = datos_nuevos?.username || 'N/A';
+      return `Usuario '${logoutUser}' cerró sesión`;
+
+    case 'agregado':
+      const nombrePcNuevo = datos_nuevos?.nombre_pc || registro.nombre_equipo || 'N/A';
+      return `Equipo '${nombrePcNuevo}' agregado`;
+
+    case 'modificado':
+      const nombrePcMod = datos_nuevos?.nombre_pc || datos_anteriores?.nombre_pc || registro.nombre_equipo || 'N/A';
+      return `Equipo '${nombrePcMod}' modificado`;
+
+    case 'eliminado':
+      const nombrePcEliminado = datos_anteriores?.nombre_pc || registro.nombre_equipo || 'N/A';
+      return `Equipo '${nombrePcEliminado}' eliminado`;
+
+    case 'inactivado':
+      const nombrePcInactivado = datos_anteriores?.nombre_pc || registro.nombre_equipo || 'N/A';
+      return `Equipo '${nombrePcInactivado}' inactivado`;
+
+    case 'reporte_generado':
+      const tipoReporte = datos_nuevos?.tipo_reporte || 'N/A';
+      return `Reporte '${tipoReporte}' generado`;
+
+    default:
+      return `Acción '${accion}' realizada`;
+  }
+};
 
 interface Props {
   historial: HistorialAuditoria[];
@@ -207,8 +310,9 @@ const ModalDetalles: React.FC<ModalDetallesProps> = React.memo(({ registro, isOp
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 500 }}>Acción:</span>
                     <span style={{
-                      background: auditoriaService.obtenerColorAccion(registro.accion) + '15',
-                      color: auditoriaService.obtenerColorAccion(registro.accion),
+                      backgroundColor: `${obtenerColorAccion(registro.accion)}20`,
+                      color: obtenerColorAccion(registro.accion),
+                      border: `2px solid ${obtenerColorAccion(registro.accion)}`,
                       padding: '6px 12px',
                       borderRadius: '20px',
                       fontSize: '0.75rem',
@@ -219,8 +323,8 @@ const ModalDetalles: React.FC<ModalDetallesProps> = React.memo(({ registro, isOp
                       alignItems: 'center',
                       gap: '6px'
                     }}>
-                      {auditoriaService.obtenerIconoAccion(registro.accion)}
-                      {registro.accion}
+                      {obtenerIconoAccion(registro.accion)}
+                      {obtenerDescripcionAccion(registro)}
                     </span>
                   </div>
                 </div>
@@ -772,12 +876,12 @@ const TablaHistorial: React.FC<Props> = ({
           fontWeight: 700,
           textTransform: 'uppercase',
           letterSpacing: '0.5px',
-          background: auditoriaService.obtenerColorAccion(registro.accion) + '15',
-          color: auditoriaService.obtenerColorAccion(registro.accion),
-          border: `1px solid ${auditoriaService.obtenerColorAccion(registro.accion)}25`
+          background: `${obtenerColorAccion(registro.accion)}20`,
+          color: obtenerColorAccion(registro.accion),
+          border: `2px solid ${obtenerColorAccion(registro.accion)}`
         }}>
-          {auditoriaService.obtenerIconoAccion(registro.accion)}
-          {registro.accion}
+          {obtenerIconoAccion(registro.accion)}
+          {obtenerDescripcionAccion(registro)}
         </span>
       </td>
 

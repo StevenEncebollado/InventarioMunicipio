@@ -1,10 +1,9 @@
-// Tipo para Dirección/Área con dependencia_id
+// Tipos principales del sistema de inventario
 export interface DireccionArea {
   id: number | string;
   nombre: string;
   dependencia_id: number | string;
 }
-// Tipos principales del sistema de inventario
 
 export interface Usuario {
   id: number;
@@ -78,25 +77,21 @@ export interface HistorialEquipo {
 // Tipos para el sistema de auditoría
 export interface HistorialAuditoria {
   id: number;
-  inventario_id: number;
+  inventario_id?: number;
   usuario_id: number;
-  accion: 'agregado' | 'modificado' | 'eliminado';
+  usuario_nombre?: string;
+  usuario_apellido?: string;
+  accion: 'agregado' | 'modificado' | 'eliminado' | 'inactivado' | 'cambio_estado' | 'usuario_registrado' | 'login' | 'logout' | 'reporte_generado';
   fecha: string;
   datos_anteriores?: any;
   datos_nuevos?: any;
-  usuario_nombre?: string;
-  usuario_apellido?: string;
   nombre_equipo?: string;
   numero_serie?: string;
 }
 
 export interface EstadisticasAuditoria {
   totalAcciones: number;
-  accionesPorTipo: {
-    agregado?: number;
-    modificado?: number;
-    eliminado?: number;
-  };
+  accionesPorTipo: Record<string, number>;
   actividadPorDia: Record<string, number>;
   actividadPorUsuario: Array<{
     usuario: string;
@@ -107,20 +102,19 @@ export interface EstadisticasAuditoria {
 export interface LogAuditoria extends HistorialAuditoria {
   usuario_completo?: string;
   usuario_email?: string;
-  ip_address?: string;
-  nivel: 'INFO' | 'WARNING' | 'ERROR';
+  direccion_ip?: string;
+  nivel?: 'INFO' | 'WARNING' | 'ERROR';
   tiempo_transcurrido?: string;
-  segundos_transcurridos?: number;
 }
 
 export interface FiltrosAuditoria {
+  page?: number;
+  limit?: number;
   fechaInicio?: string;
   fechaFin?: string;
   usuarioId?: number;
-  accion?: 'agregado' | 'modificado' | 'eliminado';
+  accion?: string;
   equipoId?: number;
-  page?: number;
-  limit?: number;
 }
 
 export interface PaginacionAuditoria {
@@ -137,13 +131,13 @@ export interface RespuestaHistorial {
 
 export interface ExportarAuditoriaRequest {
   filtros: FiltrosAuditoria;
-  formato: 'csv' | 'excel';
+  formato: 'csv' | 'excel' | 'pdf';
 }
 
 export interface RegistrarAccionRequest {
-  inventario_id: number;
+  inventario_id?: number;
   usuario_id: number;
-  accion: 'agregado' | 'modificado' | 'eliminado';
+  accion: string;
   datos_anteriores?: any;
   datos_nuevos?: any;
 }
@@ -151,6 +145,7 @@ export interface RegistrarAccionRequest {
 // Tipos para formularios
 export interface EquipoFormData extends Omit<Equipo, 'id'> {
   id?: number;
+  usuario_accion_id?: number; // ID del usuario que realiza la acción
 }
 
 export interface UsuarioFormData extends Omit<Usuario, 'id' | 'fecha_creacion'> {
@@ -199,7 +194,6 @@ export interface OpcionesPaginacion {
 // Tipos para reportes
 export interface ReporteEquipos {
   total_equipos: number;
-  // por_estado eliminado, ya no existe 'estado' en Equipo
   por_tipo: Record<string, number>;
   por_dependencia: Record<string, number>;
   valor_total?: number;

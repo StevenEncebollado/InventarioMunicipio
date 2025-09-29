@@ -177,6 +177,7 @@ export function useEditarEquipo(equipoId: string, usuarioId?: number) {
     
     return {
       usuario_id: usuarioId,
+      usuario_accion_id: usuarioId, // NUEVO: Para auditoría - usuario que hace el cambio
       dependencia_id: dependencia || null,
       direccion_area_id: direccion || null,
       dispositivo_id: tipoEquipo || null, // Backend espera dispositivo_id para el tipo de dispositivo

@@ -186,44 +186,18 @@ export const auditoriaService = {
   },
 
   /**
-   * Formatea una fecha para mostrar en la UI
-   */
-  formatearFecha: (fecha: string): string => {
-    try {
-      return new Date(fecha).toLocaleString('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-    } catch (error) {
-      console.error('Error al formatear fecha:', error);
-      return fecha;
-    }
-  },
-
-  /**
-   * Obtiene el color asociado a un tipo de acción
-   */
-  obtenerColorAccion: (accion: string): string => {
-    const colores = {
-      'agregado': '#10b981', // Verde
-      'modificado': '#f59e0b', // Amarillo/Naranja
-      'eliminado': '#ef4444', // Rojo
-    };
-    return colores[accion as keyof typeof colores] || '#6b7280'; // Gris por defecto
-  },
-
-  /**
-   * Obtiene el icono asociado a un tipo de acción
+   * Obtiene el icono asociado a un tipo de acción  
    */
   obtenerIconoAccion: (accion: string): string => {
     const iconos = {
       'agregado': '➕',
       'modificado': '✏️',
       'eliminado': '🗑️',
+      'cambio_estado': '🔄',
+      'usuario_registrado': '👤',
+      'login': '🔑',
+      'logout': '🚪',
+      'reporte_generado': '📊'
     };
     return iconos[accion as keyof typeof iconos] || '📝';
   },
@@ -260,7 +234,159 @@ export const auditoriaService = {
       valido: errores.length === 0,
       errores
     };
-  }
+  },
+
+  /**
+   * Formatea una fecha para mostrar en la UI con tiempo relativo
+   */
+  formatearFecha: (fechaString: string): string => {
+    try {
+      const fecha = new Date(fechaString);
+      
+      // Verificar si la fecha es válida
+      if (isNaN(fecha.getTime())) {
+        return 'Fecha inválida';
+      }
+
+      const ahora = new Date();
+      const diferencia = ahora.getTime() - fecha.getTime();
+      const segundos = Math.floor(diferencia / 1000);
+      const minutos = Math.floor(segundos / 60);
+      const horas = Math.floor(minutos / 60);
+      const dias = Math.floor(horas / 24);
+
+      // Mostrar tiempo relativo si es reciente
+      if (segundos < 60) {
+        return 'Hace unos segundos';
+      } else if (minutos < 60) {
+        return `Hace ${minutos} minuto${minutos > 1 ? 's' : ''}`;
+      } else if (horas < 24) {
+        return `Hace ${horas} hora${horas > 1 ? 's' : ''}`;
+      } else if (dias < 7) {
+        return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
+      } else {
+        // Mostrar fecha completa
+        return fecha.toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+    } catch (error) {
+      console.error('Error formateando fecha:', error);
+      return 'Fecha inválida';
+    }
+  },
+
+  /**
+   * Obtiene el color correspondiente a una acción
+   */
+  obtenerColorAccion: (accion: string): string => {
+    const colores: Record<string, string> = {
+      'agregado': '#16a34a',      // Verde - Agregar
+      'modificado': '#2563eb',    // Azul - Modificar
+      'eliminado': '#dc2626',     // Rojo - Eliminar
+      'cambio_estado': '#ea580c', // Naranja - Cambio de estado
+      'usuario_registrado': '#7c3aed', // Púrpura - Usuario nuevo
+      'login': '#059669',         // Verde oscuro - Login
+      'logout': '#64748b',        // Gris - Logout
+      'reporte_generado': '#0891b2', // Cian - Reportes
+      'default': '#6b7280'        // Gris por defecto
+    };
+
+    return colores[accion] || colores['default'];
+  },
+
+  /**
+   * Genera una descripción legible de la acción
+   */
+  obtenerDescripcionAccion: (registro: HistorialAuditoria): string => {
+    const { accion, datos_anteriores, datos_nuevos } = registro;
+
+    // Si hay una descripción personalizada en datos_nuevos, usarla
+    if (datos_nuevos?.descripcion_accion) {
+      return datos_nuevos.descripcion_accion;
+    }
+
+    // Generar descripción basada en la acción
+    switch (accion) {
+      case 'cambio_estado':
+        const estadoAnterior = datos_anteriores?.estado || 'N/A';
+        const estadoNuevo = datos_nuevos?.estado || 'N/A';
+        const equipo = datos_nuevos?.equipo || registro.nombre_equipo || 'N/A';
+        return `Cambio de estado de '${estadoAnterior}' a '${estadoNuevo}' en equipo ${equipo}`;
+
+      case 'usuario_registrado':
+        const username = datos_nuevos?.username || 'N/A';
+        return `Nuevo usuario '${username}' registrado en el sistema`;
+
+      case 'login':
+        const loginUser = datos_nuevos?.username || 'N/A';
+        return `Usuario '${loginUser}' inició sesión`;
+
+      case 'logout':
+        const logoutUser = datos_nuevos?.username || 'N/A';
+        return `Usuario '${logoutUser}' cerró sesión`;
+
+      case 'agregado':
+        const nombrePcNuevo = datos_nuevos?.nombre_pc || registro.nombre_equipo || 'N/A';
+        const codigoNuevo = datos_nuevos?.codigo_inventario || registro.numero_serie || 'N/A';
+        return `Equipo '${nombrePcNuevo}' (Código: ${codigoNuevo}) agregado al inventario`;
+
+      case 'modificado':
+        const nombrePcMod = datos_nuevos?.nombre_pc || datos_anteriores?.nombre_pc || registro.nombre_equipo || 'N/A';
+        
+        // Detectar qué campos cambiaron
+        const camposDetectados = auditoriaService.detectarCambios(datos_anteriores, datos_nuevos);
+        if (camposDetectados.length > 0) {
+          return `Equipo '${nombrePcMod}' modificado: ${camposDetectados.join(', ')}`;
+        }
+        return `Equipo '${nombrePcMod}' modificado`;
+
+      case 'eliminado':
+        const nombrePcEliminado = datos_anteriores?.nombre_pc || registro.nombre_equipo || 'N/A';
+        const codigoEliminado = datos_anteriores?.codigo_inventario || registro.numero_serie || 'N/A';
+        return `Equipo '${nombrePcEliminado}' (Código: ${codigoEliminado}) eliminado del inventario`;
+
+      case 'reporte_generado':
+        const tipoReporte = datos_nuevos?.tipo_reporte || 'N/A';
+        const cantidad = datos_nuevos?.cantidad_registros || 0;
+        return `Reporte '${tipoReporte}' generado con ${cantidad} registros`;
+
+      default:
+        return `Acción '${accion}' realizada`;
+    }
+  },
+
+  /**
+   * Detecta qué campos cambiaron entre datos anteriores y nuevos
+   */
+  detectarCambios: (datosAnteriores: any, datosNuevos: any): string[] => {
+    if (!datosAnteriores || !datosNuevos) return [];
+
+    const camposImportantes = {
+      'nombre_pc': 'Nombre del PC',
+      'nombres_funcionario': 'Funcionario',
+      'estado': 'Estado',
+      'direccion_ip': 'Dirección IP',
+      'direccion_mac': 'Dirección MAC',
+      'dependencia_id': 'Dependencia',
+      'tipo_equipo_id': 'Tipo de Equipo'
+    };
+
+    const cambios: string[] = [];
+
+    for (const [campo, nombre] of Object.entries(camposImportantes)) {
+      if (datosAnteriores[campo] !== datosNuevos[campo]) {
+        cambios.push(nombre);
+      }
+    }
+
+    return cambios;
+  },
+
 };
 
 export default auditoriaService;

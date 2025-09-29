@@ -118,6 +118,7 @@ export default function Dashboard() {
           estado: 'Inactivo' as const,
           fecha_eliminacion: fechaEliminacion,
           codigo_inventario: equipo.codigo_inventario,
+          usuario_accion_id: user?.id // Incluir el ID del usuario que realiza la eliminación
         });
         
         // Actualizar la lista de equipos en el estado local

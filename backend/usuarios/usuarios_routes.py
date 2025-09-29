@@ -6,8 +6,10 @@ Incluye endpoints CRUD y lógica relacionada.
 
 from flask import Blueprint, request, jsonify
 from ..db import get_db_connection
+from ..auditoria.auditoria_routes import registrar_accion_automatica
 import re
 import bcrypt
+import json
 
 usuarios_bp = Blueprint('usuarios', __name__)
 
@@ -35,6 +37,20 @@ def register_usuario():
     # Insertar si no existe duplicado y guardar fecha de cambio
     cur.execute('INSERT INTO usuario (username, password, fecha_cambio_password) VALUES (%s, %s, NOW()) RETURNING id', (username, hashed.decode('utf-8')))
     new_id = cur.fetchone()[0]
+    
+    # Registrar en auditoría - CORREGIDO
+    registrar_accion_automatica(
+        inventario_id=None,  # No está relacionado con un equipo específico
+        usuario_accion_id=new_id,   # El usuario que se acaba de crear
+        accion='usuario_registrado',
+        datos_nuevos={
+            'usuario_id': new_id,
+            'username': username,
+            'accion_detalle': f'Usuario "{username}" registrado exitosamente en el sistema',
+            'tipo_operacion': 'registro_usuario'
+        }
+    )
+    
     conn.commit()
     cur.close()
     conn.close()
@@ -71,21 +87,37 @@ def login_usuario():
         fecha_cambio_dt = fecha_cambio if isinstance(fecha_cambio, datetime) else datetime.strptime(str(fecha_cambio), '%Y-%m-%d %H:%M:%S')
         if datetime.now() - fecha_cambio_dt > timedelta(days=90):
             return jsonify({'msg': 'Debes cambiar tu contraseña. Han pasado más de 3 meses desde el último cambio.', 'id': user_id, 'username': username, 'require_password_change': True, 'fecha_cambio_password': fecha_cambio_str}), 200
+    
+    # Registrar login exitoso en auditoría - CORREGIDO
+    registrar_accion_automatica(
+        inventario_id=None,
+        usuario_accion_id=user_id,  # Usuario que está iniciando sesión
+        accion='login',
+        datos_nuevos={
+            'username': username,
+            'accion_detalle': f'Usuario "{username}" inició sesión exitosamente',
+            'ip_address': request.remote_addr,
+            'user_agent': request.headers.get('User-Agent', '')[:100]
+        }
+    )
+    
     return jsonify({'msg': 'Login exitoso', 'id': user_id, 'username': username, 'fecha_cambio_password': fecha_cambio_str}), 200
 
-# Endpoint: Obtener todos los usuarios
-
-@usuarios_bp.route('', methods=['GET'])
+# Endpoint: Obtener todos los usuarios - MEJORADO
+@usuarios_bp.route('/usuarios', methods=['GET'])
 def get_usuarios():
-    # Devuelve todos los usuarios registrados
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM usuario')
-    columns = [desc[0] for desc in cur.description]
-    usuarios = [dict(zip(columns, row)) for row in cur.fetchall()]
-    cur.close()
-    conn.close()
-    return jsonify(usuarios)
+    """Devuelve todos los usuarios registrados para filtros de auditoría"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id, username FROM usuario ORDER BY username')
+        columns = [desc[0] for desc in cur.description]
+        usuarios = [dict(zip(columns, row)) for row in cur.fetchall()]
+        cur.close()
+        conn.close()
+        return jsonify(usuarios)
+    except Exception as e:
+        return jsonify({'error': f'Error al obtener usuarios: {str(e)}'}), 500
 
 # Endpoint: Obtener un usuario por ID
 
