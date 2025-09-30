@@ -199,21 +199,36 @@ def create_inventario():
             if programa_id:  # Solo insertar si el programa_id no está vacío
                 cur.execute('INSERT INTO inventario_programa (inventario_id, programa_id) VALUES (%s, %s)', (new_id, programa_id))
         
-        # Registrar en historial (acción: agregado) - CORREGIDO CON DEBUG
-        usuario_para_auditoria = data.get('usuario_id')
-        print(f"🔍 DEBUG CREATE: usuario_id recibido = {usuario_para_auditoria}")
-        print(f"🔍 DEBUG CREATE: datos completos = {data}")
+        # IMPORTANTE: Hacer commit ANTES de registrar en auditoría
+        conn.commit()
+        
+        # Registrar en historial (acción: agregado) - CORREGIDO PARA DISTINGUIR USUARIOS
+        usuario_que_crea = data.get('usuario_accion_id') or data.get('usuario_id')
+        usuario_propietario = data.get('usuario_id')  # Puede ser None si no es usuario del sistema
+        funcionario_asignado = data.get('nombres_funcionario', 'N/A')
+        
+        print(f"🔍 DEBUG CREATE: usuario_que_crea = {usuario_que_crea}")
+        print(f"🔍 DEBUG CREATE: usuario_propietario = {usuario_propietario}")
+        print(f"🔍 DEBUG CREATE: funcionario_asignado = {funcionario_asignado}")
+        
+        # Preparar datos mejorados para auditoría
+        datos_auditoria = dict(data)
+        datos_auditoria.update({
+            'equipo': data.get('nombre_pc', 'Nuevo Equipo'),
+            'funcionario_asignado': funcionario_asignado,
+            'accion_detalle': f'Equipo "{data.get("nombre_pc", "N/A")}" creado y asignado a {funcionario_asignado}'
+        })
         
         registrar_accion_automatica(
             inventario_id=new_id,
-            usuario_accion_id=usuario_para_auditoria,  # Usuario que crea el equipo
+            usuario_accion_id=usuario_que_crea,  # Usuario que EJECUTA la acción
             accion='agregado',
-            datos_nuevos=data
+            datos_nuevos=datos_auditoria,
+            usuario_propietario_id=usuario_propietario  # Usuario propietario (si es usuario del sistema)
         )
         
         print(f"🔍 DEBUG CREATE: Auditoria registrada para equipo {new_id}")
         
-        conn.commit()
         return jsonify({'id': new_id, 'message': 'Equipo creado exitosamente'}), 201
         
     except Exception as e:
@@ -293,15 +308,46 @@ def update_inventario(item_id):
         columns = [desc[0] for desc in cur.description]
         datos_anteriores = dict(zip(columns, registro_anterior))
         
-        # Detectar si hubo cambio de estado para auditoría específica
+        # Detectar cambios específicos para auditoría
         estado_anterior = datos_anteriores.get('estado')
         estado_nuevo = data.get('estado')
         cambio_estado = estado_anterior != estado_nuevo
         
-        # DEBUG: Log específico para cambios de estado
-        print(f"🔍 DEBUG CAMBIO ESTADO: estado_anterior='{estado_anterior}', estado_nuevo='{estado_nuevo}', cambio_estado={cambio_estado}")
-        print(f"🔍 DEBUG DATOS: datos_anteriores.keys()={list(datos_anteriores.keys()) if datos_anteriores else 'None'}")
-        print(f"🔍 DEBUG DATA: data.keys()={list(data.keys())}")
+        # 🚨 ESPECIAL: Detectar INACTIVACIÓN (cambio a "Inactivo")
+        es_inactivacion = estado_nuevo == 'Inactivo' and estado_anterior != 'Inactivo'
+        
+        # Detectar otros cambios importantes
+        nombre_anterior = datos_anteriores.get('nombre_pc')
+        nombre_nuevo = data.get('nombre_pc')
+        cambio_nombre = nombre_anterior != nombre_nuevo
+        
+        funcionario_anterior = datos_anteriores.get('nombres_funcionario')
+        funcionario_nuevo = data.get('nombres_funcionario')
+        cambio_funcionario = funcionario_anterior != funcionario_nuevo
+        
+        # DEBUG: Log específico para cambios
+        print(f"🔍 DEBUG CAMBIOS:")
+        print(f"   Estado: '{estado_anterior}' → '{estado_nuevo}' (cambio: {cambio_estado})")
+        print(f"   🚨 INACTIVACIÓN: {es_inactivacion}")
+        print(f"   Nombre: '{nombre_anterior}' → '{nombre_nuevo}' (cambio: {cambio_nombre})")
+        print(f"   Funcionario: '{funcionario_anterior}' → '{funcionario_nuevo}' (cambio: {cambio_funcionario})")
+        
+        # Detectar si hay cambios en otros campos importantes
+        otros_cambios = cambio_nombre or cambio_funcionario
+        
+        # También verificar otros campos
+        direccion_anterior = datos_anteriores.get('direccion_area_id')
+        direccion_nueva = data.get('direccion_area_id')
+        cambio_direccion = direccion_anterior != direccion_nueva
+        
+        ip_anterior = datos_anteriores.get('direccion_ip')
+        ip_nueva = data.get('direccion_ip')
+        cambio_ip = ip_anterior != ip_nueva
+        
+        if cambio_direccion or cambio_ip:
+            otros_cambios = True
+            
+        print(f"🔍 DEBUG RESUMEN: cambio_estado={cambio_estado}, es_inactivacion={es_inactivacion}, otros_cambios={otros_cambios}")
         
         # Validar unicidad de campos únicos (excluyendo el registro actual)
         codigo_inventario = data.get('codigo_inventario')
@@ -345,39 +391,66 @@ def update_inventario(item_id):
             if programa_id:  # Solo insertar si el programa_id no está vacío
                 cur.execute('INSERT INTO inventario_programa (inventario_id, programa_id) VALUES (%s, %s)', (item_id, programa_id))
         
-        # Registrar en historial (acción: modificado)
-        # Usar usuario_accion_id si está disponible, sino usar usuario_id
+        # Hacer commit ANTES de registrar auditoría
+        conn.commit()
+        
+        # Registrar en auditoría según el tipo de cambio
         usuario_auditoria = data.get('usuario_accion_id') or data.get('usuario_id')
         
-        # Debug: Log para verificar qué usuario se está usando para auditoría
-        print(f"DEBUG: usuario_accion_id={data.get('usuario_accion_id')}, usuario_id={data.get('usuario_id')}, usuario_auditoria={usuario_auditoria}")
+        # DEBUG: Log para verificar usuario de auditoría
+        print(f"🔍 DEBUG AUDITORIA:")
+        print(f"   usuario_accion_id: {data.get('usuario_accion_id')}")
+        print(f"   usuario_id: {data.get('usuario_id')}")
+        print(f"   usuario_auditoria final: {usuario_auditoria}")
         
-        if cambio_estado:
-            # Auditoría específica para cambios de estado - CORREGIDO
+        # 🚨 PRIORIDAD 1: Detectar INACTIVACIÓN (registrar como "eliminado")
+        if es_inactivacion:
+            print(f"🔍 REGISTRANDO: eliminado (inactivación)")
             registrar_accion_automatica(
                 inventario_id=item_id,
-                usuario_accion_id=usuario_auditoria,  # Usuario que realiza el cambio
+                usuario_accion_id=usuario_auditoria,
+                accion='eliminado',
+                datos_anteriores={'estado': estado_anterior},
+                datos_nuevos={
+                    'estado': estado_nuevo,
+                    'equipo': datos_anteriores.get('nombre_pc', 'N/A'),
+                    'detalle': f'Equipo inactivado (de "{estado_anterior}" a "Inactivo")'
+                },
+                usuario_propietario_id=datos_anteriores.get('usuario_id')
+            )
+        
+        # PRIORIDAD 2: Cambio de estado normal (NO inactivación)
+        elif cambio_estado and not es_inactivacion:
+            print(f"🔍 REGISTRANDO: cambio_estado")
+            registrar_accion_automatica(
+                inventario_id=item_id,
+                usuario_accion_id=usuario_auditoria,
                 accion='cambio_estado',
                 datos_anteriores={'estado': estado_anterior},
                 datos_nuevos={
                     'estado': estado_nuevo,
                     'equipo': datos_anteriores.get('nombre_pc', 'N/A'),
-                    'detalle': f'Estado cambiado de "{estado_anterior}" a "{estado_nuevo}"'
+                    'detalle': f'{estado_anterior} -> {estado_nuevo}'  # 🎯 FORMATO ESPECÍFICO (compatible Windows)
                 },
-                usuario_propietario_id=datos_anteriores.get('usuario_id')  # Usuario propietario del equipo
+                usuario_propietario_id=datos_anteriores.get('usuario_id')
             )
-        else:
-            # Auditoría general para modificaciones - CORREGIDO
+        
+        # PRIORIDAD 3: Modificaciones de otros campos (independiente del estado)
+        if otros_cambios:
+            print(f"🔍 REGISTRANDO: modificado")
             registrar_accion_automatica(
                 inventario_id=item_id,
-                usuario_accion_id=usuario_auditoria,  # Usuario que realiza el cambio
+                usuario_accion_id=usuario_auditoria,
                 accion='modificado',
                 datos_anteriores=datos_anteriores,
                 datos_nuevos=data,
-                usuario_propietario_id=datos_anteriores.get('usuario_id')  # Usuario propietario del equipo
+                usuario_propietario_id=datos_anteriores.get('usuario_id')
             )
         
-        conn.commit()
+        # Si no hay cambios importantes, no registrar nada especial
+        if not cambio_estado and not otros_cambios:
+            print(f"🔍 SIN CAMBIOS IMPORTANTES DETECTADOS")
+        
         return jsonify({'msg': 'Actualizado correctamente'})
     except Exception as e:
         conn.rollback()

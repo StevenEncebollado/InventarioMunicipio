@@ -38,6 +38,9 @@ def register_usuario():
     cur.execute('INSERT INTO usuario (username, password, fecha_cambio_password) VALUES (%s, %s, NOW()) RETURNING id', (username, hashed.decode('utf-8')))
     new_id = cur.fetchone()[0]
     
+    # IMPORTANTE: Hacer commit ANTES de registrar en auditoría
+    conn.commit()
+    
     # Registrar en auditoría - CORREGIDO
     registrar_accion_automatica(
         inventario_id=None,  # No está relacionado con un equipo específico
@@ -51,7 +54,6 @@ def register_usuario():
         }
     )
     
-    conn.commit()
     cur.close()
     conn.close()
     return jsonify({'id': new_id, 'message': 'Usuario registrado exitosamente'}), 201

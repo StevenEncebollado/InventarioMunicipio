@@ -101,6 +101,7 @@ export function useAgregarEquipo(usuarioId?: number) {
     }
     return {
       usuario_id: usuarioId,
+      usuario_accion_id: usuarioId, // Usuario que está creando el equipo (para auditoría)
       dependencia_id: dependencia ? Number(dependencia) : null,
       direccion_area_id: direccion || null,
       dispositivo_id: dispositivoId ? Number(dispositivoId) : null, // Dispositivo seleccionado

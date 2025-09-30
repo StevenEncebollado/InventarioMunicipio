@@ -50,7 +50,7 @@ def obtener_historial():
                 h.fecha,
                 h.datos_anteriores,
                 h.datos_nuevos,
-                u.username as usuario_nombre,
+                COALESCE(u.username, 'Usuario Eliminado') as usuario_nombre,
                 COALESCE(i.nombre_pc, 'N/A') as nombre_equipo,
                 COALESCE(i.codigo_inventario, 'N/A') as numero_serie,
                 CASE 
@@ -61,10 +61,12 @@ def obtener_historial():
                             WHEN h.accion = 'reporte_generado' THEN 'Generación de Reporte'
                             ELSE 'Acción del Sistema'
                         END
-                    ELSE i.nombre_pc 
+                    WHEN h.datos_nuevos ? 'descripcion_accion' THEN h.datos_nuevos->>'descripcion_accion'
+                    WHEN h.datos_nuevos ? 'detalle' THEN h.datos_nuevos->>'detalle'
+                    ELSE COALESCE(i.nombre_pc, 'N/A')
                 END as descripcion_accion
             FROM historial_inventario h
-            INNER JOIN usuario u ON h.usuario_id = u.id
+            LEFT JOIN usuario u ON h.usuario_id = u.id
             LEFT JOIN inventario i ON h.inventario_id = i.id
             WHERE 1=1
         """
@@ -749,7 +751,8 @@ def generar_descripcion_accion(accion, datos_anteriores=None, datos_nuevos=None)
             # Debug específico para cambio de estado
             print(f"🔍 DEBUG cambio_estado: estado_anterior={estado_anterior}, estado_nuevo={estado_nuevo}, equipo={equipo}")
             
-            return f"Cambio de estado de '{estado_anterior}' a '{estado_nuevo}'"
+            # 🎯 USAR FORMATO ESPECÍFICO "Estado1 -> Estado2" (compatible con Windows)
+            return f"{estado_anterior} -> {estado_nuevo}"
         
         elif accion == 'usuario_registrado':
             username = datos_nuevos.get('username', 'N/A') if datos_nuevos else 'N/A'
@@ -766,26 +769,56 @@ def generar_descripcion_accion(accion, datos_anteriores=None, datos_nuevos=None)
         elif accion == 'agregado':
             nombre_pc = datos_nuevos.get('nombre_pc', 'N/A') if datos_nuevos else 'N/A'
             codigo = datos_nuevos.get('codigo_inventario', 'N/A') if datos_nuevos else 'N/A'
-            return f"Equipo '{nombre_pc}' (Código: {codigo}) agregado al inventario"
+            funcionario = datos_nuevos.get('nombres_funcionario', '') if datos_nuevos else ''
+            
+            if funcionario:
+                return f"Equipo '{nombre_pc}' (Código: {codigo}) agregado y asignado a {funcionario}"
+            else:
+                return f"Equipo '{nombre_pc}' (Código: {codigo}) agregado al inventario"
         
         elif accion == 'modificado':
             nombre_pc = datos_nuevos.get('nombre_pc', 'N/A') if datos_nuevos else 'N/A'
             # Detectar qué campos cambiaron
             campos_cambiados = []
+            detalles_cambios = []
+            
             if datos_anteriores and datos_nuevos:
-                for campo in ['nombre_pc', 'nombres_funcionario', 'estado', 'direccion_ip']:
+                # Cambio de funcionario asignado
+                funcionario_anterior = datos_anteriores.get('nombres_funcionario', '')
+                funcionario_nuevo = datos_nuevos.get('nombres_funcionario', '')
+                if funcionario_anterior != funcionario_nuevo:
+                    if funcionario_anterior and funcionario_nuevo:
+                        detalles_cambios.append(f"Reasignado de {funcionario_anterior} a {funcionario_nuevo}")
+                    elif funcionario_nuevo:
+                        detalles_cambios.append(f"Asignado a {funcionario_nuevo}")
+                    elif funcionario_anterior:
+                        detalles_cambios.append(f"Desasignado de {funcionario_anterior}")
+                
+                # Otros campos importantes
+                for campo in ['nombre_pc', 'estado', 'direccion_ip', 'codigo_inventario']:
                     if datos_anteriores.get(campo) != datos_nuevos.get(campo):
                         campos_cambiados.append(campo.replace('_', ' ').title())
             
-            if campos_cambiados:
-                return f"Equipo '{nombre_pc}' modificado: {', '.join(campos_cambiados)}"
-            else:
-                return f"Equipo '{nombre_pc}' modificado"
+            # Construir descripción
+            descripcion = f"Equipo '{nombre_pc}' modificado"
+            if detalles_cambios:
+                descripcion += f": {', '.join(detalles_cambios)}"
+            elif campos_cambiados:
+                descripcion += f": {', '.join(campos_cambiados)}"
+            
+            return descripcion
         
         elif accion == 'eliminado':
             nombre_pc = datos_anteriores.get('nombre_pc', 'N/A') if datos_anteriores else 'N/A'
-            codigo = datos_anteriores.get('codigo_inventario', 'N/A') if datos_anteriores else 'N/A'
-            return f"Equipo '{nombre_pc}' (Código: {codigo}) eliminado del inventario"
+            estado_anterior = datos_anteriores.get('estado', 'N/A') if datos_anteriores else 'N/A'
+            
+            # 🎯 DETECTAR SI ES INACTIVACIÓN
+            if datos_nuevos and datos_nuevos.get('estado') == 'Inactivo':
+                return f"{estado_anterior} -> Inactivo"
+            else:
+                # Eliminación real del inventario
+                codigo = datos_anteriores.get('codigo_inventario', 'N/A') if datos_anteriores else 'N/A'
+                return f"Equipo '{nombre_pc}' (Código: {codigo}) eliminado del inventario"
             
         elif accion == 'inactivado':
             nombre_pc = datos_anteriores.get('nombre_pc', 'N/A') if datos_anteriores else 'N/A'

@@ -283,12 +283,31 @@ export const auditoriaService = {
   /**
    * Obtiene el color correspondiente a una acción
    */
-  obtenerColorAccion: (accion: string): string => {
+  obtenerColorAccion: (accion: string, datos_nuevos?: any): string => {
+    // Para cambios de estado, usar color específico según el estado final
+    if (accion === 'cambio_estado' && datos_nuevos?.estado) {
+      const estadoNuevo = datos_nuevos.estado.toLowerCase();
+      const coloresEstado: Record<string, string> = {
+        'activo': '#16a34a',      // Verde - Estado activo
+        'mantenimiento': '#ea580c', // Naranja - Mantenimiento
+        'inactivo': '#dc2626',    // Rojo - Inactivo
+        'reparacion': '#f59e0b',  // Amarillo - Reparación
+        'reparación': '#f59e0b',  // Amarillo - Reparación (con tilde)
+        'prestado': '#8b5cf6',    // Púrpura - Prestado
+        'en_proceso': '#06b6d4',  // Cian - En proceso
+        'baja': '#dc2626',        // Rojo - Baja
+        'disponible': '#10b981',  // Verde claro - Disponible
+        'asignado': '#3b82f6'     // Azul - Asignado
+      };
+      return coloresEstado[estadoNuevo] || '#ea580c'; // Naranja por defecto
+    }
+    
+    // Colores estándar para otras acciones
     const colores: Record<string, string> = {
       'agregado': '#16a34a',      // Verde - Agregar
       'modificado': '#2563eb',    // Azul - Modificar
       'eliminado': '#dc2626',     // Rojo - Eliminar
-      'cambio_estado': '#ea580c', // Naranja - Cambio de estado
+      'cambio_estado': '#ea580c', // Naranja - Cambio de estado (fallback)
       'usuario_registrado': '#7c3aed', // Púrpura - Usuario nuevo
       'login': '#059669',         // Verde oscuro - Login
       'logout': '#64748b',        // Gris - Logout
@@ -305,6 +324,11 @@ export const auditoriaService = {
   obtenerDescripcionAccion: (registro: HistorialAuditoria): string => {
     const { accion, datos_anteriores, datos_nuevos } = registro;
 
+    // 🎯 PRIORIDAD 1: Si hay un detalle específico en datos_nuevos, usarlo
+    if (datos_nuevos?.detalle) {
+      return datos_nuevos.detalle;
+    }
+
     // Si hay una descripción personalizada en datos_nuevos, usarla
     if (datos_nuevos?.descripcion_accion) {
       return datos_nuevos.descripcion_accion;
@@ -316,7 +340,13 @@ export const auditoriaService = {
         const estadoAnterior = datos_anteriores?.estado || 'N/A';
         const estadoNuevo = datos_nuevos?.estado || 'N/A';
         const equipo = datos_nuevos?.equipo || registro.nombre_equipo || 'N/A';
-        return `Cambio de estado de '${estadoAnterior}' a '${estadoNuevo}' en equipo ${equipo}`;
+        
+        // Formato específico "anterior -> nuevo"
+        if (estadoAnterior !== 'N/A' && estadoNuevo !== 'N/A' && estadoAnterior !== estadoNuevo) {
+          return `${estadoAnterior} -> ${estadoNuevo}`;
+        } else {
+          return `Cambio de estado a ${estadoNuevo}`;
+        }
 
       case 'usuario_registrado':
         const username = datos_nuevos?.username || 'N/A';

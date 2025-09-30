@@ -35,8 +35,8 @@ const obtenerIconoAccion = (accion: string): React.ReactElement => {
   const iconos: Record<string, React.ReactElement> = {
     'agregado': <FaPlus />,
     'modificado': <FaEdit />,
-    'eliminado': <FaTrash />,
-    'inactivado': <FaTrash />, // Mismo icono que eliminado
+    'eliminado': <FaTrash />, // Mantener para compatibilidad
+    'inactivado': <FaTrash />, // Mismo icono que eliminado (son lo mismo)
     'cambio_estado': <FaExchangeAlt />,
     'usuario_registrado': <FaUser />,
     'login': <FaSignInAlt />,
@@ -47,24 +47,48 @@ const obtenerIconoAccion = (accion: string): React.ReactElement => {
   return iconos[accion] || iconos['default'];
 };
 
-const obtenerColorAccion = (accion: string): string => {
+const obtenerColorAccion = (accion: string, datos_nuevos?: any): string => {
+  // Para cambios de estado, usar color específico según el estado final
+  if (accion === 'cambio_estado' && datos_nuevos?.estado) {
+    const estadoNuevo = datos_nuevos.estado.toLowerCase();
+    const coloresEstado: Record<string, string> = {
+      'activo': '#16a34a',      // Verde - Estado activo
+      'mantenimiento': '#ea580c', // Naranja - Mantenimiento
+      'inactivo': '#dc2626',    // Rojo - Inactivo
+      'reparacion': '#f59e0b',  // Amarillo - Reparación
+      'reparación': '#f59e0b',  // Amarillo - Reparación (con tilde)
+      'prestado': '#8b5cf6',    // Púrpura - Prestado
+      'en_proceso': '#06b6d4',  // Cian - En proceso
+      'baja': '#dc2626',        // Rojo - Baja
+      'disponible': '#10b981',  // Verde claro - Disponible
+      'asignado': '#3b82f6'     // Azul - Asignado
+    };
+    return coloresEstado[estadoNuevo] || '#ea580c'; // Naranja por defecto
+  }
+  
+  // Colores estándar para otras acciones
   const colores: Record<string, string> = {
-    'agregado': '#16a34a',
-    'modificado': '#2563eb',
-    'eliminado': '#dc2626',
-    'inactivado': '#dc2626', // Mismo color que eliminado
-    'cambio_estado': '#ea580c',
-    'usuario_registrado': '#7c3aed',
-    'login': '#059669',
-    'logout': '#64748b',
-    'reporte_generado': '#0891b2',
-    'default': '#6b7280'
+    'agregado': '#16a34a',        // Verde - Agregar
+    'modificado': '#2563eb',      // Azul - Modificar
+    'eliminado': '#dc2626',       // Rojo - Eliminar/Inactivar
+    'inactivado': '#dc2626',      // Rojo - Mismo que eliminado (son lo mismo)
+    'cambio_estado': '#ea580c',   // Naranja - Cambio de estado (fallback)
+    'usuario_registrado': '#7c3aed', // Púrpura - Usuario
+    'login': '#059669',           // Verde oscuro - Login
+    'logout': '#64748b',          // Gris - Logout
+    'reporte_generado': '#0891b2', // Cian - Reportes
+    'default': '#6b7280'          // Gris por defecto
   };
   return colores[accion] || colores['default'];
 };
 
 const obtenerDescripcionAccion = (registro: HistorialAuditoria): string => {
   const { accion, datos_anteriores, datos_nuevos } = registro;
+
+  // 🎯 PRIORIDAD 1: Si hay un detalle específico en datos_nuevos, usarlo
+  if (datos_nuevos?.detalle) {
+    return datos_nuevos.detalle;
+  }
 
   // Si hay una descripción personalizada en datos_nuevos, usarla
   if (datos_nuevos?.descripcion_accion) {
@@ -74,45 +98,81 @@ const obtenerDescripcionAccion = (registro: HistorialAuditoria): string => {
   // Generar descripción basada en la acción
   switch (accion) {
     case 'cambio_estado':
-      const estadoAnterior = datos_anteriores?.estado || 'N/A';
-      const estadoNuevo = datos_nuevos?.estado || 'N/A';
-      const equipo = datos_nuevos?.equipo || registro.nombre_equipo || 'N/A';
-      return `Cambio de estado de '${estadoAnterior}' a '${estadoNuevo}'`;
+      const estadoAnterior = datos_anteriores?.estado;
+      const estadoNuevo = datos_nuevos?.estado;
+      const equipo = datos_nuevos?.equipo || registro.nombre_equipo || 'Equipo';
+      
+      // Mostrar cambio de estado específico con formato "anterior -> nuevo"
+      if (estadoAnterior && estadoNuevo && estadoAnterior !== estadoNuevo) {
+        return `${estadoAnterior} -> ${estadoNuevo}`;
+      } else if (estadoNuevo) {
+        return `Cambio de estado a ${estadoNuevo}`;
+      } else {
+        return `Cambio de estado en '${equipo}'`;
+      }
 
     case 'usuario_registrado':
-      const username = datos_nuevos?.username || 'N/A';
-      return `Nuevo usuario '${username}' registrado`;
+      const username = datos_nuevos?.username || 'Usuario';
+      return `Nuevo usuario '${username}' registrado en el sistema`;
 
     case 'login':
-      const loginUser = datos_nuevos?.username || 'N/A';
-      return `Usuario '${loginUser}' inició sesión`;
+      const loginUser = datos_nuevos?.username || 'Usuario';
+      return `Usuario '${loginUser}' inició sesión en el sistema`;
 
     case 'logout':
-      const logoutUser = datos_nuevos?.username || 'N/A';
+      const logoutUser = datos_nuevos?.username || 'Usuario';
       return `Usuario '${logoutUser}' cerró sesión`;
 
     case 'agregado':
-      const nombrePcNuevo = datos_nuevos?.nombre_pc || registro.nombre_equipo || 'N/A';
-      return `Equipo '${nombrePcNuevo}' agregado`;
+      const nombrePcNuevo = datos_nuevos?.nombre_pc || registro.nombre_equipo || 'Equipo';
+      const funcionarioNuevo = datos_nuevos?.nombres_funcionario;
+      if (funcionarioNuevo) {
+        return `Equipo '${nombrePcNuevo}' agregado y asignado a ${funcionarioNuevo}`;
+      }
+      return `Equipo '${nombrePcNuevo}' agregado al inventario`;
 
     case 'modificado':
-      const nombrePcMod = datos_nuevos?.nombre_pc || datos_anteriores?.nombre_pc || registro.nombre_equipo || 'N/A';
+      const nombrePcMod = datos_nuevos?.nombre_pc || datos_anteriores?.nombre_pc || registro.nombre_equipo || 'Equipo';
+      
+      // Detectar tipo de modificación
+      const funcionarioAnterior = datos_anteriores?.nombres_funcionario;
+      const funcionarioNuevoMod = datos_nuevos?.nombres_funcionario;
+      
+      // Priorizar cambios de funcionario
+      if (funcionarioAnterior !== funcionarioNuevoMod) {
+        if (funcionarioAnterior && funcionarioNuevoMod) {
+          return `Equipo '${nombrePcMod}' reasignado de ${funcionarioAnterior} a ${funcionarioNuevoMod}`;
+        } else if (funcionarioNuevoMod) {
+          return `Equipo '${nombrePcMod}' asignado a ${funcionarioNuevoMod}`;
+        } else if (funcionarioAnterior) {
+          return `Equipo '${nombrePcMod}' desasignado de ${funcionarioAnterior}`;
+        }
+      }
+      
+      // Si hay cambio de nombre
+      if (datos_anteriores?.nombre_pc && datos_nuevos?.nombre_pc && 
+          datos_anteriores.nombre_pc !== datos_nuevos.nombre_pc) {
+        return `Nombre del equipo cambió de '${datos_anteriores.nombre_pc}' a '${datos_nuevos.nombre_pc}'`;
+      }
+      
+      // Descripción genérica
       return `Equipo '${nombrePcMod}' modificado`;
 
     case 'eliminado':
-      const nombrePcEliminado = datos_anteriores?.nombre_pc || registro.nombre_equipo || 'N/A';
-      return `Equipo '${nombrePcEliminado}' eliminado`;
-
     case 'inactivado':
-      const nombrePcInactivado = datos_anteriores?.nombre_pc || registro.nombre_equipo || 'N/A';
-      return `Equipo '${nombrePcInactivado}' inactivado`;
+      const nombrePcInactivado = datos_anteriores?.nombre_pc || registro.nombre_equipo || 'Equipo';
+      const funcionarioInactivado = datos_anteriores?.nombres_funcionario;
+      if (funcionarioInactivado) {
+        return `Equipo '${nombrePcInactivado}' (de ${funcionarioInactivado}) marcado como inactivo`;
+      }
+      return `Equipo '${nombrePcInactivado}' marcado como inactivo`;
 
     case 'reporte_generado':
-      const tipoReporte = datos_nuevos?.tipo_reporte || 'N/A';
-      return `Reporte '${tipoReporte}' generado`;
+      const tipoReporte = datos_nuevos?.tipo_reporte || 'reporte';
+      return `Reporte '${tipoReporte}' generado exitosamente`;
 
     default:
-      return `Acción '${accion}' realizada`;
+      return `Acción '${accion}' registrada en el sistema`;
   }
 };
 
@@ -310,21 +370,24 @@ const ModalDetalles: React.FC<ModalDetallesProps> = React.memo(({ registro, isOp
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 500 }}>Acción:</span>
                     <span style={{
-                      backgroundColor: `${obtenerColorAccion(registro.accion)}20`,
-                      color: obtenerColorAccion(registro.accion),
-                      border: `2px solid ${obtenerColorAccion(registro.accion)}`,
+                      backgroundColor: `${obtenerColorAccion(registro.accion, registro.datos_nuevos)}20`,
+                      color: obtenerColorAccion(registro.accion, registro.datos_nuevos),
+                      border: `2px solid ${obtenerColorAccion(registro.accion, registro.datos_nuevos)}`,
                       padding: '6px 12px',
                       borderRadius: '20px',
                       fontSize: '0.75rem',
                       fontWeight: 700,
-                      textTransform: 'uppercase',
+                      textTransform: registro.accion === 'cambio_estado' ? 'none' : 'uppercase', // 🎯 No uppercase para cambio_estado
                       letterSpacing: '0.5px',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '6px'
                     }}>
                       {obtenerIconoAccion(registro.accion)}
-                      {obtenerDescripcionAccion(registro)}
+                      {registro.accion === 'cambio_estado' && registro.datos_anteriores?.estado && registro.datos_nuevos?.estado 
+                        ? `${registro.datos_anteriores.estado} → ${registro.datos_nuevos.estado}`
+                        : registro.accion.charAt(0).toUpperCase() + registro.accion.slice(1).replace('_', ' ')
+                      }
                     </span>
                   </div>
                 </div>
@@ -876,9 +939,9 @@ const TablaHistorial: React.FC<Props> = ({
           fontWeight: 700,
           textTransform: 'uppercase',
           letterSpacing: '0.5px',
-          background: `${obtenerColorAccion(registro.accion)}20`,
-          color: obtenerColorAccion(registro.accion),
-          border: `2px solid ${obtenerColorAccion(registro.accion)}`
+          background: `${obtenerColorAccion(registro.accion, registro.datos_nuevos)}20`,
+          color: obtenerColorAccion(registro.accion, registro.datos_nuevos),
+          border: `2px solid ${obtenerColorAccion(registro.accion, registro.datos_nuevos)}`
         }}>
           {obtenerIconoAccion(registro.accion)}
           {obtenerDescripcionAccion(registro)}

@@ -65,7 +65,7 @@ const TablaLogs: React.FC<Props> = ({
   }, [onFiltrarPorNivel]);
 
   // Función memoizada para obtener colores por nivel
-  const obtenerColorNivel = useCallback((nivelLog: string) => {
+  const obtenerColorNivel = useCallback((nivelLog: string = 'INFO') => {
     const colores = {
       'INFO': { bg: '#eff6ff', text: '#1e40af', border: '#dbeafe', icon: '#3b82f6' },
       'WARNING': { bg: '#fffbeb', text: '#92400e', border: '#fed7aa', icon: '#f59e0b' },
@@ -75,7 +75,7 @@ const TablaLogs: React.FC<Props> = ({
   }, []);
 
   // Función memoizada para obtener iconos por nivel
-  const obtenerIconoNivel = useCallback((nivelLog: string) => {
+  const obtenerIconoNivel = useCallback((nivelLog: string = 'INFO') => {
     const iconos = {
       'INFO': <FaInfoCircle />,
       'WARNING': <FaExclamationTriangle />,
@@ -255,8 +255,8 @@ const TablaLogs: React.FC<Props> = ({
                         <span style={estilos.fieldLabel}>Acción:</span>
                         <span style={{
                           ...estilos.accionBadge,
-                          backgroundColor: auditoriaService.obtenerColorAccion(log.accion) + '20',
-                          color: auditoriaService.obtenerColorAccion(log.accion)
+                          backgroundColor: auditoriaService.obtenerColorAccion(log.accion, log.datos_nuevos) + '20',
+                          color: auditoriaService.obtenerColorAccion(log.accion, log.datos_nuevos)
                         }}>
                           {auditoriaService.obtenerIconoAccion(log.accion)}
                           {log.accion.toUpperCase()}
@@ -270,10 +270,10 @@ const TablaLogs: React.FC<Props> = ({
                         </div>
                       )}
 
-                      {log.ip_address && (
+                      {log.direccion_ip && (
                         <div style={estilos.cardField}>
                           <span style={estilos.fieldLabel}>IP:</span>
-                          <span style={estilos.fieldValue}>{log.ip_address}</span>
+                          <span style={estilos.fieldValue}>{log.direccion_ip}</span>
                         </div>
                       )}
                     </div>
@@ -331,8 +331,8 @@ const TablaLogs: React.FC<Props> = ({
                       <div style={estilos.eventoContainer}>
                         <span style={{
                           ...estilos.accionBadge,
-                          backgroundColor: auditoriaService.obtenerColorAccion(log.accion) + '20',
-                          color: auditoriaService.obtenerColorAccion(log.accion)
+                          backgroundColor: auditoriaService.obtenerColorAccion(log.accion, log.datos_nuevos) + '20',
+                          color: auditoriaService.obtenerColorAccion(log.accion, log.datos_nuevos)
                         }}>
                           {auditoriaService.obtenerIconoAccion(log.accion)}
                           {log.accion.toUpperCase()}
@@ -359,9 +359,9 @@ const TablaLogs: React.FC<Props> = ({
                     </div>
 
                     <div style={{ ...estilos.td, flex: '0.8' }}>
-                      {log.ip_address && (
+                      {log.direccion_ip && (
                         <span style={estilos.ipText}>
-                          {log.ip_address}
+                          {log.direccion_ip}
                         </span>
                       )}
                     </div>
@@ -541,12 +541,12 @@ const TablaLogs: React.FC<Props> = ({
                   </div>
                 </div>
                 
-                {logSeleccionado.ip_address && (
+                {logSeleccionado.direccion_ip && (
                   <div style={{ marginTop: '16px' }}>
                     <div style={estilos.modal.campo}>
                       <span style={estilos.modal.label}>Dirección IP:</span>
                       <span style={estilos.modal.valorDestacado}>
-                        {logSeleccionado.ip_address}
+                        {logSeleccionado.direccion_ip}
                       </span>
                     </div>
                   </div>
@@ -561,8 +561,8 @@ const TablaLogs: React.FC<Props> = ({
                 </h4>
                 <div style={{
                   ...estilos.accionBadge,
-                  backgroundColor: auditoriaService.obtenerColorAccion(logSeleccionado.accion) + '20',
-                  color: auditoriaService.obtenerColorAccion(logSeleccionado.accion),
+                  backgroundColor: auditoriaService.obtenerColorAccion(logSeleccionado.accion, logSeleccionado.datos_nuevos) + '20',
+                  color: auditoriaService.obtenerColorAccion(logSeleccionado.accion, logSeleccionado.datos_nuevos),
                   fontSize: '16px',
                   padding: '12px 16px',
                   marginTop: '8px'

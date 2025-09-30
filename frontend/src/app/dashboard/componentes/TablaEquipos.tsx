@@ -531,7 +531,7 @@ export default function TablaEquipos({
                   textTransform: 'uppercase',
                   borderBottom: 'none'
                 }}>
-                  <FaDesktop style={{ marginRight: 6, fontSize: '11px' }} /> Nombre PC
+                  <FaDesktop style={{ marginRight: 6, fontSize: '11px' }} /> Nombre Equipo
                 </th>
                 <th style={{ 
                   textAlign: 'left', 

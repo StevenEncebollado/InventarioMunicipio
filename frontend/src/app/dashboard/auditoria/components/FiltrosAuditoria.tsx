@@ -168,9 +168,14 @@ const FiltrosAuditoria: React.FC<Props> = ({
             style={estiloInput}
           >
             <option value="">Todas las acciones</option>
-            <option value="agregado">➕ Agregado</option>
-            <option value="modificado">✏️ Modificado</option>
-            <option value="eliminado">🗑️ Eliminado</option>
+            <option value="agregado">➕ Equipo Agregado</option>
+            <option value="modificado">✏️ Equipo Modificado</option>
+            <option value="inactivado">🗑️ Equipo Inactivado</option>
+            <option value="cambio_estado">🔄 Cambio de Estado</option>
+            <option value="usuario_registrado">👤 Usuario Registrado</option>
+            <option value="login">🚪 Inicio de Sesión</option>
+            <option value="logout">🚪 Cierre de Sesión</option>
+            <option value="reporte_generado">📋 Reporte Generado</option>
           </select>
         </div>
 

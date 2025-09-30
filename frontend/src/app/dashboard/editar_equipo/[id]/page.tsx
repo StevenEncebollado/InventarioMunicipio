@@ -40,6 +40,18 @@ export default function EditarEquipoPage() {
     }
   }, []);
 
+  // Verificar usuario autenticado PRIMERO
+  useEffect(() => {
+    const userData = localStorage.getItem(APP_CONFIG.session.storageKey);
+    if (!userData) {
+      router.push('/');
+      return;
+    }
+    const parsedUser = JSON.parse(userData);
+    setUser(parsedUser);
+  }, [router]);
+
+  // Inicializar el hook DESPUÉS de cargar el usuario
   const editarEquipo = useEditarEquipo(equipoId, user?.id);
 
   // Función para determinar si un campo debe estar visible según los datos del equipo
@@ -82,17 +94,6 @@ export default function EditarEquipoPage() {
     return valor !== null && valor !== undefined && valor !== '';
   };
 
-  // Verificar usuario autenticado
-  useEffect(() => {
-    const userData = localStorage.getItem(APP_CONFIG.session.storageKey);
-    if (!userData) {
-      router.push('/');
-      return;
-    }
-    const parsedUser = JSON.parse(userData);
-    setUser(parsedUser);
-  }, [router]);
-
   const handleLogout = () => {
     localStorage.removeItem(APP_CONFIG.session.storageKey);
     router.push('/');
@@ -128,10 +129,15 @@ export default function EditarEquipoPage() {
     editarEquipo.setEditLoading(true);
     
     try {
+      const formData = editarEquipo.getFormData();
+      console.log('🔍 DEBUG FRONTEND: Datos que se envían al backend:', formData);
+      console.log('🔍 DEBUG FRONTEND: usuario_accion_id:', formData.usuario_accion_id);
+      console.log('🔍 DEBUG FRONTEND: user?.id:', user?.id);
+      
       const response = await fetch(`http://localhost:5000/inventario/${equipoId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editarEquipo.getFormData())
+        body: JSON.stringify(formData)
       });
       
       if (response.ok) {
@@ -183,7 +189,7 @@ export default function EditarEquipoPage() {
     }
   };
 
-  if (catalogosLoading || editarEquipo.loadingEquipo) {
+  if (catalogosLoading || editarEquipo.loadingEquipo || !user) {
     return (
       <div>
         <Navbar user={user} onLogout={handleLogout} />
