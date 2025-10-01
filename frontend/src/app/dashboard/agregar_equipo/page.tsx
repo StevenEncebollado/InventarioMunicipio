@@ -231,14 +231,6 @@ export default function AgregarEquipoPage() {
       
       const formData = agregarEquipo.getFormData(dispositivoIdSeleccionado);
       
-      // DEBUG: Log para identificar el problema
-      console.log('🔍 DEBUG - Datos a enviar:', {
-        dispositivoIdSeleccionado,
-        dispositivoSeleccionado,
-        tipoEquipo: agregarEquipo.tipoEquipo,
-        formData: formData
-      });
-      
       const response = await fetch('http://localhost:5000/inventario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

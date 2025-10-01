@@ -130,9 +130,6 @@ export default function EditarEquipoPage() {
     
     try {
       const formData = editarEquipo.getFormData();
-      console.log('🔍 DEBUG FRONTEND: Datos que se envían al backend:', formData);
-      console.log('🔍 DEBUG FRONTEND: usuario_accion_id:', formData.usuario_accion_id);
-      console.log('🔍 DEBUG FRONTEND: user?.id:', user?.id);
       
       const response = await fetch(`http://localhost:5000/inventario/${equipoId}`, {
         method: 'PUT',

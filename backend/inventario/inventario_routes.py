@@ -3,6 +3,7 @@ Rutas para la gestión del inventario municipal.
 Incluye endpoints CRUD y lógica relacionada.
 """
 import json
+import logging
 from flask import Blueprint, request, jsonify
 from ..db import get_db_connection
 from ..auditoria.auditoria_routes import registrar_accion_automatica
@@ -112,7 +113,6 @@ def create_inventario():
     import json
     try:
         data = request.json
-        print(f"Datos recibidos: {data}")  # Log para debugging
         
         # Validar que se recibieron datos
         if not data:
@@ -207,10 +207,6 @@ def create_inventario():
         usuario_propietario = data.get('usuario_id')  # Puede ser None si no es usuario del sistema
         funcionario_asignado = data.get('nombres_funcionario', 'N/A')
         
-        print(f"🔍 DEBUG CREATE: usuario_que_crea = {usuario_que_crea}")
-        print(f"🔍 DEBUG CREATE: usuario_propietario = {usuario_propietario}")
-        print(f"🔍 DEBUG CREATE: funcionario_asignado = {funcionario_asignado}")
-        
         # Preparar datos mejorados para auditoría
         datos_auditoria = dict(data)
         datos_auditoria.update({
@@ -221,18 +217,16 @@ def create_inventario():
         
         registrar_accion_automatica(
             inventario_id=new_id,
-            usuario_accion_id=usuario_que_crea,  # Usuario que EJECUTA la acción
+            usuario_accion_id=usuario_que_crea,
             accion='agregado',
             datos_nuevos=datos_auditoria,
-            usuario_propietario_id=usuario_propietario  # Usuario propietario (si es usuario del sistema)
+            usuario_propietario_id=usuario_propietario
         )
-        
-        print(f"🔍 DEBUG CREATE: Auditoria registrada para equipo {new_id}")
         
         return jsonify({'id': new_id, 'message': 'Equipo creado exitosamente'}), 201
         
     except Exception as e:
-        print(f"Error al crear inventario: {str(e)}")  # Log para debugging
+        logging.error(f"Error al crear inventario: {str(e)}")
         if 'conn' in locals():
             conn.rollback()
             
@@ -316,38 +310,40 @@ def update_inventario(item_id):
         # 🚨 ESPECIAL: Detectar INACTIVACIÓN (cambio a "Inactivo")
         es_inactivacion = estado_nuevo == 'Inactivo' and estado_anterior != 'Inactivo'
         
-        # Detectar otros cambios importantes
-        nombre_anterior = datos_anteriores.get('nombre_pc')
-        nombre_nuevo = data.get('nombre_pc')
-        cambio_nombre = nombre_anterior != nombre_nuevo
+        # 🔥 DETECTAR CUALQUIER CAMBIO EN LOS DATOS (excepto estado que se maneja por separado)
+        campos_a_comparar = [
+            'nombre_pc', 'nombres_funcionario', 'codigo_inventario', 'direccion_ip', 'direccion_mac',
+            'anydesk', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'equipamiento_id',
+            'tipo_equipo_id', 'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id',
+            'office_id', 'marca_id', 'tipo_conexion_id', 'contraseña'
+        ]
         
-        funcionario_anterior = datos_anteriores.get('nombres_funcionario')
-        funcionario_nuevo = data.get('nombres_funcionario')
-        cambio_funcionario = funcionario_anterior != funcionario_nuevo
+        # Detectar si hay cambios en cualquier campo (excepto estado)
+        otros_cambios = False
+        campos_cambiados = []
         
-        # DEBUG: Log específico para cambios
-        print(f"🔍 DEBUG CAMBIOS:")
-        print(f"   Estado: '{estado_anterior}' → '{estado_nuevo}' (cambio: {cambio_estado})")
-        print(f"   🚨 INACTIVACIÓN: {es_inactivacion}")
-        print(f"   Nombre: '{nombre_anterior}' → '{nombre_nuevo}' (cambio: {cambio_nombre})")
-        print(f"   Funcionario: '{funcionario_anterior}' → '{funcionario_nuevo}' (cambio: {cambio_funcionario})")
-        
-        # Detectar si hay cambios en otros campos importantes
-        otros_cambios = cambio_nombre or cambio_funcionario
-        
-        # También verificar otros campos
-        direccion_anterior = datos_anteriores.get('direccion_area_id')
-        direccion_nueva = data.get('direccion_area_id')
-        cambio_direccion = direccion_anterior != direccion_nueva
-        
-        ip_anterior = datos_anteriores.get('direccion_ip')
-        ip_nueva = data.get('direccion_ip')
-        cambio_ip = ip_anterior != ip_nueva
-        
-        if cambio_direccion or cambio_ip:
-            otros_cambios = True
+        for campo in campos_a_comparar:
+            valor_anterior = datos_anteriores.get(campo)
+            valor_nuevo = data.get(campo)
             
-        print(f"🔍 DEBUG RESUMEN: cambio_estado={cambio_estado}, es_inactivacion={es_inactivacion}, otros_cambios={otros_cambios}")
+            # Normalizar valores None y string vacío
+            if valor_anterior == '' or valor_anterior is None:
+                valor_anterior = None
+            if valor_nuevo == '' or valor_nuevo is None:
+                valor_nuevo = None
+                
+            if valor_anterior != valor_nuevo:
+                otros_cambios = True
+                campos_cambiados.append(campo)
+        
+        # También verificar cambios en programas adicionales
+        cur.execute('SELECT programa_id FROM inventario_programa WHERE inventario_id = %s ORDER BY programa_id', (item_id,))
+        programas_anteriores = sorted([r[0] for r in cur.fetchall()])
+        programas_nuevos = sorted([p for p in programas if p])  # Filtrar valores vacíos
+        
+        if programas_anteriores != programas_nuevos:
+            otros_cambios = True
+            campos_cambiados.append('programa_adicional')
         
         # Validar unicidad de campos únicos (excluyendo el registro actual)
         codigo_inventario = data.get('codigo_inventario')
@@ -394,18 +390,14 @@ def update_inventario(item_id):
         # Hacer commit ANTES de registrar auditoría
         conn.commit()
         
-        # Registrar en auditoría según el tipo de cambio
+        # Preparar usuario para auditoría
         usuario_auditoria = data.get('usuario_accion_id') or data.get('usuario_id')
         
-        # DEBUG: Log para verificar usuario de auditoría
-        print(f"🔍 DEBUG AUDITORIA:")
-        print(f"   usuario_accion_id: {data.get('usuario_accion_id')}")
-        print(f"   usuario_id: {data.get('usuario_id')}")
-        print(f"   usuario_auditoria final: {usuario_auditoria}")
+        # 🎯 REGISTRAR EN AUDITORÍA CON LÓGICA MEJORADA
+        # Puede haber múltiples tipos de cambios simultáneos
         
-        # 🚨 PRIORIDAD 1: Detectar INACTIVACIÓN (registrar como "eliminado")
+        # 🚨 PRIORIDAD 1: Detectar INACTIVACIÓN (cambio a "Inactivo")
         if es_inactivacion:
-            print(f"🔍 REGISTRANDO: eliminado (inactivación)")
             registrar_accion_automatica(
                 inventario_id=item_id,
                 usuario_accion_id=usuario_auditoria,
@@ -414,14 +406,13 @@ def update_inventario(item_id):
                 datos_nuevos={
                     'estado': estado_nuevo,
                     'equipo': datos_anteriores.get('nombre_pc', 'N/A'),
-                    'detalle': f'Equipo inactivado (de "{estado_anterior}" a "Inactivo")'
+                    'detalle': f'{estado_anterior} → Inactivo'
                 },
                 usuario_propietario_id=datos_anteriores.get('usuario_id')
             )
         
-        # PRIORIDAD 2: Cambio de estado normal (NO inactivación)
+        # 🔄 PRIORIDAD 2: Cambio de estado normal (NO inactivación)
         elif cambio_estado and not es_inactivacion:
-            print(f"🔍 REGISTRANDO: cambio_estado")
             registrar_accion_automatica(
                 inventario_id=item_id,
                 usuario_accion_id=usuario_auditoria,
@@ -430,26 +421,53 @@ def update_inventario(item_id):
                 datos_nuevos={
                     'estado': estado_nuevo,
                     'equipo': datos_anteriores.get('nombre_pc', 'N/A'),
-                    'detalle': f'{estado_anterior} -> {estado_nuevo}'  # 🎯 FORMATO ESPECÍFICO (compatible Windows)
+                    'detalle': f'{estado_anterior} → {estado_nuevo}'
                 },
                 usuario_propietario_id=datos_anteriores.get('usuario_id')
             )
         
-        # PRIORIDAD 3: Modificaciones de otros campos (independiente del estado)
+        # ✏️ PRIORIDAD 3: Modificaciones de otros campos 
+        # Se registra INDEPENDIENTEMENTE de si hubo cambio de estado
+        # (pueden ocurrir ambos al mismo tiempo)
         if otros_cambios:
-            print(f"🔍 REGISTRANDO: modificado")
-            registrar_accion_automatica(
-                inventario_id=item_id,
-                usuario_accion_id=usuario_auditoria,
-                accion='modificado',
-                datos_anteriores=datos_anteriores,
-                datos_nuevos=data,
-                usuario_propietario_id=datos_anteriores.get('usuario_id')
-            )
-        
-        # Si no hay cambios importantes, no registrar nada especial
-        if not cambio_estado and not otros_cambios:
-            print(f"🔍 SIN CAMBIOS IMPORTANTES DETECTADOS")
+            
+            try:
+                # Crear descripción detallada de cambios
+                descripcion_cambios = []
+                
+                # Mostrar cambios más importantes primero
+                if 'nombre_pc' in campos_cambiados:
+                    descripcion_cambios.append(f"Nombre: '{datos_anteriores.get('nombre_pc')}' → '{data.get('nombre_pc')}'")
+                if 'nombres_funcionario' in campos_cambiados:
+                    descripcion_cambios.append(f"Funcionario: '{datos_anteriores.get('nombres_funcionario')}' → '{data.get('nombres_funcionario')}'")
+                if 'codigo_inventario' in campos_cambiados:
+                    descripcion_cambios.append(f"Código: '{datos_anteriores.get('codigo_inventario')}' → '{data.get('codigo_inventario')}'")
+                
+                # Si hay más cambios, mencionarlos
+                otros_campos = [c for c in campos_cambiados if c not in ['nombre_pc', 'nombres_funcionario', 'codigo_inventario']]
+                if otros_campos:
+                    descripcion_cambios.append(f"Otros campos: {', '.join(otros_campos)}")
+                
+                datos_auditoria_modificacion = dict(data)
+                datos_auditoria_modificacion.update({
+                    'equipo': data.get('nombre_pc', datos_anteriores.get('nombre_pc', 'N/A')),
+                    'detalle': f"Equipo modificado: {'; '.join(descripcion_cambios)}" if descripcion_cambios else "Equipo modificado",
+                    'campos_cambiados': campos_cambiados
+                })
+                
+                resultado_modificacion = registrar_accion_automatica(
+                    inventario_id=item_id,
+                    usuario_accion_id=usuario_auditoria,
+                    accion='modificado',
+                    datos_anteriores=datos_anteriores,
+                    datos_nuevos=datos_auditoria_modificacion,
+                    usuario_propietario_id=datos_anteriores.get('usuario_id')
+                )
+                
+            except Exception as e:
+                logging.error(f"Error en auditoría de modificación: {str(e)}")
+                # No fallar la actualización por errores de auditoría
+                pass
         
         return jsonify({'msg': 'Actualizado correctamente'})
     except Exception as e:

@@ -103,17 +103,9 @@ def obtener_historial():
         base_query += " ORDER BY h.fecha DESC LIMIT %s OFFSET %s"
         params.extend([limit, (page - 1) * limit])
         
-        # Debug: Log de la consulta final
-        print(f"DEBUG CONSULTA FINAL: {base_query}")
-        print(f"DEBUG PARAMS FINAL: {params}")
-        
         cur.execute(base_query, params)
         columns = [desc[0] for desc in cur.description]
         registros = [dict(zip(columns, row)) for row in cur.fetchall()]
-        
-        # Debug: Log de algunos registros
-        for i, registro in enumerate(registros[:3]):  # Solo los primeros 3
-            print(f"DEBUG REGISTRO {i}: usuario_id={registro.get('usuario_id')}, usuario_nombre={registro.get('usuario_nombre')}, accion={registro.get('accion')}")
         
         # Formatear datos para el frontend
         for registro in registros:
@@ -671,31 +663,45 @@ def registrar_accion():
         return jsonify({'error': 'Error interno del servidor'}), 500
 
 
+def sanitizar_datos_para_json(datos):
+    """Convierte objetos datetime y otros tipos no serializables a string para JSON"""
+    if not datos:
+        return datos
+    
+    if isinstance(datos, dict):
+        datos_limpios = {}
+        for key, value in datos.items():
+            if isinstance(value, datetime):
+                datos_limpios[key] = value.isoformat()
+            elif hasattr(value, '__dict__'):
+                datos_limpios[key] = str(value)
+            else:
+                datos_limpios[key] = value
+        return datos_limpios
+    
+    return datos
+
+
 def registrar_accion_automatica(inventario_id, usuario_accion_id, accion, datos_anteriores=None, datos_nuevos=None, usuario_propietario_id=None):
     """
-    Función helper para registrar acciones automáticamente desde otros módulos.
+    Registra acciones automáticamente en el historial de auditoría.
     
     Args:
-        inventario_id: ID del equipo afectado (puede ser None para acciones de usuario)
-        usuario_accion_id: ID del usuario que REALIZA la acción (IMPORTANTE: este es quien aparecerá en auditoría)
-        accion: Tipo de acción ('agregado', 'modificado', 'eliminado', 'usuario_registrado', 'login', etc.)
+        inventario_id: ID del equipo afectado
+        usuario_accion_id: ID del usuario que realiza la acción
+        accion: Tipo de acción ('agregado', 'modificado', 'eliminado', etc.)
         datos_anteriores: Datos antes del cambio
         datos_nuevos: Datos después del cambio
-        usuario_propietario_id: ID del usuario propietario del equipo (para referencia)
+        usuario_propietario_id: ID del usuario propietario del equipo
     """
     try:
-        # Debug: Log para verificar los datos de auditoría
-        print(f"🔍 DEBUG AUDITORIA: inventario_id={inventario_id}, usuario_accion_id={usuario_accion_id}, accion={accion}")
-        print(f"🔍 DEBUG AUDITORIA: usuario_propietario_id={usuario_propietario_id}")
-        
         conn = get_db_connection()
         cur = conn.cursor()
         
-        # Mejorar datos_nuevos con información adicional si es necesario
         if datos_nuevos is None:
             datos_nuevos = {}
         
-        # Generar descripciones específicas según el tipo de acción
+        # Generar descripción específica según el tipo de acción
         descripcion_accion = generar_descripcion_accion(accion, datos_anteriores, datos_nuevos)
         
         # Agregar metadatos útiles
@@ -704,32 +710,30 @@ def registrar_accion_automatica(inventario_id, usuario_accion_id, accion, datos_
             datos_nuevos['descripcion_accion'] = descripcion_accion
             if usuario_propietario_id and usuario_propietario_id != usuario_accion_id:
                 datos_nuevos['usuario_propietario_id'] = usuario_propietario_id
-                datos_nuevos['nota'] = f'Acción realizada por usuario {usuario_accion_id} sobre equipo de usuario {usuario_propietario_id}'
         
-        # IMPORTANTE: usar usuario_accion_id en la tabla para que aparezca correctamente en auditoría
+        # Limpiar datos antes de serializar a JSON
+        datos_anteriores_limpios = sanitizar_datos_para_json(datos_anteriores)
+        datos_nuevos_limpios = sanitizar_datos_para_json(datos_nuevos)
+        
         cur.execute("""
             INSERT INTO historial_inventario 
             (inventario_id, usuario_id, accion, datos_anteriores, datos_nuevos)
             VALUES (%s, %s, %s, %s, %s)
         """, (
             inventario_id,
-            usuario_accion_id,  # 🔥 CAMBIO CRÍTICO: usuario que realiza la acción
+            usuario_accion_id,
             accion,
-            json.dumps(datos_anteriores) if datos_anteriores else None,
-            json.dumps(datos_nuevos) if datos_nuevos else None
+            json.dumps(datos_anteriores_limpios) if datos_anteriores_limpios else None,
+            json.dumps(datos_nuevos_limpios) if datos_nuevos_limpios else None
         ))
         
         conn.commit()
         cur.close()
         conn.close()
-        
-        print(f"✅ AUDITORIA REGISTRADA: Usuario {usuario_accion_id} realizó '{accion}' en equipo {inventario_id}")
-        print(f"📝 DESCRIPCIÓN: {descripcion_accion}")
         return True
         
     except Exception as e:
-        logging.error(f"Error en auto-logging: {str(e)}")
-        print(f"❌ DEBUG ERROR: {str(e)}")
+        logging.error(f"Error en auditoría: {str(e)}")
         return False
 
 
@@ -738,20 +742,9 @@ def generar_descripcion_accion(accion, datos_anteriores=None, datos_nuevos=None)
     Genera descripciones específicas para cada tipo de acción.
     """
     try:
-        # Debug: Agregar logs para verificar los datos recibidos
-        print(f"🔍 DEBUG generar_descripcion_accion: accion={accion}")
-        print(f"🔍 DEBUG datos_anteriores: {datos_anteriores}")
-        print(f"🔍 DEBUG datos_nuevos: {datos_nuevos}")
-        
         if accion == 'cambio_estado':
             estado_anterior = datos_anteriores.get('estado', 'N/A') if datos_anteriores else 'N/A'
             estado_nuevo = datos_nuevos.get('estado', 'N/A') if datos_nuevos else 'N/A'
-            equipo = datos_nuevos.get('equipo', 'N/A') if datos_nuevos else 'N/A'
-            
-            # Debug específico para cambio de estado
-            print(f"🔍 DEBUG cambio_estado: estado_anterior={estado_anterior}, estado_nuevo={estado_nuevo}, equipo={equipo}")
-            
-            # 🎯 USAR FORMATO ESPECÍFICO "Estado1 -> Estado2" (compatible con Windows)
             return f"{estado_anterior} -> {estado_nuevo}"
         
         elif accion == 'usuario_registrado':
@@ -778,12 +771,10 @@ def generar_descripcion_accion(accion, datos_anteriores=None, datos_nuevos=None)
         
         elif accion == 'modificado':
             nombre_pc = datos_nuevos.get('nombre_pc', 'N/A') if datos_nuevos else 'N/A'
-            # Detectar qué campos cambiaron
             campos_cambiados = []
             detalles_cambios = []
             
             if datos_anteriores and datos_nuevos:
-                # Cambio de funcionario asignado
                 funcionario_anterior = datos_anteriores.get('nombres_funcionario', '')
                 funcionario_nuevo = datos_nuevos.get('nombres_funcionario', '')
                 if funcionario_anterior != funcionario_nuevo:
@@ -794,12 +785,10 @@ def generar_descripcion_accion(accion, datos_anteriores=None, datos_nuevos=None)
                     elif funcionario_anterior:
                         detalles_cambios.append(f"Desasignado de {funcionario_anterior}")
                 
-                # Otros campos importantes
                 for campo in ['nombre_pc', 'estado', 'direccion_ip', 'codigo_inventario']:
                     if datos_anteriores.get(campo) != datos_nuevos.get(campo):
                         campos_cambiados.append(campo.replace('_', ' ').title())
             
-            # Construir descripción
             descripcion = f"Equipo '{nombre_pc}' modificado"
             if detalles_cambios:
                 descripcion += f": {', '.join(detalles_cambios)}"
@@ -812,11 +801,9 @@ def generar_descripcion_accion(accion, datos_anteriores=None, datos_nuevos=None)
             nombre_pc = datos_anteriores.get('nombre_pc', 'N/A') if datos_anteriores else 'N/A'
             estado_anterior = datos_anteriores.get('estado', 'N/A') if datos_anteriores else 'N/A'
             
-            # 🎯 DETECTAR SI ES INACTIVACIÓN
             if datos_nuevos and datos_nuevos.get('estado') == 'Inactivo':
                 return f"{estado_anterior} -> Inactivo"
             else:
-                # Eliminación real del inventario
                 codigo = datos_anteriores.get('codigo_inventario', 'N/A') if datos_anteriores else 'N/A'
                 return f"Equipo '{nombre_pc}' (Código: {codigo}) eliminado del inventario"
             
@@ -831,7 +818,6 @@ def generar_descripcion_accion(accion, datos_anteriores=None, datos_nuevos=None)
             return f"Reporte '{tipo_reporte}' generado con {cantidad} registros"
         
         else:
-            # Descripción genérica para acciones no contempladas
             return f"Acción '{accion}' realizada"
             
     except Exception as e:
