@@ -311,9 +311,9 @@ export default function TablaEquipos({
                         fontSize: '12px',
                         fontWeight: 700
                       }}>
-                        {(equipo.nombres_funcionario || 'SA').charAt(0).toUpperCase()}
+                        {(equipo.nombre_funcionario || 'SA').charAt(0).toUpperCase()}
                       </div>
-                      <span>{equipo.nombres_funcionario || 'Sin asignar'}</span>
+                      <span>{equipo.nombre_funcionario || 'Sin asignar'}</span>
                     </div>
                   </td>
                   <td style={{ 
@@ -331,7 +331,7 @@ export default function TablaEquipos({
                       border: '1px solid #e5e7eb',
                       display: 'inline-block'
                     }}>
-                      {equipo.codigo_inventario || 'Sin código'}
+                      {equipo.cpu_doc_inventario || 'Sin código'}
                     </div>
                   </td>
                   <td style={{ padding: '16px 20px' }}>
@@ -428,7 +428,7 @@ export default function TablaEquipos({
                         color: '#c2410c'
                       }}>
                         <FaCogs style={{ fontSize: '12px' }} />
-                        {equipo.anydesk || 'N/A'}
+                        {equipo.direccion_anydesk || 'N/A'}
                       </div>
                     </td>
                   )}

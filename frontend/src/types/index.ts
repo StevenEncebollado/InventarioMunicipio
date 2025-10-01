@@ -41,29 +41,35 @@ export interface SistemaOperativo {
 
 export interface Equipo {
   id: number;
-  anydesk?: string;
-  caracteristicas_id?: number;
-  codigo_inventario?: string;
   dependencia_id?: number;
-  direccion_area_id?: number;
   direccion_ip?: string;
   direccion_mac?: string;
-  disco_id?: number | null;
-  dispositivo_id?: number | null;
-  equipamiento_id?: number;
-  fecha_registro?: string;
-  marca_id?: number;
   nombre_pc?: string;
-  nombres_funcionario?: string;
-  office_id?: number;
-  ram_id?: number;
-  tipo_conexion_id?: number;
+  nombre_funcionario?: string;
+  direccion_area_id?: number;
+  institucional_personal?: string;
   tipo_equipo_id?: number;
   tipo_sistema_operativo_id?: number;
-  usuario_id?: number;
-  estado: 'Activo' | 'Mantenimiento' | 'Inactivo';
+  caracteristicas_id?: number;
+  ram_id?: number;
+  disco_id?: number;
+  office_id?: number;
+  cpu_marca?: string;
+  cpu_doc_inventario?: string;
+  tipo_conexion_id?: number;
+  monitor_marca?: string;
+  monitor_cod_inventario?: string;
+  teclado_marca?: string;
+  teclado_inventario?: string;
+  mouse_marca?: string;
+  mouse_cod_inventario?: string;
+  direccion_anydesk?: string;
+  contrasena?: string;
+  programas?: string;
+  indicadores?: string;
+  fecha_registro?: string;
+  estado?: string;
   programa_adicional_ids?: number[];
-  fecha_eliminacion?: string;
 }
 
 export interface HistorialEquipo {

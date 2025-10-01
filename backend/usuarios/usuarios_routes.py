@@ -64,13 +64,7 @@ def login_usuario():
     if not row or not bcrypt.checkpw(password.encode('utf-8'), row[1].encode('utf-8')):
         return jsonify({'error': 'Tu usuario o contraseña son incorrectos'}), 401
     user_id, db_password, fecha_cambio = row
-    # Verificar si han pasado más de 3 meses desde el último cambio
-    from datetime import datetime, timedelta
     fecha_cambio_str = str(fecha_cambio) if fecha_cambio else None
-    if fecha_cambio:
-        fecha_cambio_dt = fecha_cambio if isinstance(fecha_cambio, datetime) else datetime.strptime(str(fecha_cambio), '%Y-%m-%d %H:%M:%S')
-        if datetime.now() - fecha_cambio_dt > timedelta(days=90):
-            return jsonify({'msg': 'Debes cambiar tu contraseña. Han pasado más de 3 meses desde el último cambio.', 'id': user_id, 'username': username, 'require_password_change': True, 'fecha_cambio_password': fecha_cambio_str}), 200
     return jsonify({'msg': 'Login exitoso', 'id': user_id, 'username': username, 'fecha_cambio_password': fecha_cambio_str}), 200
 
 # Endpoint: Obtener todos los usuarios

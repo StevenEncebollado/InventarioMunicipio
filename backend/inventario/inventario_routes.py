@@ -22,9 +22,12 @@ def get_inventario():
     cur = conn.cursor()
     # Lista de campos filtrables (solo los campos *_id de la tabla inventario)
     filtrables = [
-        'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id',
-        'equipamiento_id', 'tipo_equipo_id', 'tipo_sistema_operativo_id',
-        'caracteristicas_id', 'ram_id', 'disco_id', 'office_id', 'marca_id', 'tipo_conexion_id'
+        'dependencia_id', 'direccion_ip', 'direccion_mac', 'nombre_pc', 'nombre_funcionario',
+        'direccion_area', 'institucional_personal', 'tipo_equipo', 'tipo_sistema_operativo',
+        'caracteristicas', 'ram', 'disco', 'office', 'cpu_marca', 'cpu_doc_inventario',
+        'tipo_conexion', 'monitor_marca', 'monitor_cod_inventario', 'teclado_marca',
+        'teclado_inventario', 'mouse_marca', 'mouse_cod_inventario', 'direccion_anydesk',
+        'contrasena', 'programas', 'indicadores'
     ]
     filtros = []
     valores = []
@@ -111,10 +114,12 @@ def create_inventario():
             return jsonify({'error': 'No se recibieron datos'}), 400
             
         campos = [
-            'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
-            'direccion_mac', 'nombre_pc', 'nombres_funcionario', 'equipamiento_id', 'tipo_equipo_id',
-            'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id', 'office_id',
-            'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado', 'contraseña'
+            'dependencia_id', 'direccion_ip', 'direccion_mac', 'nombre_pc', 'nombre_funcionario',
+            'direccion_area', 'institucional_personal', 'tipo_equipo', 'tipo_sistema_operativo',
+            'caracteristicas', 'ram', 'disco', 'office', 'cpu_marca', 'cpu_doc_inventario',
+            'tipo_conexion', 'monitor_marca', 'monitor_cod_inventario', 'teclado_marca',
+            'teclado_inventario', 'mouse_marca', 'mouse_cod_inventario', 'direccion_anydesk',
+            'contrasena', 'programas', 'indicadores'
         ]
         
         # Validar usuario_id
@@ -249,10 +254,12 @@ def update_inventario(item_id):
         return jsonify({'error': f'Los siguientes campos son obligatorios: {", ".join(campos_faltantes)}'}), 400
     
     campos = [
-        'usuario_id', 'dependencia_id', 'direccion_area_id', 'dispositivo_id', 'direccion_ip',
-        'direccion_mac', 'nombre_pc', 'nombres_funcionario', 'equipamiento_id', 'tipo_equipo_id',
-        'tipo_sistema_operativo_id', 'caracteristicas_id', 'ram_id', 'disco_id', 'office_id',
-        'marca_id', 'codigo_inventario', 'tipo_conexion_id', 'anydesk', 'estado', 'contraseña', 'fecha_eliminacion'
+        'dependencia_id', 'direccion_ip', 'direccion_mac', 'nombre_pc', 'nombre_funcionario',
+        'direccion_area', 'institucional_personal', 'tipo_equipo', 'tipo_sistema_operativo',
+        'caracteristicas', 'ram', 'disco', 'office', 'cpu_marca', 'cpu_doc_inventario',
+        'tipo_conexion', 'monitor_marca', 'monitor_cod_inventario', 'teclado_marca',
+        'teclado_inventario', 'mouse_marca', 'mouse_cod_inventario', 'direccion_anydesk',
+        'contrasena', 'programas', 'indicadores'
     ]
     
     # Convertir string vacío a None para todos los campos
