@@ -36,18 +36,55 @@ def agregar_dependencia():
 @dependencias_bp.route('/dependencias/<int:dependencia_id>', methods=['DELETE'])
 def eliminar_dependencia(dependencia_id):
     """Elimina una dependencia por su ID."""
+    conn = None
+    cur = None
     try:
         conn = get_db_connection()
         cur = conn.cursor()
+        
+        # Verificar si la dependencia existe y obtener información
+        cur.execute('SELECT nombre FROM dependencia WHERE id = %s', (dependencia_id,))
+        dependencia = cur.fetchone()
+        
+        if not dependencia:
+            return jsonify({'error': 'Dependencia no encontrada'}), 404
+        
+        nombre_dependencia = dependencia[0]
+        
+        # Verificar si tiene equipos asociados
+        cur.execute('SELECT COUNT(*) FROM inventario WHERE dependencia_id = %s', (dependencia_id,))
+        equipos_asociados = cur.fetchone()[0]
+        
+        if equipos_asociados > 0:
+            return jsonify({
+                'error': f'No se puede eliminar la dependencia "{nombre_dependencia}" porque tiene {equipos_asociados} equipo(s) asociado(s).'
+            }), 400
+        
+        # Eliminar la dependencia
         cur.execute('DELETE FROM dependencia WHERE id = %s', (dependencia_id,))
+        
+        if cur.rowcount == 0:
+            return jsonify({'error': 'Error: la dependencia no pudo ser eliminada'}), 500
+            
         conn.commit()
-        cur.close()
-        conn.close()
-        return '', 204
+        return jsonify({'message': f'Dependencia "{nombre_dependencia}" eliminada correctamente'}), 200
+        
     except Exception as e:
-        if 'foreign key constraint' in str(e).lower() or 'violates foreign key' in str(e).lower():
-            return jsonify({'error': 'No se puede eliminar la dependencia porque tiene direcciones o equipos asociados.'}), 400
-        return jsonify({'error': 'Error al eliminar la dependencia.'}), 500
+        print(f"Error al eliminar dependencia {dependencia_id}: {str(e)}")
+        if conn:
+            conn.rollback()
+        
+        error_msg = str(e).lower()
+        if 'foreign key constraint' in error_msg or 'violates foreign key' in error_msg:
+            return jsonify({'error': 'No se puede eliminar la dependencia porque tiene elementos asociados.'}), 400
+        else:
+            return jsonify({'error': f'Error interno: {str(e)}'}), 500
+            
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 @dependencias_bp.route('/dependencias/<int:dependencia_id>', methods=['PUT'])
