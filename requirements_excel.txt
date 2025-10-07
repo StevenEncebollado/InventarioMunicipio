@@ -1,0 +1,4 @@
+# Dependencias adicionales para importar Excel
+pandas
+openpyxl
+xlrd

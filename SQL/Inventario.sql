@@ -93,6 +93,7 @@ CREATE TABLE inventario (
     codigo_inventario VARCHAR(50) NOT NULL UNIQUE,
     tipo_conexion_id INTEGER REFERENCES tipo_conexion(id),
         anydesk VARCHAR(50) UNIQUE,
+    estado VARCHAR(20) DEFAULT 'ACTIVO' CHECK (estado IN ('ACTIVO', 'INACTIVO', 'MANTENIMIENTO')),
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
