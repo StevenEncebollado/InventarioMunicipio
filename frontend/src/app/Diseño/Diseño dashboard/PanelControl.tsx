@@ -191,20 +191,6 @@ export default function PanelControl({ total, active, maintenance, inactive, onI
                 </>
               )}
             </div>
-            
-            <div style={{ 
-              fontSize: 14, 
-              fontWeight: 600, 
-              marginTop: 6, 
-              opacity: isHovered ? 0.9 : 0.7,
-              transform: isHovered ? 'translateY(-1px)' : 'translateY(0)',
-              transition: 'all 0.3s ease',
-              animation: 'float3 4s ease-in-out infinite',
-              position: 'relative',
-              zIndex: 2,
-            }}>
-              equipos
-            </div>
 
             {/* Efecto de brillo de Steven */}
             {isHovered && (

@@ -454,49 +454,6 @@ const ComponenteReportes: React.FC<ComponenteReportesProps> = ({ user, usuarios 
               Exportar CSV
             </button>
 
-            <button
-              onClick={() => alert('Función PDF en desarrollo')}
-              style={{
-                padding: '0.75rem 1.5rem',
-                background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '600',
-                fontSize: '0.875rem',
-                boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2)',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <FaFilePdf />
-              Exportar PDF
-            </button>
-
-            <button
-              onClick={() => alert('Función Excel en desarrollo')}
-              style={{
-                padding: '0.75rem 1.5rem',
-                background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: '600',
-                fontSize: '0.875rem',
-                boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <FaFileExcel />
-              Exportar Excel
-            </button>
           </>
         )}
       </div>
