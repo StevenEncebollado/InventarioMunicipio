@@ -2,6 +2,9 @@
  * Utilidades comunes para formateo y validación
  */
 
+// Exportar funciones de fecha actualizadas
+export * from './dateUtils';
+
 // === FORMATEO ===
 
 /**

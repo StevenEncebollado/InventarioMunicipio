@@ -16,6 +16,7 @@ import {
   FaFilePdf,
   FaFileExcel
 } from 'react-icons/fa';
+import { formatearFechaReporte, formatearFechaTabla } from '@/utils/dateUtils';
 import { Usuario } from '@/types';
 
 interface ComponenteReportesProps {
@@ -476,13 +477,7 @@ const ComponenteReportes: React.FC<ComponenteReportesProps> = ({ user, usuarios 
               Resultados: {reporteData.total || reporteData.total_equipos_modificados || reporteData.total_equipos || 'N/A'} registros
             </h3>
             <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#64748b' }}>
-              Generado: {new Date(reporteData.timestamp || Date.now()).toLocaleString('es-ES', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+              Generado: {formatearFechaReporte(reporteData.timestamp || new Date().toISOString())}
             </p>
           </div>
           
@@ -617,8 +612,7 @@ const RenderizarReporte: React.FC<{ data: any; tipo: string }> = ({ data, tipo }
                     </span>
                   </td>
                   <td style={estiloCelda}>
-                    {equipo.ultima_modificacion ? 
-                      new Date(equipo.ultima_modificacion).toLocaleDateString('es-ES') : 'N/A'}
+                    {formatearFechaTabla(equipo.ultima_modificacion)}
                   </td>
                   <td style={estiloCelda}>{equipo.ultimo_usuario || 'N/A'}</td>
                 </tr>

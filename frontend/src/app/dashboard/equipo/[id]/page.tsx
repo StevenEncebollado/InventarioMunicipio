@@ -26,35 +26,12 @@ import {
 import type { Equipo } from '@/types';
 import { useEquipoExtendido } from '../../hooks/useEquipoExtendido';
 import { getEquipo } from '@/services/api';
+import { formatearFechaConHora, formatearFechaSoloFecha } from '@/utils/dateUtils';
 
-// Funciones memoizadas para formateo
-const formatearFechaConHora = (fechaString?: string): string => {
-  if (!fechaString) return 'No disponible';
-  
-  try {
-    const fecha = new Date(fechaString);
-    return fecha.toLocaleString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-      timeZone: 'America/Guayaquil' // Zona horaria de Ecuador (UTC-5)
-    });
-  } catch (error) {
-    return 'Fecha inválida';
-  }
-};
-
-const formatDate = (dateString: string | null | undefined) => {
-  if (!dateString) return 'No especificada';
-  return new Date(dateString).toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+// Función memoizada para formateo de fecha simple
+const formatearFecha = (dateString?: string): string => {
+  if (!dateString) return 'No disponible';
+  return formatearFechaSoloFecha(dateString);
 };
 
 export default function DetalleEquipoPage() {

@@ -9,6 +9,7 @@ import type { Equipo, Usuario } from '@/types';
 import { useEffect, useState } from 'react';
 import { getEquipos, updateEquipo, APP_CONFIG } from '@/services/api';
 import { filtrarEquipos } from '@/utils/filtrarEquipos';
+import { formatearFechaConHora } from '@/utils/dateUtils';
 import { FaPlus, FaEdit, FaTrash, FaTimes, FaEye, FaUser, FaBarcode, FaCircle, FaDesktop, FaNetworkWired, FaLaptopCode, FaCogs } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 
@@ -945,8 +946,8 @@ export default function EquiposLista() {
                     margin: 0
                   }}>
                     {equipoDetalle?.fecha_eliminacion
-                      ? new Date(equipoDetalle.fecha_eliminacion).toLocaleString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'America/Guayaquil' })
-                      : new Date(equipoDetalle?.fecha_registro ?? '').toLocaleString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'America/Guayaquil' })}
+                      ? formatearFechaConHora(equipoDetalle.fecha_eliminacion)
+                      : formatearFechaConHora(equipoDetalle?.fecha_registro ?? '')}
                   </p>
                 </div>
                 <div style={{
