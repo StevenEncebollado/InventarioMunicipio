@@ -17,9 +17,7 @@ export const formatearFechaConHora = (fechaString?: string): string => {
     if (isNaN(fecha.getTime())) {
       return 'Fecha inválida';
     }
-    
-    // El truco: usar la fecha UTC y formatearla directamente como si fuera local
-    // Esto evita la conversión automática de zona horaria
+
     const año = fecha.getUTCFullYear();
     const mes = fecha.getUTCMonth();
     const día = fecha.getUTCDate();

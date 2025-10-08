@@ -3,56 +3,75 @@
 
 Sistema integral para la gestión de inventario de equipos tecnológicos del Municipio de Manta. Incluye autenticación avanzada, reportes, interfaz moderna y arquitectura escalable.
 
----
+## 📦 Instalación y Configuración desde ZIP
 
-## 📖 Tutorial de Instalación y Uso
+Sigue estos pasos para instalar y ejecutar el sistema desde un archivo ZIP:
 
-### 1. Clonar el Repositorio
-```sh
-git clone <repository-url>
-cd "Pasantías en munipio de Manta"
-```
+### 1. Extraer el Proyecto
+Descomprime el archivo ZIP en la ubicación de tu preferencia.
 
 ### 2. Configurar la Base de Datos
-- Crear una base de datos PostgreSQL llamada `Inventario`.
-- Ejecutar el script `SQL/Inventario.sql` para crear las tablas y datos iniciales.
-- Configurar las credenciales en `backend/.env`.
+1. Instala PostgreSQL si no lo tienes.
+2. Abre tu gestor de base de datos (ejemplo: pgAdmin, DBeaver, etc.).
+3. Crea una base de datos llamada `Inventario`.
+4. Ejecuta el backup brindado en el zip para crear las tablas y datos iniciales.
+5. **Importante:** Cuando agregues la base de datos a tu gestor, debes poner tu contraseña en el archivo `backend/config.py` exactamente aquí:
 
-### 3. Backend (Flask)
-Ubicación: `backend`
-```sh
-cd backend
-.\venv\Scripts\activatevenv\Scripts\activate   # En Windows
-pip install flask psycopg2-binary python-dotenv bcrypt
+```python
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:TU_CONTRASEÑA@localhost:5432/Inventario')
 ```
 
-#### Ejecutar Backend
+Reemplaza `TU_CONTRASEÑA` por la contraseña de tu usuario de PostgreSQL.
+
+### 3. Instalar Dependencias del Backend (Flask)
+Ubicación: `backend`
+
+1. Abre una terminal y navega a la carpeta backend:
+    ```sh
+    cd backend
+    ```
+2. (Opcional pero recomendado) Crea y activa un entorno virtual:
+    ```sh
+    python -m venv venv
+    .\venv\Scripts\activate   # En Windows
+    ```
+3. Instala las dependencias necesarias:
+    ```sh
+    pip install -r ../requirements_excel.txt
+    pip install flask psycopg2-binary python-dotenv bcrypt
+    ```
+
+### 4. Instalar Dependencias del Frontend (Next.js)
+Ubicación: `frontend`
+
+1. Abre una terminal y navega a la carpeta frontend:
+    ```sh
+    cd ../frontend
+    ```
+2. Instala las dependencias de Node.js:
+    ```sh
+    npm install
+    npm install bootstrap
+    npm install react-icons
+    ```
+
+### 5. Ejecutar el Sistema
+
+#### 5.1. Ejecutar el Backend
+Desde la carpeta `backend`:
 ```sh
 python app.py
 ```
 
-### 4. Frontend (Next.js)
-Ubicación: `frontend`
-```sh
-cd ../frontend
-npm install
-npm install bootstrap
-```
-
-#### Instalar íconos (obligatorio para la UI)
-```sh
-npm install react-icons
-```
-
-#### Ejecutar Frontend
+#### 5.2. Ejecutar el Frontend
+Desde la carpeta `frontend`:
 ```sh
 npm run dev
 ```
 
-### 5. Proxy (Python)
-Ubicación: raíz del proyecto
+#### 5.3. Ejecutar el Proxy
+Desde la raíz del proyecto:
 ```sh
-cd ..
 python proxy_server.py
 ```
 
@@ -66,7 +85,6 @@ Frontend (Next.js) ← → Proxy (Python) ← → Backend (Flask) ← → Postgr
 ```
 
 
-## 🌐 URLs del Sistema
 
 ## 🌐 URLs del Sistema
 
@@ -75,15 +93,16 @@ Frontend (Next.js) ← → Proxy (Python) ← → Backend (Flask) ← → Postgr
 - **Backend:** http://localhost:5000
 - **Usuarios (API):** http://localhost:5000/usuarios
 
+
 ## 🔗 Pruebas de API (Postman)
 - **Registro de usuario (API):** http://localhost:5000/usuarios/register
 - **Login (API):** http://localhost:5000/login
-- **Reset password (API):** http://localhost:5000/usuarios/<id>/reset_password
+
 
 ## 👤 Credenciales de Prueba
 
-- **Usuario:** `Prueba 2`
-- **Contraseña:** `123456As.`
+- **Usuario:** ` MUNICIPIO `
+- **Contraseña:** ` 123456As. `
 
 ## 📁 Estructura del Proyecto
 
@@ -107,7 +126,6 @@ Frontend (Next.js) ← → Proxy (Python) ← → Backend (Flask) ← → Postgr
 
 - 🔒 Autenticación y registro de usuarios
 - 🔑 Validación de contraseña fuerte (mínimo 8 caracteres, mayúscula, minúscula, número y símbolo especial)
-- ⏰ Expiración de contraseña cada 3 meses y aviso automático
 - 🗃️ Gestión completa de inventario de equipos
 - 📚 Catálogos dinámicos y editables
 - 👤 Validación de usuario único
