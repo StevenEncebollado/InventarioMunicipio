@@ -868,6 +868,21 @@ const EstadisticasAuditoria: React.FC<Props> = ({
               const color = auditoriaService.obtenerColorAccion(tipo);
               const icono = auditoriaService.obtenerIconoAccion(tipo);
               
+              // Mapeo de nombres legibles para mostrar en la UI
+              const nombresLegibles: Record<string, string> = {
+                'agregado': 'Equipos Agregados',
+                'modificado': 'Equipos Modificados',
+                'eliminado': 'Equipos Eliminados',
+                'cambio_estado': 'Cambios de Estado',
+                'usuario_registrado': 'Usuarios Registrados',
+                'registro': 'Usuarios Registrados',
+                'login': 'Inicios de Sesión',
+                'logout': 'Cierres de Sesión',
+                'reporte_generado': 'Reportes Generados'
+              };
+              
+              const nombreLegible = nombresLegibles[tipo] || tipo;
+              
               return (
                 <div 
                   key={tipo} 
@@ -911,10 +926,9 @@ const EstadisticasAuditoria: React.FC<Props> = ({
                     fontSize: 'clamp(12px, 2.5vw, 14px)',
                     color: '#374151',
                     fontWeight: 600,
-                    textTransform: 'capitalize',
                     marginBottom: '4px'
                   }}>
-                    {tipo}
+                    {nombreLegible}
                   </div>
                   <div style={{
                     fontSize: 'clamp(10px, 2vw, 11px)',

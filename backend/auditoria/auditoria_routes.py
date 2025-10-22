@@ -180,7 +180,7 @@ def obtener_estadisticas():
             'eliminado': acciones_raw.get('eliminado', 0) + equipos_inactivos,  # Incluir cambios a inactivo
             'cambio_estado': acciones_raw.get('cambio_estado', 0),
             'login': acciones_raw.get('login', 0),
-            'registro': acciones_raw.get('registro', 0)
+            'registro': acciones_raw.get('usuario_registrado', 0)  # Corregido: usar el nombre correcto de la acción
         }
         
         # Actividad por día (últimos 30 días)

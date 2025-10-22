@@ -195,6 +195,7 @@ export const auditoriaService = {
       'eliminado': '🗑️',
       'cambio_estado': '🔄',
       'usuario_registrado': '👤',
+      'registro': '👤',  // Alias para usuario_registrado
       'login': '🔑',
       'logout': '🚪',
       'reporte_generado': '📊'
@@ -238,9 +239,12 @@ export const auditoriaService = {
 
   /**
    * Formatea una fecha para mostrar en la UI con tiempo relativo
+   * OPTIMIZADO: Maneja correctamente fechas con timezone del backend
    */
   formatearFecha: (fechaString: string): string => {
     try {
+      // El backend ahora envía fechas en formato ISO 8601 con timezone
+      // Ejemplo: "2025-10-22T02:37:00-05:00"
       const fecha = new Date(fechaString);
       
       // Verificar si la fecha es válida
@@ -248,6 +252,7 @@ export const auditoriaService = {
         return 'Fecha inválida';
       }
 
+      // Calcular diferencia con la hora actual
       const ahora = new Date();
       const diferencia = ahora.getTime() - fecha.getTime();
       const segundos = Math.floor(diferencia / 1000);
@@ -266,13 +271,13 @@ export const auditoriaService = {
         return `Hace ${dias} día${dias > 1 ? 's' : ''}`;
       } else {
         // Mostrar fecha completa
+        // Ya no necesitamos especificar timeZone porque el backend envía la zona correcta
         return fecha.toLocaleDateString('es-ES', {
           year: 'numeric',
           month: 'short',
           day: 'numeric',
           hour: '2-digit',
-          minute: '2-digit',
-          timeZone: 'America/Guayaquil'
+          minute: '2-digit'
         });
       }
     } catch (error) {

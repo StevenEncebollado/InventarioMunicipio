@@ -6,12 +6,15 @@ Aquí se inicializa la app y se registran los blueprints de cada módulo.
 #En readme están las instrucciones
 
 from flask import Flask
+from flask.json.provider import DefaultJSONProvider
 from flask_cors import CORS
 import sys
 import os
 import logging
 from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
+from datetime import datetime, date
+import pytz
 
 
 # Agregar el directorio padre al path para poder hacer imports relativos
@@ -43,8 +46,41 @@ from backend.reportes.reportes_routes import reportes_bp
 from backend.auditoria.auditoria_routes import auditoria_bp
 
 
+class CustomJSONProvider(DefaultJSONProvider):
+    """
+    Custom JSON Provider para Flask que maneja correctamente datetime con timezone.
+    Convierte todos los datetime a ISO 8601 con zona horaria de Ecuador.
+    """
+    
+    def default(self, obj):
+        # Zona horaria de Ecuador
+        ecuador_tz = pytz.timezone('America/Guayaquil')
+        
+        if isinstance(obj, datetime):
+            # Si el datetime ya tiene timezone, convertir a Ecuador
+            if obj.tzinfo is not None:
+                obj_ecuador = obj.astimezone(ecuador_tz)
+            else:
+                # Si no tiene timezone (naive), asumir que es de Ecuador
+                obj_ecuador = ecuador_tz.localize(obj)
+            
+            # Retornar en formato ISO 8601 con timezone
+            # Ejemplo: "2025-10-22T02:37:00-05:00"
+            return obj_ecuador.isoformat()
+        
+        elif isinstance(obj, date):
+            return obj.isoformat()
+        
+        # Para otros tipos, usar el comportamiento por defecto
+        return super().default(obj)
+
+
 def create_app():
     app = Flask(__name__)
+    
+    # Configurar el custom JSON provider para manejar fechas correctamente
+    app.json = CustomJSONProvider(app)
+    
     CORS(
         app,
         resources={r"/*": {"origins": ["http://localhost:3000"]}},
